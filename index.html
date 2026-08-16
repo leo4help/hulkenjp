@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hulken JP Weekly Report</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+       display:flex;align-items:center;justify-content:center;height:100vh;margin:0;
+       background:#faf8f4;color:#333;}
+  a{color:#8a5a10;}
+</style>
+</head>
+<body>
+  <p id="msg">正在導向最新一週報告...</p>
+  <script>
+    fetch('./manifest.json', {cache: 'no-store'})
+      .then(function(res){ return res.json(); })
+      .then(function(data){
+        var target = './' + data.latestFolder + '/' + data.latestFile;
+        window.location.replace(target);
+      })
+      .catch(function(err){
+        document.getElementById('msg').innerHTML =
+          '無法讀取 manifest.json，請手動選擇要查看的週報。錯誤：' + err;
+      });
+  </script>
+  <noscript>
+    <p>此頁面需要 JavaScript 才能自動導向。請直接開啟對應週次的資料夾。</p>
+  </noscript>
+</body>
+</html>
