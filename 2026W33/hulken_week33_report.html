@@ -345,6 +345,9 @@
       <table id="channelTable"></table>
     </div>
     <div class="hint">%Δ 為對比上週（Week_1st_day 2026-08-06）之週增減。本週 Rakuten RPP 花費為 0（Manual 週彙總原始數據如此，非資料缺漏)。</div>
+    <div class="callout">
+      <div class="row">樂天 TDA RT 消耗率才 10%，但 ROAS 有提升，未來可以一週一週設定持續觀察投放</div>
+    </div>
   </section>
 
   <!-- ================= META TEST ================= -->
@@ -594,8 +597,8 @@ renderSplit('brandSplitCard', [
 ], {cost:3103383, roas:5.53});
 
 renderSplit('testSplitCard', [
-  {label:'General', cost:3029883.0, costD:1.7, share:97.63, cpa:3146.3, roas:5.54, roasD:4.0, ctr:2.91, cvr:2.48},
-  {label:'TEST', cost:73500.0, costD:-65.5, share:2.37, cpa:3675.0, roas:5.3, roasD:86.2, ctr:2.09, cvr:3.72},
+  {label:'General', cost:2902240.0, costD:-3.2, share:93.52, cpa:3013.75, roas:5.77, roasD:9.5, ctr:2.95, cvr:2.56},
+  {label:'TEST', cost:201143.0, costD:2.5, share:6.48, cpa:10057.15, roas:2.04, roasD:-40.7, ctr:2.13, cvr:1.18},
 ], {cost:3103383, roas:5.53});
 
 /* ---------------- Channel table ---------------- */
@@ -649,8 +652,8 @@ renderChannelTable();
 
 /* ---------------- Meta Test tables ---------------- */
 const metaTestRows = [
-  {label:'General', cost:2792815.0, costD:0.0, share:97.44, cpa:3553.2, cpaD:-4.6, roas:4.88, roasD:4.5, ctr:2.94, ctrD:1.6, cvr:2.45, cvrD:12.2, cpm:2565.43, cpmD:8.7},
-  {label:'TEST', cost:73500.0, costD:-65.5, share:2.56, cpa:3675.0, cpaD:-39.7, roas:5.3, roasD:86.2, ctr:2.09, ctrD:23.9, cvr:3.72, cvrD:39.6, cpm:2864.49, cpmD:4.3},
+  {label:'General', cost:2665172.0, costD:-5.1, share:92.98, cpa:3390.8, cpaD:-9.7, roas:5.11, roasD:10.6, ctr:2.98, ctrD:3.3, cvr:2.55, cvrD:15.9, cpm:2576.15, cpmD:8.1},
+  {label:'TEST', cost:201143.0, costD:2.5, share:7.02, cpa:10057.15, cpaD:89.7, roas:2.04, roasD:-40.7, ctr:2.13, ctrD:13.5, cvr:1.18, cvrD:-50.7, cpm:2522.52, cpmD:6.1},
 ];
 let metaTestRowsSort = {key:'roas', dir:'desc'};
 function renderMetaTestRows(){
@@ -685,15 +688,17 @@ function renderMetaTestRows(){
 renderMetaTestRows();
 
 const metaTestKol = [
-  {name:'A:原廠-121', roas:126.81, roasD:5449.5, ctr:1.82, ctrD:14.6, cvr:150.0, cvrD:6500.0, cpm:3627.27, cpmD:33.5},
-  {name:'A:KOL-okawa-117', roas:51.07, roasD:2055.6, ctr:2.01, ctrD:34.9, cvr:25.0, cvrD:965.0, cpm:1869.35, cpmD:-38.8},
-  {name:'A:KOL-miigomama-115', roas:5.2, roasD:23.0, ctr:2.61, ctrD:23.7, cvr:2.79, cvrD:-5.5, cpm:2881.63, cpmD:18.4},
   {name:'A:原廠-123', roas:3.75, roasD:23.8, ctr:1.6, ctrD:-2.1, cvr:3.47, cvrD:8.6, cpm:2843.23, cpmD:-2.4},
+  {name:'A:原廠-111', roas:2.49, roasD:-28.9, ctr:1.41, ctrD:7.2, cvr:1.35, cvrD:-50.4, cpm:2241.9, cpmD:30.6},
+  {name:'A:KOL-naa-128', roas:2.46, roasD:-43.7, ctr:2.5, ctrD:3.3, cvr:1.35, cvrD:-37.2, cpm:2316.74, cpmD:15.1},
+  {name:'A:KOL-koba-113', roas:1.66, roasD:-57.8, ctr:2.44, ctrD:2.9, cvr:0.85, cvrD:-58.5, cpm:2872.26, cpmD:15.2},
+  {name:'A:KOL-key-132', roas:0.68, roasD:null, ctr:3.08, ctrD:null, cvr:0.27, cvrD:null, cpm:2113.63, cpmD:null},
   {name:'A:KOL-an-77', roas:0.0, roasD:-100.0, ctr:3.92, ctrD:79.9, cvr:0.0, cvrD:-100.0, cpm:5490.2, cpmD:70.0},
   {name:'A:KOL-hoshishi-109', roas:0.0, roasD:null, ctr:null, ctrD:null, cvr:null, cvrD:null, cpm:null, cpmD:null},
   {name:'A:KOL-kona-103', roas:0.0, roasD:-100.0, ctr:0.0, ctrD:-100.0, cvr:null, cvrD:null, cpm:1520.83, cpmD:-27.1},
   {name:'A:KOL-mitori-91', roas:0.0, roasD:null, ctr:null, ctrD:null, cvr:null, cvrD:null, cpm:null, cpmD:null},
   {name:'A:原廠-120', roas:0.0, roasD:-100.0, ctr:1.61, ctrD:6.2, cvr:0.0, cvrD:-100.0, cpm:3120.97, cpmD:13.9},
+  {name:'A:原廠-133', roas:0.0, roasD:null, ctr:1.54, ctrD:null, cvr:0.0, cvrD:null, cpm:3024.76, cpmD:null},
 ];
 let metaTestSort = {key:'roas', dir:'desc'};
 function sortRows(rows, sortState){
@@ -764,6 +769,8 @@ function heatBg(value, min, max, rgb){
   return `background:rgba(${rgb},${alpha.toFixed(2)});`;
 }
 const metaCreative = [
+  {name:'A:原廠-121', tag:'日廠-Wack', cost:399.0, roas:126.81, roasD:5449.5, ctr:1.82, ctrD:14.6, cvr:150.0, cvrD:6500.0, cpm:3627.27, cpmD:33.5},
+  {name:'A:KOL-okawa-117', tag:'KOL', cost:372.0, roas:51.07, roasD:2055.6, ctr:2.01, ctrD:34.9, cvr:25.0, cvrD:965.0, cpm:1869.35, cpmD:-38.8},
   {name:'A:KOL-hadamegu-124', tag:'KOL', cost:36198.0, roas:8.35, roasD:46.1, ctr:2.69, ctrD:5.6, cvr:4.18, cvrD:63.3, cpm:2392.94, cpmD:11.7},
   {name:'A:原廠-119', tag:null, cost:95752.0, roas:8.02, roasD:105.4, ctr:1.36, ctrD:10.7, cvr:10.28, cvrD:104.3, cpm:3041.68, cpmD:15.0},
   {name:'A:KOL-hadamegu-110', tag:'KOL', cost:35346.0, roas:8.01, roasD:61.6, ctr:3.86, ctrD:9.2, cvr:3.36, cvrD:84.8, cpm:2695.08, cpmD:12.0},
@@ -773,6 +780,7 @@ const metaCreative = [
   {name:'A:KOL-sun-126', tag:'KOL', cost:85377.0, roas:5.74, roasD:58.8, ctr:2.49, ctrD:40.5, cvr:3.74, cvrD:26.5, cpm:3181.55, cpmD:32.4},
   {name:'A:原廠-92', tag:'原廠', cost:46517.0, roas:5.35, roasD:27.3, ctr:2.28, ctrD:10.1, cvr:3.44, cvrD:17.0, cpm:3039.73, cpmD:12.8},
   {name:'A:KOL-hira-20', tag:'KOL', cost:272977.0, roas:5.33, roasD:8.8, ctr:3.31, ctrD:1.3, cvr:2.39, cvrD:17.3, cpm:2603.97, cpmD:13.0},
+  {name:'A:KOL-miigomama-115', tag:'KOL', cost:35689.0, roas:5.2, roasD:23.0, ctr:2.61, ctrD:23.7, cvr:2.79, cvrD:-5.5, cpm:2881.63, cpmD:18.4},
   {name:'A:原廠-134', tag:null, cost:15765.0, roas:5.18, roasD:null, ctr:1.76, ctrD:null, cvr:5.68, cvrD:null, cpm:3145.45, cpmD:null},
   {name:'A:KOL-risa-90', tag:'KOL', cost:204057.0, roas:5.17, roasD:-0.2, ctr:4.02, ctrD:5.2, cvr:2.23, cvrD:-5.1, cpm:2814.27, cpmD:1.5},
   {name:'A:KOL-myua-86', tag:'KOL', cost:35494.0, roas:5.07, roasD:13.3, ctr:1.95, ctrD:8.6, cvr:4.12, cvrD:28.6, cpm:2587.59, cpmD:20.7},
@@ -791,10 +799,6 @@ const metaCreative = [
   {name:'A:KOL-katahara-112', tag:'KOL', cost:35132.0, roas:3.87, roasD:2.1, ctr:2.27, ctrD:3.1, cvr:2.87, cvrD:-11.6, cpm:2861.84, cpmD:-4.0},
   {name:'A:KOL-rena-79', tag:'KOL', cost:4584.0, roas:3.53, roasD:-34.4, ctr:4.01, ctrD:24.8, cvr:2.5, cvrD:-38.4, cpm:4597.79, cpmD:7.1},
   {name:'A:KOL-erica-107', tag:'KOL', cost:81407.0, roas:3.52, roasD:-18.1, ctr:2.95, ctrD:6.6, cvr:1.79, cvrD:-19.3, cpm:2689.54, cpmD:4.5},
-  {name:'A:原廠-111', tag:'原廠', cost:35357.0, roas:2.49, roasD:-28.9, ctr:1.41, ctrD:7.2, cvr:1.35, cvrD:-50.4, cpm:2241.9, cpmD:30.6},
-  {name:'A:KOL-naa-128', tag:'KOL', cost:41041.0, roas:2.46, roasD:-43.7, ctr:2.5, ctrD:3.3, cvr:1.35, cvrD:-37.2, cpm:2316.74, cpmD:15.1},
-  {name:'A:KOL-koba-113', tag:'KOL', cost:41711.0, roas:1.66, roasD:-57.8, ctr:2.44, ctrD:2.9, cvr:0.85, cvrD:-58.5, cpm:2872.26, cpmD:15.2},
-  {name:'A:KOL-key-132', tag:'KOL', cost:24981.0, roas:0.68, roasD:null, ctr:3.08, ctrD:null, cvr:0.27, cvrD:null, cpm:2113.63, cpmD:null},
   {name:'A:KOL-Hitomi--139', tag:'KOL', cost:2752.0, roas:0.0, roasD:null, ctr:3.34, ctrD:null, cvr:0.0, cvrD:null, cpm:2299.08, cpmD:null},
   {name:'A:KOL-KATSU-143', tag:'KOL', cost:81.0, roas:0.0, roasD:null, ctr:0.0, ctrD:null, cvr:null, cvrD:null, cpm:1500.0, cpmD:null},
   {name:'A:KOL-an-77', tag:'KOL', cost:560.0, roas:0.0, roasD:-100.0, ctr:3.92, ctrD:79.9, cvr:0.0, cvrD:-100.0, cpm:5490.2, cpmD:70.0},
@@ -811,9 +815,8 @@ const metaCreative = [
   {name:'A:KOL-sara-140', tag:'KOL', cost:1631.0, roas:0.0, roasD:null, ctr:1.52, ctrD:null, cvr:0.0, cvrD:null, cpm:2069.8, cpmD:null},
   {name:'A:KOL-yume-137', tag:'KOL', cost:1748.0, roas:0.0, roasD:null, ctr:1.13, ctrD:null, cvr:0.0, cvrD:null, cpm:1970.69, cpmD:null},
   {name:'A:原廠-108', tag:'日廠-COCO', cost:0.0, roas:0.0, roasD:-100.0, ctr:null, ctrD:null, cvr:null, cvrD:null, cpm:null, cpmD:null},
-  {name:'A:原廠-133', tag:null, cost:21013.0, roas:0.0, roasD:null, ctr:1.54, ctrD:null, cvr:0.0, cvrD:null, cpm:3024.76, cpmD:null},
 ];
-const metaCreativeTotal = {cost:2792815, roas:4.88, roasD:4.5};
+const metaCreativeTotal = {cost:2665172, roas:5.11, roasD:10.6};
 
 let metaCreativeSort = {key:'roas', dir:'desc'};
 function renderMetaCreative(){
