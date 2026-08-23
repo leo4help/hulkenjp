@@ -397,6 +397,8 @@ const money = n => n==null ? '–' : '¥'+fmtInt(n);
 // 這個相對位置（含放到 GitHub 上時，AD Images 資料夾也要一起 push 並維持同樣的相對層級）。
 const AD_IMG_DIR = 'AD Images/';
 function rowNumFromName(name){ const m = name.match(/-(\d+)$/); return m ? m[1] : null; }
+function rowNumSortValue(name){ const n = rowNumFromName(name); return n==null ? -1 : parseInt(n,10); }
+function sortByRowNumDesc(rows){ return [...rows].sort((a,b)=> rowNumSortValue(b.name) - rowNumSortValue(a.name)); }
 function thumbHtml(name, size){
   const rn = rowNumFromName(name);
   const cls = size==='card' ? 'thumb-card' : 'thumb';
@@ -656,7 +658,7 @@ function updateKolFilterButtonLabel(){
 function renderKolFilterList(searchTerm){
   const list = document.getElementById('kolFilterList');
   const term = (searchTerm||'').trim().toLowerCase();
-  const options = getCategoryRows().filter(r=>!term || r.name.toLowerCase().includes(term));
+  const options = sortByRowNumDesc(getCategoryRows().filter(r=>!term || r.name.toLowerCase().includes(term)));
   if(options.length===0){
     list.innerHTML = '<div class="ms-filter-empty">查無符合的素材</div>';
     return;
