@@ -32,6 +32,8 @@ User drops the week's data file into a new week folder, e.g. `2026W33/Hulken_Cla
 
 Known accepted gap: the `成果指標` text column has blanks in the Bridge file vs. the full Mastersheet — already confirmed by the user as ignorable, don't re-raise it. See `Mastersheet_Tab_Guide.md` for the full list of known quirks, the KOL 授權金 formula, and which tabs never need opening.
 
+**Also every week (added 2026-08-26, don't skip):** after reading that week's Bridge file, run `_cache/update_cache_incremental.py` to advance the historical cache's cutoff up to this week's own report-window start date, using only that week's Bridge (no full Mastersheet needed). Full steps and the reasoning are in `Mastersheet_Tab_Guide.md`'s 快取的增量重建 section — do this every single week or the cache silently falls behind and a multi-week gap builds up (this happened once already, between W33 and W34).
+
 ### Step 3 — Build the week's HTML report
 There is no Python build script for this project (unlike some other clients' projects) — each week's HTML is a full copy of the previous week's file with the numbers swapped in. **Always start from the most recent week's HTML as the template**, don't rebuild from scratch — it guarantees the CSS/JS/layout stay identical.
 
@@ -40,11 +42,23 @@ What has to change in the new file:
 - The `const` data blocks in the closing `<script>` block — these are hand-computed from the xlsx data, not fetched at runtime:
   - `const kpis = [...]` — the 6 Overview KPI tiles (花費金額, CPA, ROAS, CTR, CVR, CPM) incl. WoW deltas
   - `const channelRows = [...]` — Overview · 全渠道 breakdown table
-  - `const metaTestRows` / `const metaTestKol` — Meta 測試素材 section (General vs TEST split)
-  - `const metaCreative` / `const metaCreativeTotal` — Meta 常態素材 table
+  - `const metaTestRows` / `const metaTestKol` — Meta 測試素材 section (General vs TEST split). **W34 onward**, each `metaTestKol` row also carries `cost`/`costD` (花費金額, JPY) — see the 花費金額欄位 note below.
+  - `const metaCreative` / `const metaCreativeTotal` — Meta 常態素材 table. **W34 onward**, each `metaCreative` row also carries `costD` (it already had `cost`) and `metaCreativeTotal` also carries `costD` — see the 花費金額欄位 note below.
   - `const kolRows` / `const kolGrand` — KOL 表現＋授權金 table
-- **`const WEEKS = [...]`** at the top of the script — add the new week as a new first entry with `isCurrent:true`, remove `isCurrent` from the previous week, keep `href` as a relative path `../<WeekFolder>/<file>.html`. Only set `isBeta:true` on an entry if the user explicitly asks for a Beta tag (currently only Week 31 has it — don't add it to new weeks by default).
+- **Week picker is no longer per-page** (changed 2026-08-26 — see the 週次選單 note below). Do NOT add a `const WEEKS = [...]` array to new report files; instead update the shared `weeks.json` at the project root.
 - Footer week/date-range text.
+
+> **花費金額欄位 on Meta 測試/常態素材 tables (added 2026-08-26, W34 onward, permanent template change — do not backport to W31–W33).** Both `renderMetaTestKol()` and `renderMetaCreative()` now render a "花費金額 (JPY)" column (with `%Δ` sub-column) immediately after the Name-Row column (and after 原廠標記 for metaCreative), using the same `fmtInt(r.cost)` + `heat-val` heat-map styling and `deltaChip(r.costD,{size:'sub'})` pattern already used elsewhere (e.g. `renderKolTable`'s cost column). `metaTestKol` row objects need `cost`/`costD` computed the same way `kolRows`/`metaCreative` already compute them (single-week `cost`, `costD` = WoW %Δ vs. the same Name-Row's previous-week cost, `null` if there's no previous-week row to compare against). `metaCreativeTotal` also needs a `costD` field (WoW %Δ of the General-only total cost) so the table footer can show a delta next to its cost total. When adding the column to the `cols` array, insert `{key:'cost', label:'花費金額 (JPY)'},{key:'costD', label:'%Δ'}` right after the `name` (and `tag`, for metaCreative) entry — sortable-head machinery handles the rest automatically. Remember to compute a `costMin`/`costMax` pair (filtering out nulls) for the heat-map, same pattern as the existing `roasMin`/`roasMax`. The `metaCreativeTable`'s `<tfoot>` row's `colspan="6"` for the trailing CTR/CVR/CPM cells does NOT need to change — the new cost/costD cells are added as their own `<td>`s before the roas cells, not folded into the colspan.
+
+> **週次選單 is now a shared, decoupled component (changed 2026-08-26).** Previously every report page had its own hardcoded `const WEEKS = [...]` array baked in at build time — this meant navigating to an older week's page showed only the weeks that existed when *that* page was built, silently missing any newer week (e.g. viewing W33 after W34 shipped would not show W34 in the dropdown). Fixed by moving the week list out into a single shared `weeks.json` file at the project root (sibling to `manifest.json`/`all.html`/`index.html`), which every report page now fetches at runtime instead of embedding its own copy:
+> ```json
+> [
+>   {"file": "2026W35/hulken_week35_report.html", "label": "Week 35 · 2026/08/27 – 2026/09/02"},
+>   {"file": "2026W34/hulken_week34_report.html", "label": "Week 34 · 2026/08/20 – 2026/08/26"},
+>   ...
+> ]
+> ```
+> Each report page now has a `const THIS_REPORT_FILE = '<WeekFolder>/<file>.html';` constant (its own relative path, matching the `file` field above) and an `initWeekPicker()` IIFE that does `fetch('../weeks.json')`, builds the dropdown from the returned list, and marks whichever entry's `file` equals `THIS_REPORT_FILE` as "目前檢視中" (instead of relying on a hardcoded `isCurrent:true` flag). **When shipping a new week: only add one new entry to the top of `weeks.json` — do NOT touch any existing report HTML file's week-picker code.** Keep `isBeta:true` only on entries the user explicitly asked to tag (currently only Week 31). This fetch requires the site to be served over http(s) (works fine on Cloudflare Pages) — it will fail under `file://` (opening the HTML directly from disk) due to browser CORS restrictions on local fetches; that's an accepted limitation, not a bug.
 
 Section IDs/nav: `#overview`, `#channels`, `#meta-test`, `#meta-creative`, `#kol`. Nav labels through W33: Overview 總覽 / 全渠道成效 / Meta 測試素材 / Meta 常態素材 / KOL 表現＋授權金. **W34 onward, the last label changes to "本週 KOL 表現 (含授權金)"** (see the W34+ header CTA note above) — don't carry the old "KOL 表現＋授權金" label forward.
 
@@ -81,7 +95,7 @@ The user runs all git commands locally themselves — always give a ready-to-pas
 1. Start with `cd "/Users/leo_zen/Documents/Claude/Projects/Hulken Weekly Report"` (the full absolute path, quoted — never a relative path, never assume the shell is already there, never omit it because "you already cd'd earlier in the conversation").
 2. Be copy-paste-ready as one block — the user wants to paste it without thinking ("無腦貼上"), not assemble commands from separate instructions.
 
-**Every push command block must also explicitly `git add` the new week folder, the `AD Images` folder, `manifest.json`, and `all.html`** (and `index.html` if it changed) — don't just say `git add .`, since a blanket add is fine here (nothing sensitive lives outside the gitignored patterns) but being explicit avoids accidentally missing a folder if the user only copy-pastes part of it. `all.html` changes every week from W33 onward (see Step 6), so include it by default unless the user says it wasn't touched that week. Standard block:
+**Every push command block must also explicitly `git add` the new week folder, the `AD Images` folder, `manifest.json`, `weeks.json`, and `all.html`** (and `index.html` if it changed) — don't just say `git add .`, since a blanket add is fine here (nothing sensitive lives outside the gitignored patterns) but being explicit avoids accidentally missing a folder if the user only copy-pastes part of it. `all.html` changes every week from W33 onward (see Step 6), so include it by default unless the user says it wasn't touched that week. `weeks.json` changes every week too (added 2026-08-26 — see Step 3's 週次選單 note), so include it by default alongside `manifest.json`. Standard block:
 
 ```bash
 cd "/Users/leo_zen/Documents/Claude/Projects/Hulken Weekly Report"
@@ -143,6 +157,7 @@ Hulken Weekly Report/
 ├── _to_delete/                         (gitignored — staging area for files the user wants removed; device_bash on this bridge can't delete files directly, so anything to discard gets moved here for the user to delete themselves)
 ├── index.html                          ← static redirect, reads manifest.json, don't hand-edit weekly
 ├── manifest.json                       ← update this every week (see Step 4)
+├── weeks.json                           ← shared week-picker data source (added 2026-08-26) — add one new entry to the top every week, see Step 3's 週次選單 note. Every report page fetches this at runtime; don't touch per-page week-picker code.
 ├── .gitignore                          (*.xlsx, _cache/, _to_delete/, .DS_Store, Mastersheet_Tab_Guide.md)
 ├── Mastersheet_Tab_Guide.md             (gitignored — internal data-reading instructions, read every week)
 └── CLAUDE.md                           (this file)
@@ -155,8 +170,8 @@ Hulken Weekly Report/
 ## Report HTML structure reference
 
 - CSS custom properties define the brand palette (`--brand`, `--brand-gold`, `--tan`, etc.) — reuse them, don't hardcode new colors.
-- `.week-picker` / `.week-menu` / `.meta-chip` — the top-right week dropdown, driven entirely by the `WEEKS` array via `initWeekPicker()`.
-- `.beta-badge` — small gold "BETA" pill, applied via `isBeta:true` on a `WEEKS` entry (both in the dropdown list and, for the current week, next to the static toggle-chip text).
+- `.week-picker` / `.week-menu` / `.meta-chip` — the top-right week dropdown. **W34+ (changed 2026-08-26):** driven by `fetch('../weeks.json')` inside `initWeekPicker()`, not a per-page `WEEKS` array — see the 週次選單 note in Step 3.
+- `.beta-badge` — small gold "BETA" pill, applied via `isBeta:true` on a `weeks.json` entry (both in the dropdown list and, for the current week, next to the static toggle-chip text).
 - `.kpi-card.hero` — the ROAS tile gets special gold-gradient styling since ROAS is the headline metric across the whole report; keep that treatment when adding new weeks.
 - Nav section IDs, W34 onward: `#overview`, `#channels`, `#meta-test`, `#meta-creative`, `#kol` (no more `#kol-calc` — see Step 3 note). W33's file still has all six; don't use it as the nav-ID reference for W34+.
 - Image lightbox (`openLightbox`/`closeLightbox`) and thumbnail fallback (`onerror` → "缺圖" placeholder) already handle missing images gracefully — if an `AD Images/<Row>.jpg` is missing, the page still works, it just shows a placeholder.

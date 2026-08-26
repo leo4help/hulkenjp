@@ -459,19 +459,29 @@
 /* ---------------- Week picker ----------------
    每週產出新報告時，把新的一週加進這個陣列最前面（isCurrent 改到最新一週），
    href 用相對路徑指向「../<WeekFolder>/<檔名>.html」（與此 HTML 同層的上一層資料夾）。 */
-const WEEKS = [
-  {label:'Week 32 · 2026/08/06 – 2026/08/12', href:'../2026W32/hulken_week32_report.html'},
-  {label:'Week 31 · 2026/07/30 – 2026/08/05', href:'../2026W31/hulken_week31_report.html', isCurrent:true, isBeta:true},
-];
+/* ---------------- Week picker ----------------
+   每週產出新報告時，只要更新專案根目錄的 weeks.json（新增一筆到最前面），
+   不需要再逐一回頭修改舊週報的 HTML —— 所有週報頁面都在載入時動態抓
+   weeks.json 來組出下拉選單，並用自己的 THIS_REPORT_FILE 跟清單比對，
+   自動判斷哪一筆是「目前檢視中」。 */
+const THIS_REPORT_FILE = '2026W31/hulken_week31_report.html';
 (function initWeekPicker(){
   const picker = document.getElementById('weekPicker');
   const toggle = document.getElementById('weekPickerToggle');
   const menu = document.getElementById('weekMenu');
   if(!picker || !toggle || !menu) return;
-  menu.innerHTML = WEEKS.map(w => w.isCurrent
-    ? `<a class="current">${w.label}${w.isBeta ? '<span class=\"beta-badge\">BETA</span>' : ''}<span class="wm-date">目前檢視中</span></a>`
-    : `<a href="${w.href}">${w.label}${w.isBeta ? '<span class=\"beta-badge\">BETA</span>' : ''}</a>`
-  ).join('');
+  fetch('../weeks.json').then(r => r.json()).then(WEEKS => {
+    menu.innerHTML = WEEKS.map(w => {
+      const isCurrent = w.file === THIS_REPORT_FILE;
+      const href = '../' + w.file;
+      const betaTag = w.isBeta ? '<span class="beta-badge">BETA</span>' : '';
+      return isCurrent
+        ? `<a class="current">${w.label}${betaTag}<span class="wm-date">目前檢視中</span></a>`
+        : `<a href="${href}">${w.label}${betaTag}</a>`;
+    }).join('');
+  }).catch(()=>{
+    menu.innerHTML = '<a class="current">週次清單載入失敗</a>';
+  });
   toggle.addEventListener('click', (e)=>{
     e.stopPropagation();
     picker.classList.toggle('open');
