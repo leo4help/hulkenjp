@@ -32,7 +32,7 @@ User drops the week's data file into a new week folder, e.g. `2026W33/Hulken_Cla
 
 Known accepted gap: the `成果指標` text column has blanks in the Bridge file vs. the full Mastersheet — already confirmed by the user as ignorable, don't re-raise it. See `Mastersheet_Tab_Guide.md` for the full list of known quirks, the KOL 授權金 formula, and which tabs never need opening.
 
-**Also every week (added 2026-08-26, don't skip):** after reading that week's Bridge file, run `_cache/update_cache_incremental.py` to advance the historical cache's cutoff up to this week's own report-window start date, using only that week's Bridge (no full Mastersheet needed). Full steps and the reasoning are in `Mastersheet_Tab_Guide.md`'s 快取的增量重建 section — do this every single week or the cache silently falls behind and a multi-week gap builds up (this happened once already, between W33 and W34).
+**Also every week (added 2026-08-26, don't skip):** after reading that week's Bridge file, run `scripts/update_cache_incremental.py` (relocated from `_cache/` to `scripts/` on 2026-08-27 so it's actually tracked in git — see the directory-tree note below) to advance the historical cache's cutoff up to this week's own report-window start date, using only that week's Bridge (no full Mastersheet needed). Full steps and the reasoning are in `Mastersheet_Tab_Guide.md`'s 快取的增量重建 section — do this every single week or the cache silently falls behind and a multi-week gap builds up (this happened once already, between W33 and W34).
 
 ### Step 3 — Build the week's HTML report
 There is no Python build script for this project (unlike some other clients' projects) — each week's HTML is a full copy of the previous week's file with the numbers swapped in. **Always start from the most recent week's HTML as the template**, don't rebuild from scratch — it guarantees the CSS/JS/layout stay identical.
@@ -158,12 +158,12 @@ Hulken Weekly Report/
 ├── all.html                             ← standalone page, published at /all (clean URL), refresh every week — see Step 6 (renamed from kol.html 2026-08-23; kol.html itself moved to _to_delete/, never published)
 ├── AD Images/                          ← pushed to GitHub, referenced by relative path from report HTML (and by all.html, bare path — see Step 6.4)
 │   └── <Row>.jpg  (e.g. 100.jpg, 101.jpg, ...)
-├── _cache/                             (gitignored — historical data cache)
+├── _cache/                             (gitignored — historical data DATA only now, no scripts; see scripts/ below)
 │   ├── ad_data_historical_cache.pkl.gz
 │   ├── ad_data_cache_meta.json
-│   ├── build_cache.py
-│   └── update_cache_incremental.py     ⚠ lives under a gitignored folder, so it is NOT pushed/tracked by git (added 2026-08-26, not yet relocated — ask the user before moving it, since Step 3's "every week" instruction currently points here)
+│   └── build_cache.py                  (kept here, not scripts/, since it's only ever run ad hoc against a full Mastersheet — unlike the two scripts/ tools below, it isn't part of the weekly routine; move it too if that changes)
 ├── scripts/                             ← tracked in git (unlike _cache/), for tooling that must survive across clones/sessions
+│   ├── update_cache_incremental.py     ← every week's mandatory cache-extension step (see Step 2 above) — relocated here from _cache/ on 2026-08-27 because _cache/ is gitignored and the script was silently never being pushed
 │   └── update_kol_license_calc.py      ← refreshes all.html's calculator firstWave data from a week's KOL授權金 Bridge tab — see Step 6
 ├── _to_delete/                         (gitignored — staging area for files the user wants removed; device_bash on this bridge can't delete files directly, so anything to discard gets moved here for the user to delete themselves)
 ├── index.html                          ← static redirect, reads manifest.json, don't hand-edit weekly
@@ -207,5 +207,7 @@ Hulken Weekly Report/
 
 ## Open items / things to double check with the user (not urgent, don't act unilaterally)
 
+- **W35 (2026-09-02): `all.html`'s `LIC_ROW_DATA` B/C/activeDays/windowCost/windowRev/lastActive fields were NOT recomputed this week.** The script that originally derived those spend-window fields (`compute_all_lifetime.py`, referenced in Step 6 below) isn't actually present anywhere on this device — like `_cache/build_cache.py`'s original run, it looks like it was executed once in a prior cloud session's own scratch workspace and never saved here. `kolLifetimeRows` and the calculator's `firstWave` (via `scripts/update_kol_license_calc.py`) WERE refreshed as normal this week, but the B/C fields (and `#calcAsofText`, left at 2026/08/19) are now one week stale. Recommend asking the user whether the exact B/C methodology matters enough to reverse-engineer/re-script, or whether it's fine to let it catch up whenever it's next convenient.
+- **W35 (2026-09-02): 6 ad creative rows have no `AD Images/<Row>.jpg` yet** — Row 80, 152, 153, 154, 155, 157 (all referenced in this week's `Claude_Analysis_Data`, several also newly appearing in the `KOL授權金` tab). Page still works via the built-in 缺圖 placeholder, but flag to the user in case screenshots are still pending.
 - `_to_delete/` has three old files (`hulken_kol_license_calculator.html`, `hulken_week31_report_copy_for_edit.html`, `kol.html` — the last one moved here 2026-08-23 when it was superseded by `all.html`, never published) waiting for the user to manually delete from Finder (the device bridge cannot delete files on the user's machine).
 - After the next successful push, confirm `https://hulkenjp.pages.dev/all` resolves correctly and `https://hulkenjp.pages.dev/kol` is gone (should now 404 or fall through, since `kol.html` is no longer in the repo) — first time this rename is going live.
