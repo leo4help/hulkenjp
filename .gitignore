@@ -3,3 +3,5 @@ _cache/
 _to_delete/
 .DS_Store
 Mastersheet_Tab_Guide.md
+__pycache__/
+*.pyc
