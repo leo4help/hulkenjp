@@ -105,8 +105,8 @@ def extract_row(name):
     return m.group(1) if m else None
 
 
-def build_records(bridge_path, year):
-    df = pd.read_excel(bridge_path, sheet_name='KOL授權金')
+def build_records(bridge_path, year, sheet_name='KOL授權金'):
+    df = pd.read_excel(bridge_path, sheet_name=sheet_name)
     valid, zero_or_undated = {}, []
     for _, row in df.iterrows():
         rownum = extract_row(row['KOL 名稱'])
@@ -133,9 +133,10 @@ def main():
     ap.add_argument('--all-html', required=True, help='Current all.html to update')
     ap.add_argument('--out', required=True, help='Path to write the updated all.html to')
     ap.add_argument('--year', type=int, default=YEAR_DEFAULT, help='Year to assume for bare M/D dates in 授權期間')
+    ap.add_argument('--sheet-name', default='KOL授權金', help="Tab name to read (default 'KOL授權金' in the Bridge file; the full Halken JP_Mastersheet.xlsx carries the same data under 'KOL 價碼' -- confirmed by the user 2026-09-10)")
     args = ap.parse_args()
 
-    valid, zero_or_undated = build_records(args.bridge, args.year)
+    valid, zero_or_undated = build_records(args.bridge, args.year, args.sheet_name)
 
     html = open(args.all_html, encoding='utf-8').read()
     m = re.search(r'const LIC_ROW_DATA = (\{.*?\});\n', html, re.S)
