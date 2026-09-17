@@ -211,6 +211,13 @@
   tbody td{padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line);}
   tbody tr:last-child td{border-bottom:none;}
   tbody tr.highlight{background:#fdf3ea;}
+  tbody tr.cat-row, tbody tr.month-row{cursor:pointer;}
+  tbody tr.cat-row:hover, tbody tr.month-row:hover{background:#f7f0de;}
+  tbody tr.cat-row.expanded, tbody tr.month-row.expanded{background:#f2e6c8;}
+  .cat-chevron{display:inline-block;width:14px;color:var(--brand-gold);font-weight:800;transition:transform .15s ease;}
+  tbody tr.cat-row.expanded .cat-chevron, tbody tr.month-row.expanded .cat-chevron{transform:rotate(90deg);}
+  tbody tr.cat-detail-row td{padding:10px 12px 16px;background:#fbf8f1;}
+  tbody tr.cat-detail-row .table-scroll table td:first-child{text-align:left;font-weight:600;}
   tbody tr.pending{background:#f7f5f1;}
   tbody tr.pending td{color:var(--ink-faint);}
   .pending-badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:#eee6d6;color:#9a6a1c;border:1px dashed #cdb98a;}
@@ -432,17 +439,24 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td style="text-align:left;">2026-03</td><td>2</td><td>¥3,983,794</td><td>¥2,488.8</td><td>3.59%</td><td>2.18%</td><td>¥3,191</td><td>5.42</td></tr>
-          <tr><td style="text-align:left;">2026-04</td><td>2</td><td>¥600,534</td><td>¥2,289.5</td><td>3.32%</td><td>2.14%</td><td>¥3,229</td><td>5.37</td></tr>
-          <tr><td style="text-align:left;">2026-05</td><td>5</td><td>¥67,049</td><td>¥3,101.7</td><td>1.98%</td><td>2.39%</td><td>¥6,573</td><td>2.57</td></tr>
-          <tr><td style="text-align:left;">2026-06</td><td>13</td><td>¥415,791</td><td>¥2,954.0</td><td>3.50%</td><td>2.43%</td><td>¥3,467</td><td>5.04</td></tr>
-          <tr><td style="text-align:left;">2026-07</td><td>19</td><td>¥569,412</td><td>¥2,656.6</td><td>3.17%</td><td>2.33%</td><td>¥3,600</td><td>4.85</td></tr>
-          <tr class="highlight"><td style="text-align:left;">2026-08</td><td>26</td><td>¥175,913</td><td>¥3,138.3</td><td>2.43%</td><td>2.94%</td><td>¥4,398</td><td>3.85</td></tr>
-          <tr class="highlight"><td style="text-align:left;">2026-09（至今）</td><td>7</td><td>¥51,313</td><td>¥3,182.5</td><td>2.14%</td><td>2.07%</td><td>¥7,184</td><td>2.48</td></tr>
+          <tr class="month-row" data-month="2026-03"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-03</td><td>2</td><td>¥3,983,794</td><td>¥2,488.8</td><td>3.59%</td><td>2.18%</td><td>¥3,191</td><td>5.42</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-03" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-0"></table></div></td></tr>
+          <tr class="month-row" data-month="2026-04"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-04</td><td>2</td><td>¥600,534</td><td>¥2,289.5</td><td>3.32%</td><td>2.14%</td><td>¥3,229</td><td>5.37</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-04" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-1"></table></div></td></tr>
+          <tr class="month-row" data-month="2026-05"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-05</td><td>5</td><td>¥67,049</td><td>¥3,101.7</td><td>1.98%</td><td>2.39%</td><td>¥6,573</td><td>2.57</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-05" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-2"></table></div></td></tr>
+          <tr class="month-row" data-month="2026-06"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-06</td><td>13</td><td>¥415,791</td><td>¥2,954.0</td><td>3.50%</td><td>2.43%</td><td>¥3,467</td><td>5.04</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-06" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-3"></table></div></td></tr>
+          <tr class="month-row" data-month="2026-07"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-07</td><td>21</td><td>¥515,182</td><td>¥2,656.6</td><td>3.17%</td><td>2.33%</td><td>¥3,600</td><td>4.85</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-07" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-4"></table></div></td></tr>
+          <tr class="month-row highlight" data-month="2026-08"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-08</td><td>26</td><td>¥175,913</td><td>¥3,138.3</td><td>2.43%</td><td>2.94%</td><td>¥4,398</td><td>3.85</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-08" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-5"></table></div></td></tr>
+          <tr class="month-row highlight" data-month="2026-09"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-09（至今）</td><td>5</td><td>¥71,838</td><td>¥3,182.5</td><td>2.14%</td><td>2.07%</td><td>¥7,184</td><td>2.48</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-09" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-6"></table></div></td></tr>
         </tbody>
       </table>
     </div>
-    <div class="hint">9 月列僅上稿 3–13 天，樣本數與累積花費都還很小（7 支合計花費約 ¥36 萬、僅約 50 筆訂單），數字會隨時間持續變動；8 月列則已有 3–6 週的完整數據。CPM 為花費金額（不含授權金）／曝光次數×1000，同一支素材整段生命週期的加權平均。<b>9 月官方回報有貨量／庫存問題</b>，該月 CVR 數字請對照下方說明謹慎解讀。</div>
+    <div class="hint">9 月列僅上稿 3–13 天，樣本數與累積花費都還很小（5 支合計花費約 ¥36 萬、僅約 50 筆訂單），數字會隨時間持續變動；8 月列則已有 3–6 週的完整數據。CPM 為花費金額（不含授權金）／曝光次數×1000，同一支素材整段生命週期的加權平均。<b>9 月官方回報有貨量／庫存問題</b>，該月 CVR 數字請對照下方說明謹慎解讀。<b>點擊任一月份列可展開查看該月新增的個別素材名稱與成效</b>，預設依 CTR 由低到高排序，點擊子表格欄位標題可切換排序依據與方向。</div>
 
     <div class="callout note" style="margin-top:20px;">
       <div class="row strong">CTR 從 6 月的 3.5% 一路降到 9 月的 2.1%，是這波 ROAS 下滑最主要的原因。</div>
@@ -472,20 +486,26 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td style="text-align:left;">露營戶外野餐</td><td>7</td><td>¥2,487.4</td><td>3.50%</td><td>2.19%</td><td>¥3,242</td><td>5.34</td></tr>
-            <tr><td style="text-align:left;">開箱評測／種草推薦</td><td>19</td><td>¥2,852.9</td><td>3.33%</td><td>2.46%</td><td>¥3,483</td><td>5.01</td></tr>
-            <tr><td style="text-align:left;">賣場購物（好市多／超市）</td><td>5</td><td>¥2,542.2</td><td>2.90%</td><td>2.44%</td><td>¥3,597</td><td>4.89</td></tr>
-            <tr><td style="text-align:left;">旅遊出遊</td><td>14</td><td>¥2,814.9</td><td>2.98%</td><td>2.59%</td><td>¥3,656</td><td>4.77</td></tr>
-            <tr><td style="text-align:left;">日常生活／其他</td><td>12</td><td>¥2,759.6</td><td>3.43%</td><td>2.09%</td><td>¥3,832</td><td>4.46</td></tr>
-            <tr class="highlight"><td style="text-align:left;">親子育兒</td><td>17</td><td>¥3,160.4</td><td>2.45%</td><td>2.92%</td><td>¥4,418</td><td>3.88</td></tr>
+            <tr class="cat-row" data-cat="露營戶外野餐"><td style="text-align:left;"><span class="cat-chevron">▸</span>露營戶外野餐</td><td>7</td><td>¥2,487.4</td><td>3.50%</td><td>2.19%</td><td>¥3,242</td><td>5.34</td></tr>
+            <tr class="cat-detail-row" data-cat-detail="露營戶外野餐" style="display:none;"><td colspan="7"><div class="table-scroll"><table id="catDetail-0"></table></div></td></tr>
+            <tr class="cat-row" data-cat="開箱評測"><td style="text-align:left;"><span class="cat-chevron">▸</span>開箱評測</td><td>19</td><td>¥2,852.9</td><td>3.33%</td><td>2.46%</td><td>¥3,483</td><td>5.01</td></tr>
+            <tr class="cat-detail-row" data-cat-detail="開箱評測" style="display:none;"><td colspan="7"><div class="table-scroll"><table id="catDetail-1"></table></div></td></tr>
+            <tr class="cat-row" data-cat="賣場購物"><td style="text-align:left;"><span class="cat-chevron">▸</span>賣場購物（好市多／超市）</td><td>5</td><td>¥2,542.2</td><td>2.90%</td><td>2.44%</td><td>¥3,597</td><td>4.89</td></tr>
+            <tr class="cat-detail-row" data-cat-detail="賣場購物" style="display:none;"><td colspan="7"><div class="table-scroll"><table id="catDetail-2"></table></div></td></tr>
+            <tr class="cat-row" data-cat="旅遊出遊"><td style="text-align:left;"><span class="cat-chevron">▸</span>旅遊出遊</td><td>14</td><td>¥2,814.9</td><td>2.98%</td><td>2.59%</td><td>¥3,656</td><td>4.77</td></tr>
+            <tr class="cat-detail-row" data-cat-detail="旅遊出遊" style="display:none;"><td colspan="7"><div class="table-scroll"><table id="catDetail-3"></table></div></td></tr>
+            <tr class="cat-row" data-cat="日常生活／其他"><td style="text-align:left;"><span class="cat-chevron">▸</span>日常生活／其他</td><td>12</td><td>¥2,759.6</td><td>3.43%</td><td>2.09%</td><td>¥3,832</td><td>4.46</td></tr>
+            <tr class="cat-detail-row" data-cat-detail="日常生活／其他" style="display:none;"><td colspan="7"><div class="table-scroll"><table id="catDetail-4"></table></div></td></tr>
+            <tr class="cat-row highlight" data-cat="親子育兒"><td style="text-align:left;"><span class="cat-chevron">▸</span>親子育兒</td><td>17</td><td>¥3,160.4</td><td>2.45%</td><td>2.92%</td><td>¥4,418</td><td>3.88</td></tr>
+            <tr class="cat-detail-row" data-cat-detail="親子育兒" style="display:none;"><td colspan="7"><div class="table-scroll"><table id="catDetail-5"></table></div></td></tr>
           </tbody>
         </table>
       </div>
-      <div class="hint">各類別數字為該類全歷史（上稿至今）加權平均，非近期單一時段；分類判斷順序：親子育兒 → 旅遊出遊 → 露營戶外野餐 → 賣場購物 → 開箱評測／種草推薦 → 日常生活／其他。親子育兒類別裡僅 1 支素材是 9 月才上稿（且該支目前 0 筆訂單、花費僅 ¥1.5 萬），佔比極小，因此 9 月的貨量問題對這張全歷史分類表的影響有限，不影響上面「親子育兒表現最弱」的結論。</div>
+      <div class="hint">各類別數字為該類全歷史（上稿至今）加權平均，非近期單一時段；分類判斷順序：親子育兒 → 旅遊出遊 → 露營戶外野餐 → 賣場購物 → 開箱評測 → 日常生活／其他。親子育兒類別裡僅 1 支素材是 9 月才上稿（且該支目前 0 筆訂單、花費僅 ¥1.5 萬），佔比極小，因此 9 月的貨量問題對這張全歷史分類表的影響有限，不影響上面「親子育兒表現最弱」的結論。<b>點擊上方任一類別列可展開查看該類別的個別素材名稱與成效</b>，預設依 CTR 由低到高排序（最需要關注的素材排最前面），點擊子表格的欄位標題可切換排序依據與方向。</div>
 
       <div class="callout note" style="margin-top:16px;">
         <div class="row strong">親子育兒是六個類別中表現最弱的，而且弱得很有特色：CPM 全類別最高（¥3,160，比最便宜的露營戶外野餐貴 27%），CTR 也全類別最低（2.45%），但 CVR 反而數一數二高（2.92%）—— 親子受眾市場競價最激烈、最難被素材抓住點擊，可是一旦點進去，轉換意願很強，商品與受眾的契合度沒問題。</div>
-        <div class="row">近期素材組成明顯往這個最弱類別傾斜：親子育兒佔比從 3–7 月的 19.5% 升到 8–9 月的 27.3%，同期表現第二好的「開箱評測／種草推薦」佔比則從 29.3% 掉到 21.2%。</div>
+        <div class="row">近期素材組成明顯往這個最弱類別傾斜：親子育兒佔比從 3–7 月的 19.5% 升到 8–9 月的 27.3%，同期表現第二好的「開箱評測」佔比則從 29.3% 掉到 21.2%。</div>
         <div class="row">這正好解釋了上面 CPM 為何會小幅上升：不是整體市場全面變貴，而是近期新測的素材裡，本來就比較貴、比較難搶到點擊的親子育兒類別佔比變高了 —— 疊加在「大量小額測試取代重押少數」的策略轉向之上，兩件事一起把近期 ROAS 拉下來。</div>
       </div>
     </div>
@@ -958,6 +978,123 @@ function renderKolTable(){
 renderKolTable();
 
 /* ---- KOL license-fee negotiation calculator ---- */
+
+/* ---------------- 依內容主題分類 —— 點擊展開素材明細 ----------------
+   2026-09-17 因使用者要求加入：點擊「依內容主題分類」表格的任一類別列，
+   展開顯示該類別所有素材名稱（KOL 名＋Row）與個別成效，預設依 CTR 由低到
+   高排序（最需要關注的排最前面），可點擊子表格欄位標題切換排序依據／方向。
+   資料為該次分析當下重新彙整之全歷史（上稿至今）逐素材數字，重製自
+   scripts/ 資料夾同一套 Naming Rule／花費／曝光邏輯，classification 採與
+   上方分類段落相同的關鍵字優先順序（親子育兒 → 旅遊出遊 → 露營戶外野餐 →
+   賣場購物 → 開箱評測 → 日常生活／其他），並手動核對每類素材數
+   與上方表格一致（7／19／5／14／12／17）。與此手動分析區塊其餘內容一樣，
+   非 build_weekly_report.py 自動管理。 */
+const KOL_CAT_ADS = {"旅遊出遊": [{"name": "Noponopisu（R3）", "spend": 0, "cpm": null, "ctr": null, "cvr": null, "cpa": null, "roas": null}, {"name": "emma（R14）", "spend": 160246, "cpm": 3619.7, "ctr": 3.24, "cvr": 1.81, "cpa": 6163, "roas": 2.8}, {"name": "emma（R37）", "spend": 337245, "cpm": 2156.8, "ctr": 3.27, "cvr": 2.06, "cpa": 3212, "roas": 5.36}, {"name": "Hilsama（R39）", "spend": 1359392, "cpm": 3691.7, "ctr": 3.34, "cvr": 2.17, "cpa": 5091, "roas": 3.42}, {"name": "rena（R79）", "spend": 516652, "cpm": 3744.5, "ctr": 2.99, "cvr": 3.78, "cpa": 3312, "roas": 5.35}, {"name": "emily（R100）", "spend": 63328, "cpm": 5441.0, "ctr": 2.28, "cvr": 1.89, "cpa": 12666, "roas": 1.32}, {"name": "kaede（R101）", "spend": 297816, "cpm": 3295.7, "ctr": 2.21, "cvr": 3.8, "cpa": 3919, "roas": 4.39}, {"name": "hoshishi（R109）", "spend": 277336, "cpm": 8764.8, "ctr": 2.97, "cvr": 1.7, "cpa": 17334, "roas": 1.02}, {"name": "katahara（R112）", "spend": 149944, "cpm": 2852.7, "ctr": 2.08, "cvr": 2.93, "cpa": 4686, "roas": 3.8}, {"name": "koba（R113）", "spend": 236713, "cpm": 3486.6, "ctr": 2.35, "cvr": 2.76, "cpa": 5380, "roas": 3.55}, {"name": "mito（R122）", "spend": 539386, "cpm": 4351.0, "ctr": 2.82, "cvr": 2.89, "cpa": 5340, "roas": 3.18}, {"name": "sara（R140）", "spend": 25883, "cpm": 2759.7, "ctr": 1.95, "cvr": 0.0, "cpa": null, "roas": 0.0}, {"name": "kisaki（R147）", "spend": 25874, "cpm": 2918.3, "ctr": 2.13, "cvr": 1.59, "cpa": 8625, "roas": 1.88}, {"name": "amisa（R150）", "spend": 368242, "cpm": 4143.6, "ctr": 2.68, "cvr": 2.85, "cpa": 5415, "roas": 3.11}], "日常生活／其他": [{"name": "ayaco（R60）", "spend": 214123, "cpm": 3594.4, "ctr": 1.93, "cvr": 3.3, "cpa": 5635, "roas": 2.97}, {"name": "aiko（R82）", "spend": 223520, "cpm": 9877.6, "ctr": 2.01, "cvr": 2.64, "cpa": 18627, "roas": 0.9}, {"name": "okayu（R104）", "spend": 0, "cpm": null, "ctr": null, "cvr": null, "cpa": null, "roas": null}, {"name": "okayu（R105）", "spend": 266446, "cpm": 4154.3, "ctr": 2.6, "cvr": 2.16, "cpa": 7401, "roas": 2.54}, {"name": "miigomama（R115）", "spend": 369008, "cpm": 6830.3, "ctr": 2.27, "cvr": 2.44, "cpa": 12300, "roas": 1.45}, {"name": "yukko（R116）", "spend": 3847026, "cpm": 2787.3, "ctr": 3.77, "cvr": 2.03, "cpa": 3633, "roas": 4.71}, {"name": "naa（R128）", "spend": 218304, "cpm": 9200.3, "ctr": 2.47, "cvr": 1.54, "cpa": 24256, "roas": 0.69}, {"name": "yume（R137）", "spend": 218231, "cpm": 5230.1, "ctr": 1.83, "cvr": 3.15, "cpa": 9093, "roas": 1.82}, {"name": "Hitomi（R139）", "spend": 25545, "cpm": 2473.1, "ctr": 2.51, "cvr": 0.39, "cpa": 25545, "roas": 0.63}, {"name": "aren（R144）", "spend": 25828, "cpm": 2242.2, "ctr": 1.47, "cvr": 0.59, "cpa": 25828, "roas": 0.81}, {"name": "parun（R148）", "spend": 308687, "cpm": 9375.7, "ctr": 2.18, "cvr": 2.79, "cpa": 15434, "roas": 1.08}, {"name": "chiico（R155）", "spend": 68311, "cpm": 3717.4, "ctr": 1.87, "cvr": 2.62, "cpa": 7590, "roas": 2.17}], "親子育兒": [{"name": "Chii（R51）", "spend": 36231, "cpm": 2390.7, "ctr": 2.29, "cvr": 1.15, "cpa": 9058, "roas": 2.36}, {"name": "mapikoro（R58）", "spend": 83048, "cpm": 6775.6, "ctr": 2.78, "cvr": 0.88, "cpa": 27683, "roas": 0.63}, {"name": "homi（R61）", "spend": 29212, "cpm": 2186.9, "ctr": 1.13, "cvr": 1.32, "cpa": 14606, "roas": 1.27}, {"name": "susan（R76）", "spend": 253584, "cpm": 7793.0, "ctr": 2.41, "cvr": 2.42, "cpa": 13347, "roas": 1.26}, {"name": "mari（R94）", "spend": 104453, "cpm": 8105.9, "ctr": 2.45, "cvr": 0.63, "cpa": 52226, "roas": 0.34}, {"name": "ari（R96）", "spend": 302307, "cpm": 7771.4, "ctr": 2.29, "cvr": 2.69, "cpa": 12596, "roas": 1.4}, {"name": "kona（R103）", "spend": 289941, "cpm": 3829.3, "ctr": 3.32, "cvr": 2.51, "cpa": 4602, "roas": 4.03}, {"name": "okawa（R117）", "spend": 127977, "cpm": 3939.9, "ctr": 1.41, "cvr": 3.49, "cpa": 7999, "roas": 2.58}, {"name": "marika（R125）", "spend": 975395, "cpm": 5474.9, "ctr": 2.51, "cvr": 3.04, "cpa": 7172, "roas": 2.37}, {"name": "sun（R126）", "spend": 275026, "cpm": 4376.6, "ctr": 2.31, "cvr": 3.09, "cpa": 6112, "roas": 3.0}, {"name": "saitasu（R127）", "spend": 201477, "cpm": 3855.7, "ctr": 1.95, "cvr": 2.84, "cpa": 6947, "roas": 2.4}, {"name": "mana（R135）", "spend": 781690, "cpm": 3791.7, "ctr": 2.63, "cvr": 3.82, "cpa": 3776, "roas": 4.4}, {"name": "matsu（R141）", "spend": 212781, "cpm": 2964.5, "ctr": 2.37, "cvr": 1.88, "cpa": 6649, "roas": 2.53}, {"name": "nao（R142）", "spend": 25730, "cpm": 2409.9, "ctr": 1.92, "cvr": 1.46, "cpa": 8577, "roas": 1.92}, {"name": "manmaru（R153）", "spend": 129393, "cpm": 6321.7, "ctr": 2.05, "cvr": 1.67, "cpa": 18485, "roas": 0.9}, {"name": "marika.oka（R154）", "spend": 104621, "cpm": 5670.2, "ctr": 1.58, "cvr": 2.41, "cpa": 14946, "roas": 1.14}, {"name": "becky（R160）", "spend": 93418, "cpm": 3926.8, "ctr": 1.9, "cvr": 2.43, "cpa": 8493, "roas": 1.96}], "賣場購物": [{"name": "an（R77）", "spend": 574865, "cpm": 4451.5, "ctr": 2.74, "cvr": 3.06, "cpa": 5323, "roas": 3.29}, {"name": "erica（R107）", "spend": 1012022, "cpm": 3291.8, "ctr": 2.8, "cvr": 2.5, "cpa": 4707, "roas": 3.91}, {"name": "hira（R114）", "spend": 1807777, "cpm": 2317.5, "ctr": 2.97, "cvr": 2.41, "cpa": 3234, "roas": 5.36}, {"name": "mochiko（R118）", "spend": 348165, "cpm": 6076.6, "ctr": 1.94, "cvr": 2.88, "cpa": 10880, "roas": 1.59}, {"name": "key（R132）", "spend": 157718, "cpm": 13020.6, "ctr": 3.16, "cvr": 0.78, "cpa": 52573, "roas": 0.43}], "開箱評測": [{"name": "Rachel（R62）", "spend": 28190, "cpm": 3640.2, "ctr": 1.9, "cvr": 2.72, "cpa": 7048, "roas": 1.75}, {"name": "mirei（R67）", "spend": 117787, "cpm": 3313.8, "ctr": 2.17, "cvr": 3.23, "cpa": 4711, "roas": 3.57}, {"name": "dstyle（R84）", "spend": 286665, "cpm": 2754.5, "ctr": 5.68, "cvr": 1.03, "cpa": 4699, "roas": 4.21}, {"name": "mirei（R85）", "spend": 221460, "cpm": 2856.3, "ctr": 1.63, "cvr": 4.05, "cpa": 4342, "roas": 4.11}, {"name": "myua（R86）", "spend": 457705, "cpm": 2605.3, "ctr": 2.24, "cvr": 3.52, "cpa": 3293, "roas": 5.48}, {"name": "sara（R87）", "spend": 751367, "cpm": 3138.7, "ctr": 4.64, "cvr": 1.31, "cpa": 5182, "roas": 3.65}, {"name": "risa（R90）", "spend": 2412766, "cpm": 3530.2, "ctr": 3.94, "cvr": 2.57, "cpa": 3487, "roas": 4.81}, {"name": "mitori（R91）", "spend": 341461, "cpm": 3453.7, "ctr": 2.85, "cvr": 3.3, "cpa": 3672, "roas": 4.92}, {"name": "hadamegu（R97）", "spend": 961287, "cpm": 2669.9, "ctr": 2.65, "cvr": 2.7, "cpa": 3726, "roas": 4.81}, {"name": "riko（R98）", "spend": 774792, "cpm": 3563.7, "ctr": 2.87, "cvr": 3.54, "cpa": 3506, "roas": 4.91}, {"name": "obimama（R106）", "spend": 128556, "cpm": 2766.3, "ctr": 2.39, "cvr": 1.89, "cpa": 6122, "roas": 2.98}, {"name": "hadmegu（R110）", "spend": 207212, "cpm": 2714.0, "ctr": 3.49, "cvr": 2.29, "cpa": 3397, "roas": 5.19}, {"name": "hadamegu（R124）", "spend": 143956, "cpm": 3301.2, "ctr": 2.58, "cvr": 2.84, "cpa": 4499, "roas": 3.98}, {"name": "maru（R130）", "spend": 93896, "cpm": 2381.0, "ctr": 3.65, "cvr": 1.25, "cpa": 5216, "roas": 3.3}, {"name": "ruu（R145）", "spend": 156331, "cpm": 3230.2, "ctr": 2.03, "cvr": 3.16, "cpa": 5043, "roas": 3.32}, {"name": "mai（R146）", "spend": 86077, "cpm": 4145.3, "ctr": 1.96, "cvr": 3.68, "cpa": 5738, "roas": 3.04}, {"name": "nekoneko（R157）", "spend": 137526, "cpm": 4851.7, "ctr": 2.32, "cvr": 2.28, "cpa": 9168, "roas": 2.31}, {"name": "miki（R158）", "spend": 95301, "cpm": 5641.4, "ctr": 1.97, "cvr": 1.81, "cpa": 15884, "roas": 1.02}, {"name": "airi（R161）", "spend": 84427, "cpm": 6112.6, "ctr": 2.49, "cvr": 2.62, "cpa": 9381, "roas": 1.73}], "露營戶外野餐": [{"name": "hira（R20）", "spend": 7521773, "cpm": 2460.5, "ctr": 3.58, "cvr": 2.18, "cpa": 3150, "roas": 5.5}, {"name": "coco（R65）", "spend": 77864, "cpm": 2875.2, "ctr": 1.5, "cvr": 2.46, "cpa": 7786, "roas": 3.01}, {"name": "coco（R75）", "spend": 18763, "cpm": 1465.1, "ctr": 0.91, "cvr": 0.0, "cpa": null, "roas": 0.0}, {"name": "youcamp（R99）", "spend": 253509, "cpm": 4597.7, "ctr": 2.7, "cvr": 3.02, "cpa": 5634, "roas": 3.28}, {"name": "damcamp（R138）", "spend": 46582, "cpm": 1587.8, "ctr": 1.05, "cvr": 1.62, "cpa": 9316, "roas": 1.78}, {"name": "KATSU（R143）", "spend": 26385, "cpm": 2899.5, "ctr": 1.81, "cvr": 1.21, "cpa": 13192, "roas": 2.08}, {"name": "arisa（R152）", "spend": 184445, "cpm": 4616.8, "ctr": 2.27, "cvr": 2.42, "cpa": 8384, "roas": 1.99}]};
+
+const catDetailSort = {};
+const catDetailBuilt = {};
+
+function renderCatDetail(cat, tableId){
+  if(!catDetailSort[cat]) catDetailSort[cat] = {key:'ctr', dir:'asc'};
+  const items = KOL_CAT_ADS[cat] || [];
+  const rows = sortRows(items, catDetailSort[cat]);
+  const cols = [
+    {key:'name', label:'素材名稱'},
+    {key:'spend', label:'花費 (JPY)'},
+    {key:'cpm', label:'CPM'},
+    {key:'ctr', label:'CTR'},
+    {key:'cvr', label:'CVR'},
+    {key:'cpa', label:'CPA'},
+    {key:'roas', label:'ROAS'},
+  ];
+  document.getElementById(tableId).innerHTML = sortableHead(cols, catDetailSort[cat]) + `
+  <tbody>
+  ${rows.map(r=>`
+    <tr>
+      <td>${r.name}</td>
+      <td>${r.spend==null?'–':'¥'+Math.round(r.spend).toLocaleString()}</td>
+      <td>${r.cpm==null?'–':'¥'+r.cpm.toFixed(1)}</td>
+      <td>${r.ctr==null?'–':r.ctr.toFixed(2)+'%'}</td>
+      <td>${r.cvr==null?'–':r.cvr.toFixed(2)+'%'}</td>
+      <td>${r.cpa==null?'–':'¥'+Math.round(r.cpa).toLocaleString()}</td>
+      <td>${r.roas==null?'–':r.roas.toFixed(2)}</td>
+    </tr>`).join('')}
+  </tbody>`;
+  bindSortHandlers(tableId, catDetailSort[cat], ()=>renderCatDetail(cat, tableId));
+}
+
+document.querySelectorAll('tr.cat-row[data-cat]').forEach((tr, idx)=>{
+  const cat = tr.dataset.cat;
+  const detailRow = tr.nextElementSibling;
+  const tableId = 'catDetail-' + idx;
+  tr.addEventListener('click', ()=>{
+    const isOpen = detailRow.style.display !== 'none';
+    if(isOpen){
+      detailRow.style.display = 'none';
+      tr.classList.remove('expanded');
+    } else {
+      if(!catDetailBuilt[cat]){ renderCatDetail(cat, tableId); catDetailBuilt[cat] = true; }
+      detailRow.style.display = '';
+      tr.classList.add('expanded');
+    }
+  });
+});
+
+/* ---------------- 首次上稿月份表 —— 點擊展開素材明細 ----------------
+   同一套互動模式，套用在上方「首次上稿月份」表格：點擊月份列展開該月新增
+   的個別素材名稱與成效，預設依 CTR 由低到高排序，可點擊子表格欄位標題切
+   換排序。資料來源／重建方式與 KOL_CAT_ADS 相同（見上方註解），素材數已
+   核對與表格一致（2／2／5／13／19／26／7）。 */
+const KOL_MONTH_ADS = {"2026-03": [{"name": "emma（R14）", "spend": 160246, "cpm": 3619.7, "ctr": 3.24, "cvr": 1.81, "cpa": 6163, "roas": 2.8}, {"name": "hira（R20）", "spend": 7521773, "cpm": 2460.5, "ctr": 3.58, "cvr": 2.18, "cpa": 3150, "roas": 5.5}], "2026-04": [{"name": "emma（R37）", "spend": 337245, "cpm": 2156.8, "ctr": 3.27, "cvr": 2.06, "cpa": 3212, "roas": 5.36}, {"name": "Hilsama（R39）", "spend": 1359392, "cpm": 3691.7, "ctr": 3.34, "cvr": 2.17, "cpa": 5091, "roas": 3.42}], "2026-05": [{"name": "Chii（R51）", "spend": 36231, "cpm": 2390.7, "ctr": 2.29, "cvr": 1.15, "cpa": 9058, "roas": 2.36}, {"name": "mapikoro（R58）", "spend": 83048, "cpm": 6775.6, "ctr": 2.78, "cvr": 0.88, "cpa": 27683, "roas": 0.63}, {"name": "ayaco（R60）", "spend": 214123, "cpm": 3594.4, "ctr": 1.93, "cvr": 3.3, "cpa": 5635, "roas": 2.97}, {"name": "homi（R61）", "spend": 29212, "cpm": 2186.9, "ctr": 1.13, "cvr": 1.32, "cpa": 14606, "roas": 1.27}, {"name": "Rachel（R62）", "spend": 28190, "cpm": 3640.2, "ctr": 1.9, "cvr": 2.72, "cpa": 7048, "roas": 1.75}], "2026-06": [{"name": "coco（R65）", "spend": 77864, "cpm": 2875.2, "ctr": 1.5, "cvr": 2.46, "cpa": 7786, "roas": 3.01}, {"name": "mirei（R67）", "spend": 117787, "cpm": 3313.8, "ctr": 2.17, "cvr": 3.23, "cpa": 4711, "roas": 3.57}, {"name": "coco（R75）", "spend": 18763, "cpm": 1465.1, "ctr": 0.91, "cvr": 0.0, "cpa": null, "roas": 0.0}, {"name": "susan（R76）", "spend": 253584, "cpm": 7793.0, "ctr": 2.41, "cvr": 2.42, "cpa": 13347, "roas": 1.26}, {"name": "an（R77）", "spend": 574865, "cpm": 4451.5, "ctr": 2.74, "cvr": 3.06, "cpa": 5323, "roas": 3.29}, {"name": "rena（R79）", "spend": 516652, "cpm": 3744.5, "ctr": 2.99, "cvr": 3.78, "cpa": 3312, "roas": 5.35}, {"name": "aiko（R82）", "spend": 223520, "cpm": 9877.6, "ctr": 2.01, "cvr": 2.64, "cpa": 18627, "roas": 0.9}, {"name": "dstyle（R84）", "spend": 286665, "cpm": 2754.5, "ctr": 5.68, "cvr": 1.03, "cpa": 4699, "roas": 4.21}, {"name": "mirei（R85）", "spend": 221460, "cpm": 2856.3, "ctr": 1.63, "cvr": 4.05, "cpa": 4342, "roas": 4.11}, {"name": "myua（R86）", "spend": 457705, "cpm": 2605.3, "ctr": 2.24, "cvr": 3.52, "cpa": 3293, "roas": 5.48}, {"name": "sara（R87）", "spend": 751367, "cpm": 3138.7, "ctr": 4.64, "cvr": 1.31, "cpa": 5182, "roas": 3.65}, {"name": "risa（R90）", "spend": 2412766, "cpm": 3530.2, "ctr": 3.94, "cvr": 2.57, "cpa": 3487, "roas": 4.81}, {"name": "mitori（R91）", "spend": 341461, "cpm": 3453.7, "ctr": 2.85, "cvr": 3.3, "cpa": 3672, "roas": 4.92}], "2026-07": [{"name": "Noponopisu（R3）", "spend": null, "cpm": null, "ctr": null, "cvr": null, "cpa": null, "roas": null}, {"name": "okayu（R104）", "spend": null, "cpm": null, "ctr": null, "cvr": null, "cpa": null, "roas": null}, {"name": "mari（R94）", "spend": 104453, "cpm": 8105.9, "ctr": 2.45, "cvr": 0.63, "cpa": 52226, "roas": 0.34}, {"name": "ari（R96）", "spend": 302307, "cpm": 7771.4, "ctr": 2.29, "cvr": 2.69, "cpa": 12596, "roas": 1.4}, {"name": "hadamegu（R97）", "spend": 961287, "cpm": 2669.9, "ctr": 2.65, "cvr": 2.7, "cpa": 3726, "roas": 4.81}, {"name": "riko（R98）", "spend": 774792, "cpm": 3563.7, "ctr": 2.87, "cvr": 3.54, "cpa": 3506, "roas": 4.91}, {"name": "youcamp（R99）", "spend": 253509, "cpm": 4597.7, "ctr": 2.7, "cvr": 3.02, "cpa": 5634, "roas": 3.28}, {"name": "emily（R100）", "spend": 63328, "cpm": 5441.0, "ctr": 2.28, "cvr": 1.89, "cpa": 12666, "roas": 1.32}, {"name": "kaede（R101）", "spend": 297816, "cpm": 3295.7, "ctr": 2.21, "cvr": 3.8, "cpa": 3919, "roas": 4.39}, {"name": "kona（R103）", "spend": 289941, "cpm": 3829.3, "ctr": 3.32, "cvr": 2.51, "cpa": 4602, "roas": 4.03}, {"name": "okayu（R105）", "spend": 266446, "cpm": 4154.3, "ctr": 2.6, "cvr": 2.16, "cpa": 7401, "roas": 2.54}, {"name": "obimama（R106）", "spend": 128556, "cpm": 2766.3, "ctr": 2.39, "cvr": 1.89, "cpa": 6122, "roas": 2.98}, {"name": "erica（R107）", "spend": 1012022, "cpm": 3291.8, "ctr": 2.8, "cvr": 2.5, "cpa": 4707, "roas": 3.91}, {"name": "hoshishi（R109）", "spend": 277336, "cpm": 8764.8, "ctr": 2.97, "cvr": 1.7, "cpa": 17334, "roas": 1.02}, {"name": "hadmegu（R110）", "spend": 207212, "cpm": 2714.0, "ctr": 3.49, "cvr": 2.29, "cpa": 3397, "roas": 5.19}, {"name": "katahara（R112）", "spend": 149944, "cpm": 2852.7, "ctr": 2.08, "cvr": 2.93, "cpa": 4686, "roas": 3.8}, {"name": "koba（R113）", "spend": 236713, "cpm": 3486.6, "ctr": 2.35, "cvr": 2.76, "cpa": 5380, "roas": 3.55}, {"name": "hira（R114）", "spend": 1807777, "cpm": 2317.5, "ctr": 2.97, "cvr": 2.41, "cpa": 3234, "roas": 5.36}, {"name": "miigomama（R115）", "spend": 369008, "cpm": 6830.3, "ctr": 2.27, "cvr": 2.44, "cpa": 12300, "roas": 1.45}, {"name": "yukko（R116）", "spend": 3847026, "cpm": 2787.3, "ctr": 3.77, "cvr": 2.03, "cpa": 3633, "roas": 4.71}, {"name": "okawa（R117）", "spend": 127977, "cpm": 3939.9, "ctr": 1.41, "cvr": 3.49, "cpa": 7999, "roas": 2.58}], "2026-08": [{"name": "mochiko（R118）", "spend": 348165, "cpm": 6076.6, "ctr": 1.94, "cvr": 2.88, "cpa": 10880, "roas": 1.59}, {"name": "mito（R122）", "spend": 539386, "cpm": 4351.0, "ctr": 2.82, "cvr": 2.89, "cpa": 5340, "roas": 3.18}, {"name": "hadamegu（R124）", "spend": 143956, "cpm": 3301.2, "ctr": 2.58, "cvr": 2.84, "cpa": 4499, "roas": 3.98}, {"name": "marika（R125）", "spend": 975395, "cpm": 5474.9, "ctr": 2.51, "cvr": 3.04, "cpa": 7172, "roas": 2.37}, {"name": "sun（R126）", "spend": 275026, "cpm": 4376.6, "ctr": 2.31, "cvr": 3.09, "cpa": 6112, "roas": 3.0}, {"name": "saitasu（R127）", "spend": 201477, "cpm": 3855.7, "ctr": 1.95, "cvr": 2.84, "cpa": 6947, "roas": 2.4}, {"name": "naa（R128）", "spend": 218304, "cpm": 9200.3, "ctr": 2.47, "cvr": 1.54, "cpa": 24256, "roas": 0.69}, {"name": "maru（R130）", "spend": 93896, "cpm": 2381.0, "ctr": 3.65, "cvr": 1.25, "cpa": 5216, "roas": 3.3}, {"name": "key（R132）", "spend": 157718, "cpm": 13020.6, "ctr": 3.16, "cvr": 0.78, "cpa": 52573, "roas": 0.43}, {"name": "mana（R135）", "spend": 781690, "cpm": 3791.7, "ctr": 2.63, "cvr": 3.82, "cpa": 3776, "roas": 4.4}, {"name": "yume（R137）", "spend": 218231, "cpm": 5230.1, "ctr": 1.83, "cvr": 3.15, "cpa": 9093, "roas": 1.82}, {"name": "damcamp（R138）", "spend": 46582, "cpm": 1587.8, "ctr": 1.05, "cvr": 1.62, "cpa": 9316, "roas": 1.78}, {"name": "Hitomi（R139）", "spend": 25545, "cpm": 2473.1, "ctr": 2.51, "cvr": 0.39, "cpa": 25545, "roas": 0.63}, {"name": "sara（R140）", "spend": 25883, "cpm": 2759.7, "ctr": 1.95, "cvr": 0.0, "cpa": null, "roas": 0.0}, {"name": "matsu（R141）", "spend": 212781, "cpm": 2964.5, "ctr": 2.37, "cvr": 1.88, "cpa": 6649, "roas": 2.53}, {"name": "nao（R142）", "spend": 25730, "cpm": 2409.9, "ctr": 1.92, "cvr": 1.46, "cpa": 8577, "roas": 1.92}, {"name": "KATSU（R143）", "spend": 26385, "cpm": 2899.5, "ctr": 1.81, "cvr": 1.21, "cpa": 13192, "roas": 2.08}, {"name": "aren（R144）", "spend": 25828, "cpm": 2242.2, "ctr": 1.47, "cvr": 0.59, "cpa": 25828, "roas": 0.81}, {"name": "ruu（R145）", "spend": 156331, "cpm": 3230.2, "ctr": 2.03, "cvr": 3.16, "cpa": 5043, "roas": 3.32}, {"name": "mai（R146）", "spend": 86077, "cpm": 4145.3, "ctr": 1.96, "cvr": 3.68, "cpa": 5738, "roas": 3.04}, {"name": "kisaki（R147）", "spend": 25874, "cpm": 2918.3, "ctr": 2.13, "cvr": 1.59, "cpa": 8625, "roas": 1.88}, {"name": "parun（R148）", "spend": 308687, "cpm": 9375.7, "ctr": 2.18, "cvr": 2.79, "cpa": 15434, "roas": 1.08}, {"name": "amisa（R150）", "spend": 368242, "cpm": 4143.6, "ctr": 2.68, "cvr": 2.85, "cpa": 5415, "roas": 3.11}, {"name": "arisa（R152）", "spend": 184445, "cpm": 4616.8, "ctr": 2.27, "cvr": 2.42, "cpa": 8384, "roas": 1.99}, {"name": "manmaru（R153）", "spend": 129393, "cpm": 6321.7, "ctr": 2.05, "cvr": 1.67, "cpa": 18485, "roas": 0.9}, {"name": "marika.oka（R154）", "spend": 104621, "cpm": 5670.2, "ctr": 1.58, "cvr": 2.41, "cpa": 14946, "roas": 1.14}], "2026-09": [{"name": "chiico（R155）", "spend": 68311, "cpm": 3717.4, "ctr": 1.87, "cvr": 2.62, "cpa": 7590, "roas": 2.17}, {"name": "nekoneko（R157）", "spend": 137526, "cpm": 4851.7, "ctr": 2.32, "cvr": 2.28, "cpa": 9168, "roas": 2.31}, {"name": "miki（R158）", "spend": 95301, "cpm": 5641.4, "ctr": 1.97, "cvr": 1.81, "cpa": 15884, "roas": 1.02}, {"name": "becky（R160）", "spend": 93418, "cpm": 3926.8, "ctr": 1.9, "cvr": 2.43, "cpa": 8493, "roas": 1.96}, {"name": "airi（R161）", "spend": 84427, "cpm": 6112.6, "ctr": 2.49, "cvr": 2.62, "cpa": 9381, "roas": 1.73}]};
+
+const monthDetailSort = {};
+const monthDetailBuilt = {};
+
+function renderMonthDetail(month, tableId){
+  if(!monthDetailSort[month]) monthDetailSort[month] = {key:'ctr', dir:'asc'};
+  const items = KOL_MONTH_ADS[month] || [];
+  const rows = sortRows(items, monthDetailSort[month]);
+  const cols = [
+    {key:'name', label:'素材名稱'},
+    {key:'spend', label:'花費 (JPY)'},
+    {key:'cpm', label:'CPM'},
+    {key:'ctr', label:'CTR'},
+    {key:'cvr', label:'CVR'},
+    {key:'cpa', label:'CPA'},
+    {key:'roas', label:'ROAS'},
+  ];
+  document.getElementById(tableId).innerHTML = sortableHead(cols, monthDetailSort[month]) + `
+  <tbody>
+  ${rows.map(r=>`
+    <tr>
+      <td>${r.name}</td>
+      <td>${r.spend==null?'–':'¥'+Math.round(r.spend).toLocaleString()}</td>
+      <td>${r.cpm==null?'–':'¥'+r.cpm.toFixed(1)}</td>
+      <td>${r.ctr==null?'–':r.ctr.toFixed(2)+'%'}</td>
+      <td>${r.cvr==null?'–':r.cvr.toFixed(2)+'%'}</td>
+      <td>${r.cpa==null?'–':'¥'+Math.round(r.cpa).toLocaleString()}</td>
+      <td>${r.roas==null?'–':r.roas.toFixed(2)}</td>
+    </tr>`).join('')}
+  </tbody>`;
+  bindSortHandlers(tableId, monthDetailSort[month], ()=>renderMonthDetail(month, tableId));
+}
+
+document.querySelectorAll('tr.month-row[data-month]').forEach((tr, idx)=>{
+  const month = tr.dataset.month;
+  const detailRow = tr.nextElementSibling;
+  const tableId = 'monthDetail-' + idx;
+  tr.addEventListener('click', ()=>{
+    const isOpen = detailRow.style.display !== 'none';
+    if(isOpen){
+      detailRow.style.display = 'none';
+      tr.classList.remove('expanded');
+    } else {
+      if(!monthDetailBuilt[month]){ renderMonthDetail(month, tableId); monthDetailBuilt[month] = true; }
+      detailRow.style.display = '';
+      tr.classList.add('expanded');
+    }
+  });
+});
 </script>
 
 <div id="lightbox">
