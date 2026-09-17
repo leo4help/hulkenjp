@@ -289,9 +289,30 @@
   .kol-header-btn{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;padding:10px 18px;border-radius:10px;background:linear-gradient(135deg, var(--brand-gold), #c79b3f);color:#fff;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 3px 10px rgba(169,130,46,0.3);transition:transform .1s, box-shadow .15s;align-self:center;}
   .kol-header-btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(169,130,46,0.38);}
   @media (max-width:640px){.kol-header-btn{align-self:flex-start;}}
+
+  /* ---------- Cursor spotlight ----------
+     一個金黃色光暈跟著滑鼠在頁面背景移動的裝飾效果。純視覺，不影響任何資料或版面。
+     實作重點：#cursorGlow 放在 <body> 最前面、position:fixed、z-index:60（蓋過一般卡片
+     z-index:30、sticky 表頭等，但低於 lightbox 的 100，所以打開圖片燈箱時不會被光暈蓋住），
+     並用 mix-blend-mode:multiply 讓它用「相乘」而非直接覆蓋的方式跟底下內容混色——效果像
+     螢光筆畫在紙上：淺色背景會被染黃變明顯，深色文字/深色徽章仍保持深色可讀，不會被完全
+     遮住。觸控裝置（沒有真正的滑鼠游標）用 @media (hover:none) 直接隱藏。 */
+  #cursorGlow{
+    position:fixed;top:0;left:0;width:72px;height:72px;
+    border-radius:50%;pointer-events:none;
+    z-index:60;
+    mix-blend-mode:multiply;
+    background:radial-gradient(circle, rgba(255,213,0,0.62) 0%, rgba(255,213,0,0.42) 35%, rgba(255,213,0,0.16) 60%, rgba(255,213,0,0) 78%);
+    transform:translate(-50%,-50%);
+    opacity:0;transition:opacity .25s ease;
+    will-change:transform;
+  }
+  @media (hover:none){ #cursorGlow{display:none;} }
 </style>
 </head>
 <body>
+
+<div id="cursorGlow"></div>
 
 <header class="top">
   <div class="header-inner">
@@ -519,6 +540,25 @@
 </footer>
 
 <script>
+/* ---------------- Cursor spotlight ----------------
+   讓 #cursorGlow 跟著滑鼠移動；用 requestAnimationFrame 節流，避免每個
+   mousemove 都直接操作樣式造成掉幀。滑鼠離開視窗時淡出。 */
+(function(){
+  const glow = document.getElementById('cursorGlow');
+  if(!glow) return;
+  let raf = null, mx = window.innerWidth/2, my = window.innerHeight/2;
+  function render(){
+    glow.style.transform = `translate(${mx}px, ${my}px) translate(-50%,-50%)`;
+    raf = null;
+  }
+  window.addEventListener('mousemove', e=>{
+    mx = e.clientX; my = e.clientY;
+    glow.style.opacity = '1';
+    if(!raf) raf = requestAnimationFrame(render);
+  }, {passive:true});
+  document.addEventListener('mouseleave', ()=>{ glow.style.opacity = '0'; });
+})();
+
 /* ---------------- Week picker ----------------
    每週產出新報告時，把新的一週加進這個陣列最前面（isCurrent 改到最新一週），
    href 用相對路徑指向「../<WeekFolder>/<檔名>.html」（與此 HTML 同層的上一層資料夾）。 */

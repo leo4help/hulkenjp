@@ -229,6 +229,7 @@ Hulken Weekly Report/
 - `.kpi-card.hero` — the ROAS tile gets special gold-gradient styling since ROAS is the headline metric across the whole report; keep that treatment when adding new weeks.
 - Nav section IDs, W34 onward: `#overview`, `#channels`, `#meta-test`, `#meta-creative`, `#kol` (no more `#kol-calc` — see Step 3 note). W33's file still has all six; don't use it as the nav-ID reference for W34+.
 - Image lightbox (`openLightbox`/`closeLightbox`) and thumbnail fallback (`onerror` → "缺圖" placeholder) already handle missing images gracefully — if an `AD Images/<Row>.jpg` is missing, the page still works, it just shows a placeholder.
+- **Cursor spotlight (added 2026-09-16).** `#cursorGlow` — a soft gold radial-gradient div, first child of `<body>`, `position:fixed`, `pointer-events:none`, no explicit `z-index` — plus a small `mousemove` IIFE near the top of the closing `<script>` block that translates it to the cursor position (rAF-throttled, fades out on `mouseleave`). Purely decorative, present on both the weekly report and `all.html`. Relies on DOM order (painted first, so opaque cards/header/nav sit on top of it) rather than z-index — don't reorder it after other body content or add a competing `z-index` without checking it still stays behind cards. Since each new week is cloned from the previous week's HTML (Step 3), this carries forward automatically; no script changes needed to keep it in future weeks.
 
 ### Standalone `/all` page
 

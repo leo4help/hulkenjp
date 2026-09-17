@@ -238,9 +238,30 @@
   .summary-item.hero .summary-label{color:rgba(255,255,255,0.85);}
   .summary-item.hero .summary-value{color:#fff;}
   .summary-item.hero .summary-sub{color:#f3e3c2;}
+
+  /* ---------- Cursor spotlight ----------
+     一個金黃色光暈跟著滑鼠在頁面背景移動的裝飾效果，跟週報範本共用同一套實作。
+     純視覺，不影響任何資料或版面；#cursorGlow 放在 <body> 最前面、position:fixed、
+     z-index:60（蓋過一般卡片 z-index:30、sticky 表頭等，但低於 lightbox 的 100，所以打開
+     圖片燈箱時不會被光暈蓋住），並用 mix-blend-mode:multiply 讓它用「相乘」而非直接覆蓋的
+     方式跟底下內容混色——效果像螢光筆畫在紙上：淺色背景會被染黃變明顯，深色文字/深色徽章
+     仍保持深色可讀，不會被完全遮住。觸控裝置直接隱藏。 */
+  #cursorGlow{
+    position:fixed;top:0;left:0;width:72px;height:72px;
+    border-radius:50%;pointer-events:none;
+    z-index:60;
+    mix-blend-mode:multiply;
+    background:radial-gradient(circle, rgba(255,213,0,0.62) 0%, rgba(255,213,0,0.42) 35%, rgba(255,213,0,0.16) 60%, rgba(255,213,0,0) 78%);
+    transform:translate(-50%,-50%);
+    opacity:0;transition:opacity .25s ease;
+    will-change:transform;
+  }
+  @media (hover:none){ #cursorGlow{display:none;} }
 </style>
 </head>
 <body>
+
+<div id="cursorGlow"></div>
 
 <header class="top">
   <div class="header-inner">
@@ -386,6 +407,25 @@
 </footer>
 
 <script>
+/* ---------------- Cursor spotlight ----------------
+   讓 #cursorGlow 跟著滑鼠移動；用 requestAnimationFrame 節流，避免每個
+   mousemove 都直接操作樣式造成掉幀。滑鼠離開視窗時淡出。 */
+(function(){
+  const glow = document.getElementById('cursorGlow');
+  if(!glow) return;
+  let raf = null, mx = window.innerWidth/2, my = window.innerHeight/2;
+  function render(){
+    glow.style.transform = `translate(${mx}px, ${my}px) translate(-50%,-50%)`;
+    raf = null;
+  }
+  window.addEventListener('mousemove', e=>{
+    mx = e.clientX; my = e.clientY;
+    glow.style.opacity = '1';
+    if(!raf) raf = requestAnimationFrame(render);
+  }, {passive:true});
+  document.addEventListener('mouseleave', ()=>{ glow.style.opacity = '0'; });
+})();
+
 const fmtInt = n => n==null ? '–' : Math.round(n).toLocaleString('en-US');
 const fmt2 = n => n==null ? '–' : Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtPct1 = n => n==null ? '–' : Number(n).toFixed(2)+'%';
