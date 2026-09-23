@@ -335,7 +335,7 @@
 
     <div class="card calc-card">
       <h3 class="calc-step-title"><span class="calc-num">1</span> 輸入 Row Number 撈取數據</h3>
-      <p class="calc-desc">系統自動從 Meta 投放數據抓取近 30 天日均花費（B）與媒體單獨 ROAS（C，不含授權金），兩者皆可手動修改覆蓋。</p>
+      <p class="calc-desc">系統自動從 Meta 投放數據，抓取該素材截至最新一週、最近 14 個有花費日子的日均花費（B）與媒體單獨 ROAS（C，不含授權金）；已停投的素材會往回找最後 14 個投放日，投放未滿 14 天則用全部投放日。兩者皆可手動修改覆蓋。</p>
       <div class="calc-field-row">
         <div class="calc-field" style="flex:1 1 260px;">
           <label for="licRowInput">Row Number</label>
@@ -357,12 +357,12 @@
         <div class="calc-field">
           <label for="licBInput">B · 日均廣告花費 (¥)</label>
           <input type="number" id="licBInput" step="1" placeholder="—">
-          <div class="calc-hint">近30天日均媒體花費</div>
+          <div class="calc-hint">近 14 個投放日的日均媒體花費</div>
         </div>
         <div class="calc-field">
           <label for="licCInput">C · 媒體單獨 ROAS（不含授權金）</label>
           <input type="number" id="licCInput" step="0.01" placeholder="—">
-          <div class="calc-hint">近30天營收 ÷ 花費</div>
+          <div class="calc-hint">近 14 個投放日的營收 ÷ 媒體花費</div>
         </div>
       </div>
       <div class="calc-field-row" style="margin-top:16px;">
