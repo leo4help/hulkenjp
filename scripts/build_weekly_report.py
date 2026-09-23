@@ -422,13 +422,21 @@ def compute_report_data(cache_path, bridge_path, week_start, week_end,
     if manual_week_1st_day:
         cur_manual = wrm[wrm['Week_1st_day'] == pd.Timestamp(manual_week_1st_day)].reset_index(drop=True)
         prev_manual = wrm[wrm['Week_1st_day'] == pd.Timestamp(prev_start)].reset_index(drop=True)
-        if cur_manual['Channel'].duplicated().any() or len(cur_manual) not in (0, 7) or len(prev_manual) not in (0, 7):
+        # Only a row whose (Week_1st_day, Channel, AD Type) triple repeats is
+        # ambiguous. A Channel alone legitimately repeats (Google/Amazon/Rakuten
+        # each have 2 AD Type rows), so checking Channel alone always false-alarmed
+        # (fixed 2026-09-23, W38).
+        key = ['Week_1st_day', 'Channel', 'AD Type']
+        dup_cur = cur_manual[cur_manual.duplicated(key, keep=False)]
+        dup_prev = prev_manual[prev_manual.duplicated(key, keep=False)]
+        if len(dup_cur) or len(dup_prev):
+            dups = pd.concat([dup_cur, dup_prev])[key].drop_duplicates()
             raise SystemExit(
-                "Weekly Report Manual has an ambiguous/duplicate Week_1st_day for "
-                f"{manual_week_1st_day} or {prev_start} (found {len(cur_manual)} / "
-                f"{len(prev_manual)} rows, expected 7 each). Inspect the sheet by "
-                "hand and pass --manual-cur-idx / --manual-prev-idx instead (see "
-                "the W37 build for precedent -- this happened once already)."
+                "Weekly Report Manual has duplicate (Week_1st_day, Channel, AD Type) "
+                f"rows for {manual_week_1st_day} or {prev_start}:\n"
+                f"{dups.to_string(index=False)}\n"
+                "Inspect the sheet by hand and pass --manual-cur-idx / "
+                "--manual-prev-idx instead (see the W37 build for precedent)."
             )
     else:
         cs, ce = manual_cur_idx

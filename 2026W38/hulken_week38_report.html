@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HULKEN JP · Week 38 廣告成效週報</title>
+<style>
+  :root{
+    --ink:#2b2620;
+    --ink-soft:#6b6255;
+    --ink-faint:#9a9186;
+    --bg-page:#f6f1e6;
+    --bg-card:#ffffff;
+    --brand:#5b4a2f;
+    --brand-deep:#3d3220;
+    --brand-gold:#a9822e;
+    --tan:#e4d5b7;
+    --tan-soft:#f0e6d2;
+    --line:#e7ded0;
+    --good:#1e8e5a;
+    --bad:#c6402e;
+    --shadow: 0 1px 2px rgba(43,38,32,0.04), 0 4px 16px rgba(43,38,32,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family: -apple-system, "Hiragino Sans", "Noto Sans TC", "PingFang TC", "Segoe UI", sans-serif;
+    background:var(--bg-page);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px 64px;}
+
+  /* ---------- Header ---------- */
+  header.top{
+    background:var(--tan);
+    padding:28px 0 24px;
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{max-width:1180px;margin:0 auto;padding:0 24px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+  .logo-row{display:flex;align-items:center;gap:14px;}
+  .logo-block{
+    background:#efeadf;border:1px solid #d9cba5;border-radius:6px;
+    padding:8px 14px;font-weight:800;font-size:22px;letter-spacing:0.5px;color:var(--brand-deep);
+  }
+  .logo-block sup{font-size:11px;}
+  .logo-jp{font-size:26px;font-weight:300;color:var(--ink-soft);}
+  .title-block h1{margin:10px 0 2px;font-size:26px;font-weight:800;color:var(--brand-deep);}
+  .title-block .sub{color:var(--ink-soft);font-size:14px;}
+  .meta-chip{
+    background:rgba(255,255,255,0.6);border:1px solid #d9cba5;border-radius:999px;
+    padding:6px 14px;font-size:13px;color:var(--brand-deep);font-weight:600;white-space:nowrap;
+  }
+  .week-picker{position:relative;display:inline-block;}
+  .week-picker .meta-chip{cursor:pointer;display:inline-flex;align-items:center;gap:6px;user-select:none;}
+  .week-picker .meta-chip:hover{background:rgba(255,255,255,0.85);}
+  .week-picker .caret{font-size:10px;transition:transform .15s ease;}
+  .week-picker.open .caret{transform:rotate(180deg);}
+  .week-menu{
+    display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:240px;
+    background:#fffdf8;border:1px solid #d9cba5;border-radius:10px;
+    box-shadow:0 8px 24px rgba(60,45,20,0.18);overflow:hidden;z-index:30;
+  }
+  .week-picker.open .week-menu{display:block;}
+  .week-menu a{
+    display:block;padding:10px 16px;font-size:13px;color:var(--ink);text-decoration:none;
+    border-bottom:1px solid #f0e6cc;
+  }
+  .week-menu a:last-child{border-bottom:none;}
+  .week-menu a:hover{background:#f5ecd6;}
+  .week-menu a.current{background:#efe2ba;font-weight:700;color:var(--brand-deep);cursor:default;}
+  .week-menu .wm-date{display:block;font-size:11.5px;color:var(--ink-soft);font-weight:400;margin-top:2px;}
+  .beta-badge{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:0.4px;background:#f3d9a8;color:#8a5a10;border:1px solid #d9b370;vertical-align:middle;}
+
+  /* ---------- Section nav ---------- */
+  nav.secnav{
+    position:sticky;top:0;z-index:20;
+    background:rgba(246,241,230,0.92);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.secnav .inner{max-width:1180px;margin:0 auto;padding:10px 24px;display:flex;gap:6px;overflow-x:auto;}
+  nav.secnav a{
+    white-space:nowrap;font-size:13px;font-weight:600;color:var(--ink-soft);
+    text-decoration:none;padding:8px 14px;border-radius:8px;transition:background .15s,color .15s;
+  }
+  nav.secnav a:hover{background:var(--tan-soft);color:var(--brand-deep);}
+
+  section{padding-top:40px;scroll-margin-top:64px;}
+  section:first-of-type{padding-top:32px;}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .sec-head h2{font-size:19px;margin:0;color:var(--brand-deep);font-weight:800;}
+  .sec-head .sec-tag{font-size:12px;color:var(--ink-faint);font-weight:600;}
+
+  /* ---------- KPI tiles ---------- */
+  .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;}
+  @media (max-width:960px){.kpi-grid{grid-template-columns:repeat(3,1fr);}}
+  @media (max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+  .kpi-card{
+    background:var(--bg-card);border:1px solid var(--line);border-radius:12px;
+    padding:16px 16px 14px;box-shadow:var(--shadow);
+  }
+  .kpi-card .kpi-label{font-size:12px;color:var(--ink-soft);font-weight:700;margin-bottom:8px;}
+  .kpi-card .kpi-value{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-0.2px;}
+  .delta{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;font-weight:700;margin-top:6px;}
+  .delta.up{color:var(--good);}
+  .delta.down{color:var(--bad);}
+  .delta.flat{color:var(--ink-faint);}
+  /* ROAS is the headline metric — its KPI tile gets a distinct filled treatment so it reads first */
+  .kpi-card.hero{
+    background:linear-gradient(135deg,var(--brand-gold),#7d5f22);
+    border-color:transparent;box-shadow:0 4px 14px rgba(169,130,46,0.35);
+    position:relative;
+  }
+  .kpi-card.hero::after{
+    content:'最重要指標';position:absolute;top:10px;right:12px;font-size:9.5px;font-weight:800;
+    color:rgba(255,255,255,0.75);letter-spacing:0.3px;
+  }
+  .kpi-card.hero .kpi-label{color:rgba(255,255,255,0.85);}
+  .kpi-card.hero .kpi-value{color:#fff;font-size:27px;}
+  .kpi-card.hero .delta.up{color:#cdf7bd;}
+  .kpi-card.hero .delta.down{color:#ffd3c4;}
+
+  /* ---------- Cards / generic ---------- */
+  .card{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:20px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:800px){.grid-2{grid-template-columns:1fr;}}
+
+  .split-card h3{margin:0 0 12px;font-size:14px;color:var(--brand-deep);font-weight:800;}
+  .split-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap;gap:10px;}
+  .split-row:last-child{border-bottom:none;}
+  .split-name{font-size:13px;font-weight:700;color:var(--ink);}
+  .split-bar-wrap{flex:1;margin:0 4px;height:8px;background:var(--tan-soft);border-radius:6px;overflow:hidden;min-width:40px;}
+  .split-bar{height:100%;background:linear-gradient(90deg,var(--brand-gold),var(--brand));border-radius:6px;}
+  .split-metrics{display:flex;gap:14px;font-size:12px;color:var(--ink-soft);margin-top:2px;flex-wrap:wrap;}
+  .split-metrics b{color:var(--ink);font-weight:800;}
+
+  /* ROAS hero pill — ROAS is the headline metric, so it always gets the loudest treatment */
+  .roas-hero{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--brand-gold),#7d5f22);
+    color:#fff;border-radius:10px;padding:7px 16px;min-width:78px;flex:0 0 auto;
+    box-shadow:0 3px 8px rgba(169,130,46,0.35);
+  }
+  .roas-hero .roas-label{font-size:9.5px;font-weight:800;letter-spacing:0.6px;text-transform:uppercase;opacity:0.88;}
+  .roas-hero .roas-num{font-size:21px;font-weight:800;line-height:1.15;letter-spacing:-0.3px;}
+  .roas-hero .roas-delta{font-size:10.5px;font-weight:700;margin-top:2px;}
+  .roas-hero .roas-delta.up{color:#cdf7bd;}
+  .roas-hero .roas-delta.down{color:#ffd3c4;}
+  .roas-hero .roas-delta.flat{color:rgba(255,255,255,0.7);}
+  .roas-hero.sm{padding:4px 12px;min-width:60px;}
+  .roas-hero.sm .roas-num{font-size:16px;}
+
+  /* ---------- Creative thumbnails ---------- */
+  .thumb{width:34px;height:60px;object-fit:cover;border-radius:5px;border:1px solid var(--line);flex:0 0 auto;}
+  .thumb-card{width:120px;height:auto;border-radius:8px;border:1px solid var(--line);flex:0 0 auto;display:block;}
+  .thumb-missing{
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    background:repeating-linear-gradient(45deg,#f2ece0,#f2ece0 6px,#e9e1d1 6px,#e9e1d1 12px);
+    color:var(--ink-faint);font-size:9px;font-weight:700;line-height:1.3;border:1px dashed #cdbf9c;
+  }
+  .thumb.thumb-missing{width:34px;height:60px;border-radius:5px;}
+  .thumb-card.thumb-missing{width:120px;height:210px;border-radius:8px;}
+  .thumb-slot{display:contents;}
+  .gallery{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;}
+  .gallery-card{background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:var(--shadow);width:148px;}
+  .gallery-card .cap{margin-top:8px;font-size:11.5px;color:var(--ink-soft);}
+  .gallery-card .cap b{color:var(--ink);display:block;font-size:12px;margin-bottom:2px;}
+  img.js-zoom{cursor:zoom-in;transition:transform .12s;}
+  img.js-zoom:hover{transform:scale(1.06);box-shadow:0 2px 8px rgba(0,0,0,0.25);}
+
+  /* ---------- Lightbox ---------- */
+  #lightbox{
+    position:fixed;inset:0;background:rgba(20,16,10,0.82);display:none;
+    align-items:center;justify-content:center;z-index:100;cursor:zoom-out;padding:32px;
+  }
+  #lightbox.open{display:flex;}
+  #lightbox img{max-width:min(420px,90vw);max-height:85vh;border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,0.5);}
+  #lightbox .lb-cap{position:absolute;bottom:28px;left:0;right:0;text-align:center;color:#f6f1e6;font-size:13px;font-weight:700;}
+  #lightbox .lb-close{position:absolute;top:20px;right:26px;color:#f6f1e6;font-size:28px;font-weight:300;cursor:pointer;line-height:1;}
+
+  /* ---------- Insight callout ---------- */
+  .callout{
+    background:linear-gradient(135deg,#3d3220,#5b4a2f);
+    color:#f6f1e6;border-radius:12px;padding:18px 22px;margin-top:16px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .callout .row{display:flex;align-items:baseline;gap:10px;font-size:14px;}
+  .callout .row::before{content:'•';color:#e8cf8a;flex:0 0 auto;font-weight:700;}
+  .callout .row .figure{font-size:17px;font-weight:800;color:#e8cf8a;}
+  .callout.note{background:#fff8ea;color:var(--ink);border:1px solid #e9d9ac;}
+  .callout.note .row{font-size:13.5px;color:var(--ink-soft);}
+  .callout.note .row.strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- Tables ---------- */
+  .table-scroll{overflow-x:auto;border-radius:12px;border:1px solid var(--line);}
+  .table-scroll-v{overflow-y:auto;max-height:700px;}
+  .table-scroll-v thead th{position:sticky;top:0;background:var(--bg-card);z-index:2;box-shadow:0 1px 0 var(--line);}
+  th.sortable{cursor:pointer;user-select:none;}
+  th.sortable:hover{color:var(--brand-gold);}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--bg-card);}
+  thead th{
+    background:var(--tan-soft);color:var(--brand-deep);text-align:right;font-weight:800;
+    padding:10px 12px;white-space:nowrap;position:sticky;top:0;font-size:12px;border-bottom:1px solid var(--line);
+    cursor:default;
+  }
+  thead th.sortable{cursor:pointer;user-select:none;}
+  thead th.sortable:hover{background:#e9dcb9;}
+  thead th:first-child, td:first-child{text-align:left;}
+  tbody td{padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.highlight{background:#fdf3ea;}
+  tbody tr.cat-row, tbody tr.month-row{cursor:pointer;}
+  tbody tr.cat-row:hover, tbody tr.month-row:hover{background:#f7f0de;}
+  tbody tr.cat-row.expanded, tbody tr.month-row.expanded{background:#f2e6c8;}
+  .cat-chevron{display:inline-block;width:14px;color:var(--brand-gold);font-weight:800;transition:transform .15s ease;}
+  tbody tr.cat-row.expanded .cat-chevron, tbody tr.month-row.expanded .cat-chevron{transform:rotate(90deg);}
+  tbody tr.cat-detail-row td{padding:10px 12px 16px;background:#fbf8f1;}
+  tbody tr.cat-detail-row .table-scroll table td:first-child{text-align:left;font-weight:600;}
+  tbody tr.pending{background:#f7f5f1;}
+  tbody tr.pending td{color:var(--ink-faint);}
+  .pending-badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:#eee6d6;color:#9a6a1c;border:1px dashed #cdb98a;}
+  tbody tr.grand td{background:var(--tan-soft);font-weight:800;color:var(--brand-deep);border-top:2px solid var(--brand-gold);}
+  .name-cell{font-weight:700;color:var(--ink);}
+  .tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;margin-left:6px;}
+  .tag.kol{background:#eadfc4;color:#7a5c1e;}
+  .tag.origin{background:#e2e6df;color:#4c5a44;}
+  .tag.null{background:#eee;color:#999;border:1px solid #ddd;}
+  .heat-val{border-radius:6px;padding:4px 8px;display:inline-block;min-width:52px;}
+  .stack-cell{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
+  .stack-cell .dsub{margin-left:0;}
+  .lic-note{margin-top:4px;font-size:10.5px;font-weight:600;color:#a9822e;white-space:nowrap;}
+  .lic-note.muted{color:var(--ink-faint);font-weight:500;font-style:italic;}
+  .dsub{font-size:10.5px;font-weight:700;margin-left:6px;}
+  .dsub.up{color:var(--good);} .dsub.down{color:var(--bad);} .dsub.flat{color:var(--ink-faint);}
+  .muted{color:var(--ink-faint);}
+
+  footer{margin-top:56px;padding:24px 0;border-top:1px solid var(--line);color:var(--ink-faint);font-size:12px;text-align:center;}
+  footer a{color:var(--brand);}
+
+  .hint{font-size:12px;color:var(--ink-faint);margin-top:8px;}
+
+  /* ---- KOL license-fee calculator ---- */
+  .calc-card{margin-bottom:18px;}
+  .calc-step-title{margin:0 0 4px;font-size:15px;color:var(--brand-deep);display:flex;align-items:center;gap:8px;}
+  .calc-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--brand-gold);color:#fff;font-size:11px;font-weight:700;flex-shrink:0;}
+  .calc-desc{font-size:12.5px;color:var(--ink-faint);margin:0 0 16px;}
+  .calc-field-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;}
+  .calc-field{flex:1 1 200px;min-width:160px;}
+  .calc-field label{display:block;font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:6px;letter-spacing:.2px;}
+  .calc-field input{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;color:var(--ink);background:#fdfbf7;transition:border-color .15s;}
+  .calc-field input:focus{outline:none;border-color:var(--brand-gold);}
+  .calc-hint{font-size:11px;color:var(--ink-faint);margin-top:5px;}
+  .calc-btn{padding:11px 22px;border-radius:10px;border:none;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .1s, box-shadow .15s;}
+  .calc-btn-primary{background:linear-gradient(135deg, var(--brand-gold), #c79b3f);color:#fff;box-shadow:0 3px 10px rgba(169,130,46,0.35);}
+  .calc-btn-primary:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(169,130,46,0.42);}
+  .calc-lookup-status{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:12.5px;line-height:1.7;display:none;}
+  .calc-lookup-status.ok{background:#eef7f0;color:#1e6b47;border:1px solid #cfe9d6;display:block;}
+  .calc-lookup-status.err{background:#fbebe9;color:#a2352a;border:1px solid #f2c9c4;display:block;}
+  .calc-lookup-status b{color:inherit;}
+  .calc-badge{display:inline-block;padding:1px 8px;border-radius:20px;font-size:10.5px;font-weight:700;margin-left:6px;}
+  .calc-badge-recent{background:#dff1e4;color:#1e6b47;}
+  .calc-badge-alltime{background:#fbe9d3;color:#9a6a1c;}
+  .calc-divider{height:1px;background:var(--line);margin:20px 0;}
+  .calc-result-wrap{display:none;}
+  .calc-result-wrap.show{display:block;}
+  .calc-result-hero{background:linear-gradient(135deg, var(--brand-gold), #c79b3f);border-radius:14px;padding:22px 26px;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;box-shadow:0 6px 18px rgba(169,130,46,0.3);}
+  .calc-result-hero.warn{background:linear-gradient(135deg, #b5442f, #c6402e);box-shadow:0 6px 18px rgba(198,64,46,0.3);}
+  .calc-result-label{font-size:13px;opacity:.92;font-weight:600;letter-spacing:.3px;}
+  .calc-result-value{font-size:36px;font-weight:800;margin-top:2px;}
+  .calc-result-value small{font-size:16px;font-weight:600;opacity:.85;margin-left:4px;}
+  .calc-result-sub{font-size:12px;opacity:.85;margin-top:4px;}
+  .calc-steps{margin-top:18px;}
+  .calc-step{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line);font-size:13.5px;}
+  .calc-step:last-child{border-bottom:none;}
+  .calc-step-num{width:20px;height:20px;border-radius:50%;background:var(--tan-soft);color:var(--brand-deep);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .calc-step-label{color:var(--ink-soft);flex:1;}
+  .calc-step-formula{color:var(--ink-faint);font-size:12px;font-family:ui-monospace,Menlo,monospace;}
+  .calc-step-value{font-weight:700;color:var(--brand-deep);white-space:nowrap;}
+  .calc-verify-row{margin-top:14px;padding:12px 14px;background:var(--tan-soft);border-radius:10px;font-size:12.5px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .calc-verify-row .calc-ok-dot{width:8px;height:8px;border-radius:50%;background:var(--good);flex-shrink:0;}
+  .calc-compare-row{margin-top:12px;padding:14px 16px;background:#fff;border:1.5px solid var(--line);border-radius:10px;font-size:12.5px;color:var(--ink-soft);display:none;}
+  .calc-compare-row.show{display:block;}
+  .calc-compare-title{font-size:12px;font-weight:700;color:var(--brand-deep);margin-bottom:8px;}
+  .calc-compare-grid{display:flex;gap:20px;flex-wrap:wrap;align-items:baseline;}
+  .calc-compare-item .calc-compare-label{font-size:11px;color:var(--ink-faint);}
+  .calc-compare-item .calc-compare-value{font-size:17px;font-weight:800;color:var(--brand-deep);}
+  .calc-diff-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;margin-left:6px;}
+  .calc-diff-easy{background:#dff1e4;color:#1e6b47;}
+  .calc-diff-medium{background:#fbe9d3;color:#9a6a1c;}
+  .calc-diff-hard{background:#fbebe9;color:#a2352a;}
+  .calc-formula-box{background:var(--brand-deep);color:var(--tan-soft);border-radius:10px;padding:14px 18px;font-size:13px;font-family:ui-monospace,Menlo,monospace;line-height:1.8;margin-top:16px;}
+  .calc-comment{color:#b8a888;font-size:11.5px;}
+  @media (max-width:640px){.calc-result-hero{flex-direction:column;align-items:flex-start;}}
+  .kol-header-btn{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;padding:10px 18px;border-radius:10px;background:linear-gradient(135deg, var(--brand-gold), #c79b3f);color:#fff;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 3px 10px rgba(169,130,46,0.3);transition:transform .1s, box-shadow .15s;align-self:center;}
+  .kol-header-btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(169,130,46,0.38);}
+  @media (max-width:640px){.kol-header-btn{align-self:flex-start;}}
+
+  /* ---------- Cursor spotlight ----------
+     一個金黃色光暈跟著滑鼠在頁面背景移動的裝飾效果。純視覺，不影響任何資料或版面。
+     實作重點：#cursorGlow 放在 <body> 最前面、position:fixed、z-index:60（蓋過一般卡片
+     z-index:30、sticky 表頭等，但低於 lightbox 的 100，所以打開圖片燈箱時不會被光暈蓋住），
+     並用 mix-blend-mode:multiply 讓它用「相乘」而非直接覆蓋的方式跟底下內容混色——效果像
+     螢光筆畫在紙上：淺色背景會被染黃變明顯，深色文字/深色徽章仍保持深色可讀，不會被完全
+     遮住。觸控裝置（沒有真正的滑鼠游標）用 @media (hover:none) 直接隱藏。 */
+  #cursorGlow{
+    position:fixed;top:0;left:0;width:72px;height:72px;
+    border-radius:50%;pointer-events:none;
+    z-index:60;
+    mix-blend-mode:multiply;
+    background:radial-gradient(circle, rgba(255,213,0,0.62) 0%, rgba(255,213,0,0.42) 35%, rgba(255,213,0,0.16) 60%, rgba(255,213,0,0) 78%);
+    transform:translate(-50%,-50%);
+    opacity:0;transition:opacity .25s ease;
+    will-change:transform;
+  }
+  @media (hover:none){ #cursorGlow{display:none;} }
+</style>
+</head>
+<body>
+
+<div id="cursorGlow"></div>
+
+<header class="top">
+  <div class="header-inner">
+    <div class="logo-row">
+      <div class="logo-block">HULKEN<sup>®</sup></div>
+      <div class="logo-jp">JP</div>
+    </div>
+    <div class="week-picker" id="weekPicker">
+      <div class="meta-chip" id="weekPickerToggle">Week 38 · 2026/09/17 – 2026/09/23 <span class="caret">▼</span></div>
+      <div class="week-menu" id="weekMenu"></div>
+    </div>
+  </div>
+  <div class="header-inner" style="margin-top:6px;">
+    <div class="title-block">
+      <h1>廣告成效週報</h1>
+      <div class="sub">整理人：Leo · 更新日期 2026/09/23 · 資料來源：Hulken JP_Mastersheet（Meta / Google / Amazon / Rakuten / KOL）</div>
+    </div>
+    <a class="kol-header-btn" href="https://hulkenjp.pages.dev/all" target="_blank" rel="noopener">完整成效 & KOL 授權計算機 ↗</a>
+  </div>
+</header>
+
+<nav class="secnav">
+  <div class="inner">
+    <a href="#overview">Overview 總覽</a>
+    <a href="#channels">全渠道成效</a>
+    <a href="#meta-test">Meta 測試素材</a>
+    <a href="#meta-creative">Meta 常態素材</a>
+    <a href="#kol">本週 KOL 表現 (含授權金)</a>
+    <a href="#kol-discuss">近期 KOL 表現討論</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ================= OVERVIEW ================= -->
+  <section id="overview">
+    <div class="sec-head"><h2>廣告成效討論 — Overview</h2><span class="sec-tag">全渠道整體表現（WoW）</span></div>
+
+    <div class="kpi-grid" id="kpiGrid"></div>
+    <div class="hint">花費金額（不含 Amazon／Rakuten）已排除 KOL 授權金攤提與非 CPA 目標（如 CPC）廣告，僅呈現以 ROAS/CPA 為目標之媒體單獨成效；下方品牌字／測試廣告拆解亦採同一口徑。僅「KOL 表現＋授權金」表格納入授權金，兩者口徑不同，請留意對照。上週對比數字亦以同一口徑重新計算，兩週間可直接比較。</div>
+
+    <div class="grid-2" style="margin-top:20px;">
+      <div class="card split-card" id="brandSplitCard">
+        <h3>是否包含品牌字</h3>
+      </div>
+      <div class="card split-card" id="testSplitCard">
+        <h3>是否為測試廣告（General / TEST）</h3>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CHANNELS ================= -->
+  <section id="channels">
+    <div class="sec-head"><h2>廣告成效討論 — Overview · 全渠道</h2><span class="sec-tag">依渠道 / 廣告類型拆解 · Week: Sep 17, 2026</span></div>
+    <div class="table-scroll">
+      <table id="channelTable"></table>
+    </div>
+    <div class="hint">%Δ 為對比上週（Week_1st_day 2026-09-10）之週增減。</div>
+    <div class="callout">
+      <div class="row">跟上波(9/2-9/8,ROAS1,020%)比, 這週ROAS重摔到337.71%, 掉了683個百分點(-66.9%)。<br>花費幾乎沒變(50,071→50,041円,持平),曝光也差不多(-3.5%),但轉換整個弱下來。</div>
+    </div>
+  </section>
+
+  <!-- ================= META TEST ================= -->
+  <section id="meta-test">
+    <div class="sec-head"><h2>Meta — 測試（未升級常態）素材概況</h2><span class="sec-tag">General vs. TEST</span></div>
+    <div class="table-scroll">
+      <table id="metaTestTable"></table>
+    </div>
+    <div class="hint">本區塊與下方「常態素材概況」的 ROAS／CPM 皆為排除 KOL 授權金之媒體單獨成效，與 Overview 口徑一致。只要過去 14 天內有花費即列出（點欄位標題可排序，預設顯示 10 列，可往下捲動看更多）：</div>
+    <div class="table-scroll table-scroll-v" style="margin-top:10px;">
+      <table id="metaTestKolTable"></table>
+    </div>
+  </section>
+
+  <!-- ================= META CREATIVE ================= -->
+  <section id="meta-creative">
+    <div class="sec-head"><h2>Meta — 常態素材概況</h2><span class="sec-tag">已升級常態投放素材・過去 14 天內有花費者皆列出（點欄位標題可排序）</span></div>
+    <div class="table-scroll table-scroll-v">
+      <table id="metaCreativeTable"></table>
+    </div>
+  </section>
+
+  <!-- ================= KOL ================= -->
+  <section id="kol">
+    <div class="sec-head"><h2>本週 KOL 表現 (含授權金)</h2><span class="sec-tag">已攤提授權金成本後的 ROAS（點欄位標題可排序）</span></div>
+    <div class="table-scroll table-scroll-v">
+      <table id="kolTable"></table>
+    </div>
+    <div class="hint">花費金額已包含該 KOL 素材當週攤提之授權金（金黃色小字標註實際金額），故 ROAS 略低於「常態素材概況」中未計入授權金的數字。花費金額 = 廣告投放費 + 攤提授權金。只要過去 14 天內有花費（含授權金）即列出，預設顯示 10 列，可往下捲動看更多。</div>
+  </section>
+
+  <!-- ================= KOL DISCUSSION (manual analysis block) =================
+       手動分析區塊，2026-09-16 因使用者要求加入，內容來自當次對話的 KOL 表現討論。
+       非 build_weekly_report.py 自動產生／管理的 const 資料，也不是 Weekly Insight
+       callout（那個仍只放 Bridge「Weekly Insight」分頁的逐字內容）。
+       若下週用本頁當範本複製，請自行決定是否保留、更新或整段移除本區塊 —— 指令碼
+       目前不會自動處理它，也不會自動移除。 -->
+  <section id="kol-discuss">
+    <div class="sec-head"><h2>近期 KOL 表現討論</h2><span class="sec-tag">以 Row 編號回推上稿時序 · 2026-09-23 更新（W38 資料）</span></div>
+
+    <p style="font-size:13.5px;line-height:1.7;color:var(--ink-soft);margin:0 0 16px;">
+      KOL 素材的 Naming Rule 裡的 <code>R:</code>（素材表列數）跟每支素材「首次上稿日期」的時序相關係數高達 0.997，
+      可以直接當時間序使用。以下依「首次上稿月份」分組，呈現該月新加入的 KOL 素材，從上稿至 2026/09/23 為止的累積成效
+      （早期月份的素材通常已累積較長時間，數字包含其後續所有週次的表現，並非只算上稿當月）：
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left;">首次上稿月份</th>
+            <th>新增 KOL 素材數</th>
+            <th>平均每支累積媒體花費（不含授權金）</th>
+            <th>CPM</th>
+            <th>CTR</th>
+            <th>CVR</th>
+            <th>CPA</th>
+            <th>ROAS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="month-row" data-month="2026-03"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-03</td><td>2</td><td>¥3,991,680</td><td>¥2,483.9</td><td>3.55%</td><td>2.18%</td><td>¥3,205</td><td>5.41</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-03" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-0"></table></div></td></tr>
+          <tr class="month-row" data-month="2026-04"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-04</td><td>2</td><td>¥600,534</td><td>¥2,289.5</td><td>3.32%</td><td>2.14%</td><td>¥3,229</td><td>5.38</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-04" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-1"></table></div></td></tr>
+          <tr class="month-row" data-month="2026-05"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-05</td><td>5</td><td>¥67,049</td><td>¥3,101.6</td><td>1.98%</td><td>2.39%</td><td>¥6,573</td><td>2.57</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-05" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-2"></table></div></td></tr>
+          <tr class="month-row" data-month="2026-06"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-06</td><td>13</td><td>¥409,198</td><td>¥2,959.3</td><td>3.50%</td><td>2.44%</td><td>¥3,472</td><td>5.05</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-06" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-3"></table></div></td></tr>
+          <tr class="month-row" data-month="2026-07"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-07</td><td>21</td><td>¥507,990</td><td>¥2,656.8</td><td>3.13%</td><td>2.36%</td><td>¥3,600</td><td>4.86</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-07" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-4"></table></div></td></tr>
+          <tr class="month-row highlight" data-month="2026-08"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-08</td><td>26</td><td>¥155,979</td><td>¥3,078.7</td><td>2.41%</td><td>2.78%</td><td>¥4,603</td><td>3.69</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-08" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-5"></table></div></td></tr>
+          <tr class="month-row highlight" data-month="2026-09"><td style="text-align:left;"><span class="cat-chevron">▸</span>2026-09（至今）</td><td>12</td><td>¥51,218</td><td>¥3,043.2</td><td>2.09%</td><td>2.25%</td><td>¥6,470</td><td>2.70</td></tr>
+          <tr class="cat-detail-row" data-month-detail="2026-09" style="display:none;"><td colspan="8"><div class="table-scroll"><table id="monthDetail-6"></table></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="hint">9 月列共 12 支，上稿僅 1–22 天，樣本數與累積花費都還很小（合計媒體花費約 ¥61 萬、約 95 筆訂單），數字會隨時間持續變動；8 月列則已有 4–7 週的完整數據。本表與下方分類表的花費／CPA／ROAS 皆為媒體花費口徑（不含授權金），CPM 為花費金額（不含授權金）／曝光次數×1000，同一支素材整段生命週期的加權平均。<b>9 月官方回報有貨量／庫存問題</b>，該月 CVR 數字請對照下方說明謹慎解讀。<b>點擊任一月份列可展開查看該月新增的個別素材名稱與成效</b>（子表格的花費／CPA／ROAS 含攤提授權金，CPM 不含），預設依 CTR 由低到高排序，點擊子表格欄位標題可切換排序依據與方向。</div>
+
+    <div class="callout note" style="margin-top:20px;">
+      <div class="row strong">CTR 從 6 月的 3.5% 一路降到 7 月 3.1%、8 月 2.4%、9 月 2.1%，仍是這波 ROAS 下滑最主要的原因；本週新上稿的素材沒有扭轉這個趨勢。</div>
+      <div class="row">9 月 CVR（2.25%）明顯低於 8 月（2.78%），同期官方回報有貨量／庫存問題，可能是消費者點進去後遇到缺貨，讓 9 月 ROAS（2.70）又進一步惡化；但 9 月樣本仍小（約 95 筆訂單），請謹慎解讀。</div>
+      <div class="row">CPM（市場競價成本）同期只從 6、7 月的 ¥2,657–2,959 溫和上升到 8、9 月的 ¥3,043–3,079，漲幅約 3–16%，遠小於 CTR 下滑的幅度——市場競爭確實稍微變貴了，但不是 CPA／ROAS 惡化的主因，CTR 下滑貢獻的影響大得多。</div>
+      <div class="row">8 月一口氣新增 26 支 KOL 素材（比 6、7 月都多），但平均每支媒體預算只剩 6、7 月的約 1/3（¥15.6 萬 vs. ¥40.9–50.8 萬）；9 月至今已新增 12 支、平均每支 ¥5.1 萬，策略上仍是「大量小額測試新素材」而非「重押少數已驗證 KOL」。</div>
+      <div class="row">已用資料排除「新素材需要暖機期，晚點會變好」的假設：對照上稿已滿 6 週的舊素材（48 支），「上稿前 14 天」的平均 ROAS（4.26）跟「終身平均」（4.00）差不多，並沒有普遍「越晚越好」的現象。</div>
+      <div class="row">Naming Rule 裡的 B（素材格式）／E（到達頁屬性）從 5 月中起就已固定為「影片」／「collections」，本週新素材也一樣，所以不太可能是這次下滑的原因；C／D 兩欄雖是每位 KOL 各自的自由文字描述，但用關鍵字歸類後仍能拆出幾個明顯主題（見下方）。</div>
+    </div>
+
+    <div style="margin-top:26px;">
+      <h3 style="font-size:14px;color:var(--brand-deep);font-weight:800;margin:0 0 4px;">依內容主題分類（C／D 欄位關鍵字歸類）</h3>
+      <p style="font-size:13.5px;line-height:1.7;color:var(--ink-soft);margin:0 0 12px;">
+        C（溝通主軸）／D（素材主視覺）兩欄雖然是每位 KOL 各自填寫的自由文字，但用關鍵字比對仍可歸出 6 個內容主題（單一標籤，依優先順序判斷；不少素材其實橫跨多個主題，例如「時尚媽媽旅行」同時有親子與旅遊，這裡歸到親子育兒，數字僅供方向參考；本週新增的 7 支素材依同一規則歸類：mari（R162）、harutaco（R170）→ 旅遊出遊，meme（R164）、nene（R165）、rei（R167）→ 親子育兒，pamu（R169）、yukachinmaru（R171）→ 日常生活／其他）：
+      </p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align:left;">類別</th>
+              <th>素材數</th>
+              <th>CPM</th>
+              <th>CTR</th>
+              <th>CVR</th>
+              <th>CPA</th>
+              <th>ROAS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="cat-row" data-cat="露營戶外野餐"><td style="text-align:left;"><span class="cat-chevron">▸</span>露營戶外野餐</td><td>7</td><td>¥2,480.3</td><td>3.47%</td><td>2.19%</td><td>¥3,253</td><td>5.34</td></tr>
+            <tr class="cat-detail-row" data-cat-detail="露營戶外野餐" style="display:none;"><td colspan="7"><div class="table-scroll"><table id="catDetail-0"></table></div></td></tr>
+            <tr class="cat-row" data-cat="開箱評測"><td style="text-align:left;"><span class="cat-chevron">▸</span>開箱評測</td><td>19</td><td>¥2,864.1</td><td>3.31%</td><td>2.45%</td><td>¥3,531</td><td>4.96</td></tr>
+            <tr class="cat-detail-row" data-cat-detail="開箱評測" style="display:none;"><td colspan="7"><div class="table-scroll"><table id="catDetail-1"></table></div></td></tr>
+            <tr class="cat-row" data-cat="賣場購物"><td style="text-align:left;"><span class="cat-chevron">▸</span>賣場購物（好市多／超市）</td><td>5</td><td>¥2,556.4</td><td>2.85%</td><td>2.51%</td><td>¥3,580</td><td>4.92</td></tr>
+            <tr class="cat-detail-row" data-cat-detail="賣場購物" style="display:none;"><td colspan="7"><div class="table-scroll"><table id="catDetail-2"></table></div></td></tr>
+            <tr class="cat-row" data-cat="旅遊出遊"><td style="text-align:left;"><span class="cat-chevron">▸</span>旅遊出遊</td><td>16</td><td>¥2,787.2</td><td>2.95%</td><td>2.54%</td><td>¥3,722</td><td>4.68</td></tr>
+            <tr class="cat-detail-row" data-cat-detail="旅遊出遊" style="display:none;"><td colspan="7"><div class="table-scroll"><table id="catDetail-3"></table></div></td></tr>
+            <tr class="cat-row" data-cat="日常生活／其他"><td style="text-align:left;"><span class="cat-chevron">▸</span>日常生活／其他</td><td>14</td><td>¥2,733.5</td><td>3.43%</td><td>2.08%</td><td>¥3,835</td><td>4.46</td></tr>
+            <tr class="cat-detail-row" data-cat-detail="日常生活／其他" style="display:none;"><td colspan="7"><div class="table-scroll"><table id="catDetail-4"></table></div></td></tr>
+            <tr class="cat-row highlight" data-cat="親子育兒"><td style="text-align:left;"><span class="cat-chevron">▸</span>親子育兒</td><td>20</td><td>¥3,075.3</td><td>2.39%</td><td>2.85%</td><td>¥4,525</td><td>3.80</td></tr>
+            <tr class="cat-detail-row" data-cat-detail="親子育兒" style="display:none;"><td colspan="7"><div class="table-scroll"><table id="catDetail-5"></table></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="hint">各類別數字為該類全歷史（上稿至今）加權平均，非近期單一時段；分類判斷順序：親子育兒 → 旅遊出遊 → 露營戶外野餐 → 賣場購物 → 開箱評測 → 日常生活／其他。親子育兒類別裡有 4 支素材是 9 月才上稿（becky／meme／nene／rei，合計媒體花費約 ¥20 萬、36 筆訂單），受 9 月貨量問題影響的程度較大；但即使排除這 4 支，親子育兒的 ROAS 仍只有 3.86，依然是六類中最低，不影響下方「親子育兒表現最弱」的結論。<b>點擊上方任一類別列可展開查看該類別的個別素材名稱與成效</b>，預設依 CTR 由低到高排序（最需要關注的素材排最前面），點擊子表格的欄位標題可切換排序依據與方向。</div>
+
+      <div class="callout note" style="margin-top:16px;">
+        <div class="row strong">親子育兒仍是六個類別中表現最弱的（ROAS 3.80），而且弱得很有特色：CPM 全類別最高（¥3,075，比最便宜的露營戶外野餐貴 24%），CTR 也全類別最低（2.39%），但 CVR 反而全類別最高（2.85%）—— 親子受眾市場競價最激烈、最難被素材抓住點擊，可是一旦點進去，轉換意願很強，商品與受眾的契合度沒問題。</div>
+        <div class="row">近期素材組成更往這個最弱類別傾斜：親子育兒佔比從 3–7 月的 18.6% 升到 8–9 月的 31.6%（本週新增 7 支中就有 3 支是親子育兒），同期表現第二好的「開箱評測」佔比則從 27.9% 掉到 18.4%。</div>
+        <div class="row">這正好解釋了上面 CPM 為何會小幅上升：不是整體市場全面變貴，而是近期新測的素材裡，本來就比較貴、比較難搶到點擊的親子育兒類別佔比變高了 —— 疊加在「大量小額測試取代重押少數」的策略轉向之上，兩件事一起把近期 ROAS 拉下來。</div>
+      </div>
+    </div>
+
+    <div style="margin-top:22px;">
+      <h3 style="font-size:14px;color:var(--brand-deep);font-weight:800;margin:0 0 10px;">縮圖比對：近期表現較弱 vs. 過去表現佳（質化觀察，非統計驗證）</h3>
+      <div class="gallery">
+        <div class="gallery-card">
+          <img src="../AD Images/128.jpg" class="thumb-card js-zoom" data-row="128" data-name="A:KOL-naa-128" title="點擊放大" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="thumb-card thumb-missing" style="display:none;">缺圖<br>#128</div>
+          <div class="cap"><b>naa（R128）ROAS 2.84</b>純商品照，畫面無人</div>
+        </div>
+        <div class="gallery-card">
+          <img src="../AD Images/153.jpg" class="thumb-card js-zoom" data-row="153" data-name="A:KOL-manmaru-153" title="點擊放大" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="thumb-card thumb-missing" style="display:none;">缺圖<br>#153</div>
+          <div class="cap"><b>manmaru（R153）ROAS 1.91</b>一家人背影過馬路</div>
+        </div>
+        <div class="gallery-card">
+          <img src="../AD Images/141.jpg" class="thumb-card js-zoom" data-row="141" data-name="A:KOL-matsu-141" title="點擊放大" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="thumb-card thumb-missing" style="display:none;">缺圖<br>#141</div>
+          <div class="cap"><b>matsu（R141）ROAS 2.53</b>推嬰兒車背影</div>
+        </div>
+        <div class="gallery-card">
+          <img src="../AD Images/154.jpg" class="thumb-card js-zoom" data-row="154" data-name="A:KOL-marika.oka-154" title="點擊放大" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="thumb-card thumb-missing" style="display:none;">缺圖<br>#154</div>
+          <div class="cap"><b>marika.oka（R154）ROAS 2.14</b>小孩玩耍，包當背景道具</div>
+        </div>
+        <div class="gallery-card">
+          <img src="../AD Images/90.jpg" class="thumb-card js-zoom" data-row="90" data-name="A:KOL-risa-90" title="點擊放大" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="thumb-card thumb-missing" style="display:none;">缺圖<br>#90</div>
+          <div class="cap"><b>risa（R90）ROAS 5.45，對照組</b>正面露臉＋權威標籤「經18年專業造型師」</div>
+        </div>
+        <div class="gallery-card">
+          <img src="../AD Images/116.jpg" class="thumb-card js-zoom" data-row="116" data-name="A:KOL-yukko-116" title="點擊放大" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="thumb-card thumb-missing" style="display:none;">缺圖<br>#116</div>
+          <div class="cap"><b>yukko（R116）ROAS 4.79，對照組</b>正面露臉，時尚穿搭風格</div>
+        </div>
+        <div class="gallery-card">
+          <img src="../AD Images/124.jpg" class="thumb-card js-zoom" data-row="124" data-name="A:KOL-hadamegu-124" title="點擊放大" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="thumb-card thumb-missing" style="display:none;">缺圖<br>#124</div>
+          <div class="cap"><b>hadamegu（R124）ROAS 5.51，對照組</b>露臉開箱評測，第一人稱口吻</div>
+        </div>
+      </div>
+    </div>
+    <div class="hint">以上為 7 支素材縮圖的質化比對（樣本小；圖說 ROAS 為截至 2026/09/23 的累積媒體 ROAS，不含授權金），觀察到表現較好的幾支多為 KOL 本人正面露臉＋權威／第一人稱口吻，近期表現較弱的幾支則多是背影／側拍或純商品照。這跟上面「CTR 崩但 CVR 沒事」的方向吻合，但不是嚴謹統計結果——手上沒有影片檔本身，這裡看的只是靜態縮圖，無法判斷實際影片開場秒數的抓人程度。若要驗證，建議之後把「縮圖是否露臉」標記成新欄位，回填近期素材後看與 CTR 的相關性。</div>
+  </section>
+
+</div>
+
+<footer>
+  Hulken JP 廣告成效週報 · 資料整理自 Hulken JP_Mastersheet（Datastudio 同步資料源）· 本頁為 Week 38（2026/09/17–09/23）週報。
+</footer>
+
+<script>
+/* ---------------- Cursor spotlight ----------------
+   讓 #cursorGlow 跟著滑鼠移動；用 requestAnimationFrame 節流，避免每個
+   mousemove 都直接操作樣式造成掉幀。滑鼠離開視窗時淡出。 */
+(function(){
+  const glow = document.getElementById('cursorGlow');
+  if(!glow) return;
+  let raf = null, mx = window.innerWidth/2, my = window.innerHeight/2;
+  function render(){
+    glow.style.transform = `translate(${mx}px, ${my}px) translate(-50%,-50%)`;
+    raf = null;
+  }
+  window.addEventListener('mousemove', e=>{
+    mx = e.clientX; my = e.clientY;
+    glow.style.opacity = '1';
+    if(!raf) raf = requestAnimationFrame(render);
+  }, {passive:true});
+  document.addEventListener('mouseleave', ()=>{ glow.style.opacity = '0'; });
+})();
+
+/* ---------------- Week picker ----------------
+   每週產出新報告時，把新的一週加進這個陣列最前面（isCurrent 改到最新一週），
+   href 用相對路徑指向「../<WeekFolder>/<檔名>.html」（與此 HTML 同層的上一層資料夾）。 */
+/* ---------------- Week picker ----------------
+   每週產出新報告時，只要更新專案根目錄的 weeks.json（新增一筆到最前面），
+   不需要再逐一回頭修改舊週報的 HTML —— 所有週報頁面都在載入時動態抓
+   weeks.json 來組出下拉選單，並用自己的 THIS_REPORT_FILE 跟清單比對，
+   自動判斷哪一筆是「目前檢視中」。 */
+const THIS_REPORT_FILE = '2026W38/hulken_week38_report.html';
+(function initWeekPicker(){
+  const picker = document.getElementById('weekPicker');
+  const toggle = document.getElementById('weekPickerToggle');
+  const menu = document.getElementById('weekMenu');
+  if(!picker || !toggle || !menu) return;
+  fetch('../weeks.json').then(r => r.json()).then(WEEKS => {
+    menu.innerHTML = WEEKS.map(w => {
+      const isCurrent = w.file === THIS_REPORT_FILE;
+      const href = '../' + w.file;
+      const betaTag = w.isBeta ? '<span class="beta-badge">BETA</span>' : '';
+      return isCurrent
+        ? `<a class="current">${w.label}${betaTag}<span class="wm-date">目前檢視中</span></a>`
+        : `<a href="${href}">${w.label}${betaTag}</a>`;
+    }).join('');
+  }).catch(()=>{
+    menu.innerHTML = '<a class="current">週次清單載入失敗</a>';
+  });
+  toggle.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    picker.classList.toggle('open');
+  });
+  document.addEventListener('click', (e)=>{
+    if(!picker.contains(e.target)) picker.classList.remove('open');
+  });
+})();
+
+const fmtInt = n => n==null ? '–' : Math.round(n).toLocaleString('en-US');
+const fmt2 = n => n==null ? '–' : Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtPct1 = n => n==null ? '–' : Number(n).toFixed(2)+'%';
+const money = n => n==null ? '–' : '¥'+fmtInt(n);
+
+// 圖片改用相對路徑指向本機 AD Images 資料夾（與此 HTML 同層的上一層），
+// 不再把圖片以 base64 內嵌進檔案。新增/更新圖片後，直接重新整理瀏覽器即可看到，
+// 不需要重新產生這份報告——但檔案要維持「.../Hulken Weekly Report/AD Images/<Row>.jpg」
+// 這個相對位置（含放到 GitHub 上時，AD Images 資料夾也要一起 push 並維持同樣的相對層級）。
+const AD_IMG_DIR = '../AD Images/';
+function rowNumFromName(name){ const m = name.match(/-(\d+)$/); return m ? m[1] : null; }
+function thumbHtml(name, size){
+  const rn = rowNumFromName(name);
+  const cls = size==='card' ? 'thumb-card' : 'thumb';
+  if(!rn) return `<div class="${cls} thumb-missing">缺圖</div>`;
+  const src = AD_IMG_DIR + rn + '.jpg';
+  return `<span class="thumb-slot">
+    <img src="${src}" class="${cls} js-zoom" data-row="${rn}" data-name="${name}" title="點擊放大"
+      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="${cls} thumb-missing" style="display:none;">缺圖<br>#${rn}</div>
+  </span>`;
+}
+function nameCellWithThumb(name){
+  return `<div style="display:flex;align-items:center;gap:8px;">${thumbHtml(name,'thumb')}<span>${name}</span></div>`;
+}
+function openLightbox(row, name){
+  document.getElementById('lightboxImg').src = AD_IMG_DIR + row + '.jpg';
+  document.getElementById('lightboxCap').textContent = name || ('#'+row);
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+document.addEventListener('click', e=>{
+  const t = e.target.closest('.js-zoom');
+  if(t){ openLightbox(t.dataset.row, t.dataset.name); return; }
+  if(e.target.id==='lightbox' || e.target.closest('.lb-close')){ closeLightbox(); }
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeLightbox(); });
+
+function deltaChip(d, {size='normal'}={}){
+  if(d===null || d===undefined) return `<span class="delta flat">–</span>`;
+  const up = d>0, cls = d===0?'flat':(up?'up':'down');
+  const arrow = d===0? '·' : (up?'▲':'▼');
+  const cssClass = size==='sub' ? 'dsub' : 'delta';
+  return `<span class="${cssClass} ${cls}">${arrow} ${Math.abs(d).toFixed(1)}%</span>`;
+}
+
+/* ---------------- KPI tiles ---------------- */
+const kpis = [{"label": "花費金額 (JPY)", "value": "¥2,178,101", "delta": -21.8}, {"label": "CPA", "value": "¥4,427.03", "delta": 3.1}, {"label": "ROAS", "value": "3.80", "delta": -1.6, "hero": true}, {"label": "CTR", "value": "2.26%", "delta": -7.1}, {"label": "CVR", "value": "2.34%", "delta": -10.0}, {"label": "CPM", "value": "¥2,341.69", "delta": -13.8}];
+document.getElementById('kpiGrid').innerHTML = kpis.map(k=>`
+  <div class="kpi-card ${k.hero?'hero':''}">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value">${k.value}</div>
+    ${deltaChip(k.delta)}
+  </div>`).join('');
+
+/* ---------------- Overview splits ---------------- */
+function heroDelta(d){
+  if(d===null || d===undefined) return `<div class="roas-delta flat">–</div>`;
+  const up = d>0, cls = d===0?'flat':(up?'up':'down');
+  const arrow = d===0?'·':(up?'▲':'▼');
+  return `<div class="roas-delta ${cls}">${arrow} ${Math.abs(d).toFixed(1)}%</div>`;
+}
+function renderSplit(containerId, rows, grand){
+  const max = Math.max(...rows.map(r=>r.cost));
+  const html = rows.map(r=>`
+    <div class="split-row">
+      <div style="flex:0 0 140px;">
+        <div class="split-name">${r.label}</div>
+        <div class="split-metrics"><span>花費 <b>${money(r.cost)}</b></span>${deltaChip(r.costD,{size:'sub'})}</div>
+      </div>
+      <div class="split-bar-wrap"><div class="split-bar" style="width:${(r.cost/max*100).toFixed(1)}%"></div></div>
+      <div style="flex:0 0 190px;text-align:right;">
+        <div class="split-metrics" style="justify-content:flex-end;">
+          <span>佔比 <b>${r.share}%</b></span>
+        </div>
+        <div class="split-metrics" style="justify-content:flex-end;margin-top:4px;">
+          <span>CPA <b>${fmt2(r.cpa)}</b></span>
+          <span>CTR <b>${r.ctr}%</b></span>
+          <span>CVR <b>${r.cvr}%</b></span>
+        </div>
+      </div>
+      <div class="roas-hero">
+        <div class="roas-label">ROAS</div>
+        <div class="roas-num">${r.roas}</div>
+        ${heroDelta(r.roasD)}
+      </div>
+    </div>`).join('');
+  document.getElementById(containerId).insertAdjacentHTML('beforeend', html + `
+    <div class="split-row" style="border-top:2px solid var(--brand-gold);margin-top:4px;padding-top:12px;">
+      <div style="flex:0 0 140px;"><div class="split-name">Grand total</div></div>
+      <div class="split-bar-wrap"></div>
+      <div style="flex:0 0 190px;text-align:right;font-weight:700;">
+        花費 ${money(grand.cost)}
+      </div>
+      <div class="roas-hero sm">
+        <div class="roas-label">ROAS</div>
+        <div class="roas-num">${grand.roas}</div>
+      </div>
+    </div>`);
+}
+renderSplit('brandSplitCard', [{"label": "否", "cost": 2035361.8, "costD": -22.9, "share": 93.45, "cpa": 4591.19, "roas": 3.67, "roasD": -3.0, "ctr": 2.44, "cvr": 2.3}, {"label": "是", "cost": 142739.2, "costD": -2.8, "share": 6.55, "cpa": 2932.12, "roas": 5.65, "roasD": 7.7, "ctr": 1.24, "cvr": 2.82}], {cost:2178101.0, roas:3.8});
+
+renderSplit('testSplitCard', [{"label": "General", "cost": 1680344.0, "costD": -23.0, "share": 77.15, "cpa": 3991.32, "roas": 4.22, "roasD": -2.2, "ctr": 2.33, "cvr": 2.36}, {"label": "TEST", "cost": 497757.0, "costD": -17.8, "share": 22.85, "cpa": 7010.66, "roas": 2.4, "roasD": 6.4, "ctr": 1.92, "cvr": 2.24}], {cost:2178101.0, roas:3.8});
+
+/* ---------------- Channel table ---------------- */
+// WoW deltas computed from Weekly Report Manual (Week_1st_day 2026-09-10 vs 2026-09-17).
+const channelRows = [{"channel": "Meta", "type": "非品牌", "cost": 1951101.0, "costD": -24.5, "share": 82.15, "ctr": 3.22, "ctrD": -5.0, "cvr": 1.85, "cvrD": -3.1, "cpm": 2850.54, "cpmD": -6.5, "roas": 3.57, "roasD": -1.5}, {"channel": "Google", "type": "非品牌", "cost": 107612.0, "costD": 18.4, "share": 4.53, "ctr": 1.62, "ctrD": -0.6, "cvr": 1.41, "cvrD": 6.6, "cpm": 694.32, "cpmD": -3.5, "roas": 4.79, "roasD": -28.0}, {"channel": "Google", "type": "品牌", "cost": 142739.0, "costD": -2.9, "share": 6.01, "ctr": 1.24, "ctrD": -6.9, "cvr": 2.82, "cvrD": 1.8, "cpm": 1030.31, "cpmD": -16.5, "roas": 5.65, "roasD": 12.9}, {"channel": "Amazon", "type": "非品牌", "cost": 101250.0, "costD": 0.2, "share": 4.26, "ctr": 1.07, "ctrD": -8.7, "cvr": 0.98, "cvrD": -43.0, "cpm": 883.8, "cpmD": -4.3, "roas": 1.98, "roasD": -45.5}, {"channel": "Amazon", "type": "品牌", "cost": 22282.0, "costD": -30.0, "share": 0.94, "ctr": 5.64, "ctrD": 8.8, "cvr": 5.78, "cvrD": 14.5, "cpm": 1134.12, "cpmD": 0.8, "roas": 47.73, "roasD": 23.4}, {"channel": "Rakuten", "type": "RPP - 非品牌*", "cost": 0.0, "costD": null, "share": 0.0, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null, "roas": null, "roasD": null}, {"channel": "Rakuten", "type": "TDA - 非品牌*", "cost": 50041.0, "costD": null, "share": 2.11, "ctr": 1.31, "ctrD": null, "cvr": 2.94, "cvrD": null, "cpm": 2140.79, "cpmD": null, "roas": 3.38, "roasD": null}];
+const channelGrand = {"cost": 2375025.0, "costD": -19.6, "ctr": 2.55, "ctrD": -10.8, "cvr": 2.0, "cvrD": -2.1, "cpm": 2091.46, "cpmD": -12.9, "roas": 4.09, "roasD": -1.7};
+function stack(valueHtml, delta){
+  return `<div class="stack-cell"><span>${valueHtml}</span>${deltaChip(delta,{size:'sub'})}</div>`;
+}
+let channelSort = {key:'roas', dir:'desc'};
+function renderChannelTable(){
+  const sorted = sortRows(channelRows, channelSort);
+  const cols = [
+    {key:'channel', label:'Channel'},{key:'type', label:'AD Type'},
+    {key:'cost', label:'Cost'},{key:'share', label:'Cost Share'},
+    {key:'ctr', label:'CTR'},{key:'cvr', label:'CVR'},{key:'cpm', label:'CPM'},{key:'roas', label:'ROAS'},
+  ];
+  document.getElementById('channelTable').innerHTML = sortableHead(cols, channelSort) + `
+  <tbody>
+  ${sorted.map(r=>`
+    <tr>
+      <td class="name-cell">${r.channel}</td>
+      <td>${r.type}</td>
+      <td>${stack(fmtInt(r.cost), r.costD)}</td>
+      <td>${r.share}%</td>
+      <td>${stack(r.ctr==null?'–':r.ctr+'%', r.ctrD)}</td>
+      <td>${stack(r.cvr==null?'–':r.cvr+'%', r.cvrD)}</td>
+      <td>${stack(fmt2(r.cpm), r.cpmD)}</td>
+      <td>${stack(`<span class="heat-val" style="${heatBg(r.roas,0,25,'123,150,110')}"><b>${r.roas==null?'–':r.roas}</b></span>`, r.roasD)}</td>
+    </tr>`).join('')}
+    <tr class="grand">
+      <td>Grand total</td><td></td>
+      <td>${stack(fmtInt(channelGrand.cost), channelGrand.costD)}</td>
+      <td>100%</td>
+      <td>${stack(channelGrand.ctr+'%', channelGrand.ctrD)}</td>
+      <td>${stack(channelGrand.cvr+'%', channelGrand.cvrD)}</td>
+      <td>${stack(fmt2(channelGrand.cpm), channelGrand.cpmD)}</td>
+      <td>${stack(channelGrand.roas, channelGrand.roasD)}</td>
+    </tr>
+  </tbody>`;
+  bindSortHandlers('channelTable', channelSort, renderChannelTable);
+}
+renderChannelTable();
+
+/* ---------------- Meta Test tables ---------------- */
+const metaTestRows = [{"label": "General", "cost": 1429993.0, "costD": -26.4, "share": 74.18, "cpa": 4243.3, "cpaD": 2.2, "roas": 4.03, "roasD": -2.0, "ctr": 2.89, "ctrD": -0.5, "cvr": 2.47, "cvrD": -9.0, "cpm": 3032.37, "cpmD": -7.5}, {"label": "TEST", "cost": 497757.0, "costD": -17.8, "share": 25.82, "cpa": 7010.66, "cpaD": -6.3, "roas": 2.4, "roasD": 6.4, "ctr": 1.92, "ctrD": -12.5, "cvr": 2.24, "cvrD": 13.7, "cpm": 3016.03, "cpmD": -6.8}];
+let metaTestRowsSort = {key:'roas', dir:'desc'};
+function renderMetaTestRows(){
+  const roasVals = metaTestRows.map(r=>r.roas), roasMin=Math.min(...roasVals), roasMax=Math.max(...roasVals);
+  const rows = sortRows(metaTestRows, metaTestRowsSort);
+  const cols = [
+    {key:'label', label:'是否為測試廣告'},
+    {key:'cost', label:'花費金額 (JPY)'},{key:'costD', label:'%Δ'},
+    {key:'share', label:'花費佔比'},
+    {key:'cpa', label:'CPA'},{key:'cpaD', label:'%Δ'},
+    {key:'roas', label:'ROAS'},{key:'roasD', label:'%Δ'},
+    {key:'ctr', label:'CTR'},{key:'ctrD', label:'%Δ'},
+    {key:'cvr', label:'CVR'},{key:'cvrD', label:'%Δ'},
+    {key:'cpm', label:'CPM'},{key:'cpmD', label:'%Δ'},
+  ];
+  document.getElementById('metaTestTable').innerHTML = sortableHead(cols, metaTestRowsSort) + `
+  <tbody>
+  ${rows.map(r=>`
+    <tr>
+      <td class="name-cell">${r.label}</td>
+      <td>${fmtInt(r.cost)}</td><td>${deltaChip(r.costD,{size:'sub'})}</td>
+      <td>${r.share}%</td>
+      <td>${fmt2(r.cpa)}</td><td>${deltaChip(r.cpaD,{size:'sub'})}</td>
+      <td><span class="heat-val" style="${heatBg(r.roas,roasMin,roasMax,'169,130,46')}"><b>${r.roas}</b></span></td><td>${deltaChip(r.roasD,{size:'sub'})}</td>
+      <td>${r.ctr}%</td><td>${deltaChip(r.ctrD,{size:'sub'})}</td>
+      <td>${r.cvr}%</td><td>${deltaChip(r.cvrD,{size:'sub'})}</td>
+      <td>${fmt2(r.cpm)}</td><td>${deltaChip(r.cpmD,{size:'sub'})}</td>
+    </tr>`).join('')}
+  </tbody>`;
+  bindSortHandlers('metaTestTable', metaTestRowsSort, renderMetaTestRows);
+}
+renderMetaTestRows();
+
+const metaTestKol = [{"name": "A:KOL-airi-161", "cost": 25365.0, "costD": -42.9, "roas": 1.31, "roasD": -60.0, "ctr": 2.56, "ctrD": 2.9, "cvr": 1.18, "cvrD": -54.8, "cpm": 3845.51, "cpmD": 19.6}, {"name": "A:KOL-amisa-150", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-arisa-152", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-becky-160", "cost": 30833.0, "costD": -43.4, "roas": 3.21, "roasD": -4.5, "ctr": 1.8, "ctrD": -3.9, "cvr": 2.6, "cvrD": -13.3, "cpm": 2397.78, "cpmD": -13.6}, {"name": "A:KOL-chiico-155", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-erica-107", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-harutaco--170", "cost": 14889.0, "costD": null, "roas": 2.36, "roasD": null, "ctr": 2.06, "ctrD": null, "cvr": 1.92, "cvrD": null, "cpm": 2948.9, "cpmD": null}, {"name": "A:KOL-manmaru-153", "cost": 585.0, "costD": -96.7, "roas": 0.0, "roasD": -100.0, "ctr": 0.66, "ctrD": -69.2, "cvr": 0.0, "cvrD": -100.0, "cpm": 3848.68, "cpmD": 29.6}, {"name": "A:KOL-mari-162", "cost": 13163.0, "costD": -30.5, "roas": 2.37, "roasD": null, "ctr": 3.21, "ctrD": -1.5, "cvr": 1.36, "cvrD": null, "cpm": 2872.76, "cpmD": 9.4}, {"name": "A:KOL-marika-125", "cost": 107091.0, "costD": -35.6, "roas": 2.4, "roasD": -42.9, "ctr": 2.48, "ctrD": -3.2, "cvr": 1.99, "cvrD": -42.6, "cpm": 3522.85, "cpmD": -4.6}, {"name": "A:KOL-marika-oka-154", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-meme-164", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-miki-158", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-mito-122", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-nekoneko-157", "cost": 12318.0, "costD": -76.9, "roas": 1.32, "roasD": -47.9, "ctr": 1.56, "ctrD": -39.5, "cvr": 1.67, "cvrD": -30.4, "cpm": 3196.16, "cpmD": -22.0}, {"name": "A:KOL-nene-165", "cost": 31061.0, "costD": null, "roas": 1.62, "roasD": null, "ctr": 1.84, "ctrD": null, "cvr": 1.28, "cvrD": null, "cpm": 2430.82, "cpmD": null}, {"name": "A:KOL-pamu-169", "cost": 20069.0, "costD": null, "roas": 1.61, "roasD": null, "ctr": 2.18, "ctrD": null, "cvr": 1.18, "cvrD": null, "cpm": 2582.88, "cpmD": null}, {"name": "A:KOL-parun-148", "cost": 297.0, "costD": -98.8, "roas": 0.0, "roasD": -100.0, "ctr": 1.14, "ctrD": -42.8, "cvr": 0.0, "cvrD": -100.0, "cpm": 3375.0, "cpmD": 5.4}, {"name": "A:KOL-ruu-145", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-yume-137", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:原廠-119", "cost": 101228.0, "costD": 14.6, "roas": 3.28, "roasD": -39.5, "ctr": 1.09, "ctrD": -21.4, "cvr": 6.01, "cvrD": -27.2, "cpm": 3493.39, "cpmD": -10.2}, {"name": "A:原廠-134", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:原廠-136", "cost": 52357.0, "costD": -46.6, "roas": 3.23, "roasD": -14.8, "ctr": 2.03, "ctrD": 9.5, "cvr": 2.68, "cvrD": -24.3, "cpm": 2844.56, "cpmD": -7.0}, {"name": "A:原廠-156", "cost": 26202.0, "costD": -56.1, "roas": 2.79, "roasD": -18.3, "ctr": 1.58, "ctrD": 0.6, "cvr": 2.39, "cvrD": -26.1, "cpm": 1976.76, "cpmD": -34.7}, {"name": "A:原廠-159", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:原廠-163", "cost": 12850.0, "costD": -18.4, "roas": 1.26, "roasD": null, "ctr": 3.78, "ctrD": 4.1, "cvr": 0.72, "cvrD": null, "cpm": 3517.66, "cpmD": 20.0}, {"name": "A:原廠-166", "cost": 24720.0, "costD": null, "roas": 1.31, "roasD": null, "ctr": 1.67, "ctrD": null, "cvr": 1.75, "cvrD": null, "cpm": 3619.33, "cpmD": null}, {"name": "A:原廠-89", "cost": 14566.0, "costD": null, "roas": 1.17, "roasD": null, "ctr": 1.36, "ctrD": null, "cvr": 1.23, "cvrD": null, "cpm": 2446.01, "cpmD": null}, {"name": "A:原廠-Wakazo-66", "cost": 10163.0, "costD": null, "roas": 0.0, "roasD": null, "ctr": 1.62, "ctrD": null, "cvr": 0.0, "cvrD": null, "cpm": 2650.76, "cpmD": null}];
+let metaTestSort = {key:'roas', dir:'desc'};
+function sortRows(rows, sortState){
+  return [...rows].sort((a,b)=>{
+    const key = sortState.key;
+    let av=a[key], bv=b[key];
+    if(typeof av==='string' || typeof bv==='string'){
+      av = av==null ? '' : String(av); bv = bv==null ? '' : String(bv);
+      return sortState.dir==='desc' ? bv.localeCompare(av) : av.localeCompare(bv);
+    }
+    if(av==null && bv==null) return 0;
+    if(av==null) return 1;
+    if(bv==null) return -1;
+    return sortState.dir==='desc' ? bv-av : av-bv;
+  });
+}
+function sortableHead(cols, sortState){
+  return `<thead><tr>${cols.map(c=>{
+    const active = sortState.key===c.key ? (sortState.dir==='desc'?' ▼':' ▲') : '';
+    return `<th class="sortable" data-key="${c.key}">${c.label}${active}</th>`;
+  }).join('')}</tr></thead>`;
+}
+function bindSortHandlers(tableId, sortStateRef, renderFn){
+  document.querySelectorAll(`#${tableId} th.sortable`).forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const key = th.dataset.key;
+      if(sortStateRef.key===key){ sortStateRef.dir = sortStateRef.dir==='desc'?'asc':'desc'; }
+      else { sortStateRef.key = key; sortStateRef.dir = key==='name' ? 'asc' : 'desc'; }
+      renderFn();
+    });
+  });
+}
+function renderMetaTestKol(){
+  const rows = sortRows(metaTestKol, metaTestSort);
+  const roasVals = metaTestKol.map(r=>r.roas), roasMin=Math.min(...roasVals), roasMax=Math.max(...roasVals);
+  const costVals = metaTestKol.map(r=>r.cost).filter(v=>v!=null);
+  const costMin=Math.min(...costVals), costMax=Math.max(...costVals);
+  const cols = [
+    {key:'name', label:'Name-Row'},
+    {key:'cost', label:'花費金額 (JPY)'},{key:'costD', label:'%Δ'},
+    {key:'roas', label:'ROAS'},{key:'roasD', label:'%Δ'},
+    {key:'ctr', label:'CTR'},{key:'ctrD', label:'%Δ'},
+    {key:'cvr', label:'CVR'},{key:'cvrD', label:'%Δ'},
+    {key:'cpm', label:'CPM'},{key:'cpmD', label:'%Δ'},
+  ];
+  document.getElementById('metaTestKolTable').innerHTML = sortableHead(cols, metaTestSort) + `
+  <tbody>
+  ${rows.map(r=>`
+    <tr>
+      <td class="name-cell">${nameCellWithThumb(r.name)}</td>
+      <td><span class="heat-val" style="${heatBg(r.cost,costMin,costMax,'169,130,46')}">${fmtInt(r.cost)}</span></td><td>${deltaChip(r.costD,{size:'sub'})}</td>
+      <td><span class="heat-val" style="${heatBg(r.roas,roasMin,roasMax,'169,130,46')}"><b>${r.roas}</b></span></td><td>${deltaChip(r.roasD,{size:'sub'})}</td>
+      <td>${r.ctr==null?'–':r.ctr+'%'}</td><td>${deltaChip(r.ctrD,{size:'sub'})}</td>
+      <td>${r.cvr==null?'–':r.cvr+'%'}</td><td>${deltaChip(r.cvrD,{size:'sub'})}</td>
+      <td>${r.cpm==null?'–':fmt2(r.cpm)}</td><td>${deltaChip(r.cpmD,{size:'sub'})}</td>
+    </tr>`).join('')}
+  </tbody>`;
+  bindSortHandlers('metaTestKolTable', metaTestSort, renderMetaTestKol);
+}
+renderMetaTestKol();
+
+/* ---------------- Meta creative (常態) table ---------------- */
+function tagBadge(tag){
+  if(tag==='KOL') return '<span class="tag kol">KOL</span>';
+  if(tag==='原廠') return '<span class="tag origin">原廠</span>';
+  return '<span class="tag null">NULL</span>';
+}
+function heatBg(value, min, max, rgb){
+  if(value==null || max===min) return '';
+  const t = Math.max(0, Math.min(1, (value-min)/(max-min)));
+  const alpha = 0.10 + t*0.55;
+  return `background:rgba(${rgb},${alpha.toFixed(2)});`;
+}
+const metaCreative = [{"name": "A:KOL-amisa-150", "tag": "KOL", "cost": 45009.0, "costD": -60.9, "roas": 4.74, "roasD": 54.1, "ctr": 2.97, "ctrD": 7.3, "cvr": 3.01, "cvrD": 27.2, "cpm": 3098.51, "cpmD": -9.8}, {"name": "A:KOL-hadamegu-97", "tag": "KOL", "cost": 87704.0, "costD": -51.2, "roas": 4.59, "roasD": 28.4, "ctr": 2.48, "ctrD": 8.4, "cvr": 3.14, "cvrD": 16.5, "cpm": 3107.65, "cpmD": 0.9}, {"name": "A:KOL-hira-114", "tag": "KOL", "cost": 230603.0, "costD": -17.1, "roas": 4.19, "roasD": 25.4, "ctr": 2.65, "ctrD": -10.5, "cvr": 2.77, "cvrD": 35.3, "cpm": 3074.91, "cpmD": 0.3}, {"name": "A:KOL-hira-20", "tag": "KOL", "cost": 331822.0, "costD": 17.2, "roas": 3.99, "roasD": -19.0, "ctr": 3.01, "ctrD": -10.0, "cvr": 2.27, "cvrD": -23.1, "cpm": 2942.44, "cpmD": -13.6}, {"name": "A:KOL-mana-135", "tag": "KOL", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-marika-125", "tag": "KOL", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-meme-164", "tag": "KOL", "cost": 29508.0, "costD": 90.5, "roas": 3.39, "roasD": null, "ctr": 1.64, "ctrD": 32.5, "cvr": 4.11, "cvrD": null, "cpm": 3323.72, "cpmD": -4.9}, {"name": "A:KOL-miki-158", "tag": "KOL", "cost": 44960.0, "costD": 109.6, "roas": 4.14, "roasD": 82.9, "ctr": 2.01, "ctrD": 9.2, "cvr": 3.39, "cvrD": 67.2, "cpm": 3068.73, "cpmD": 14.8}, {"name": "A:KOL-rei-167", "tag": "KOL", "cost": 24499.0, "costD": null, "roas": 6.72, "roasD": null, "ctr": 2.12, "ctrD": null, "cvr": 5.21, "cvrD": null, "cpm": 2704.68, "cpmD": null}, {"name": "A:KOL-riri-172", "tag": "KOL", "cost": 0.0, "costD": null, "roas": null, "roasD": null, "ctr": 0.0, "ctrD": null, "cvr": null, "cvrD": null, "cpm": 0.0, "cpmD": null}, {"name": "A:KOL-risa-90", "tag": "KOL", "cost": 79514.0, "costD": -51.1, "roas": 4.51, "roasD": 23.6, "ctr": 3.46, "ctrD": -8.6, "cvr": 2.91, "cvrD": 32.5, "cpm": 3812.89, "cpmD": 1.5}, {"name": "A:KOL-yukachinmaru-171", "tag": "KOL", "cost": 8761.0, "costD": null, "roas": 1.85, "roasD": null, "ctr": 1.59, "ctrD": null, "cvr": 2.08, "cvrD": null, "cpm": 2894.28, "cpmD": null}, {"name": "A:KOL-yukko-116", "tag": "KOL", "cost": 455633.0, "costD": -11.5, "roas": 3.78, "roasD": -7.5, "ctr": 3.26, "ctrD": -0.7, "cvr": 2.01, "cvrD": -8.7, "cpm": 2906.16, "cpmD": -2.6}, {"name": "A:原廠-119", "tag": null, "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:原廠-136", "tag": "原廠", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:原廠-168", "tag": "原廠", "cost": 16709.0, "costD": null, "roas": 1.99, "roasD": null, "ctr": 2.42, "ctrD": null, "cvr": 1.77, "cvrD": null, "cpm": 3577.18, "cpmD": null}, {"name": "A:原廠-92", "tag": "原廠", "cost": 75271.0, "costD": -46.3, "roas": 3.71, "roasD": 3.3, "ctr": 2.09, "ctrD": -6.0, "cvr": 3.51, "cvrD": -2.4, "cpm": 3252.85, "cpmD": -13.0}];
+const metaCreativeTotal = {"cost": 1429993.0, "costD": -26.4, "roas": 4.03, "roasD": -2.0};
+
+let metaCreativeSort = {key:'roas', dir:'desc'};
+function renderMetaCreative(){
+  const rows = sortRows(metaCreative, metaCreativeSort);
+  const roasVals = metaCreative.map(r=>r.roas), roasMin=Math.min(...roasVals), roasMax=Math.max(...roasVals);
+  const cpmVals = metaCreative.map(r=>r.cpm), cpmMin=Math.min(...cpmVals), cpmMax=Math.max(...cpmVals);
+  const costVals = metaCreative.map(r=>r.cost).filter(v=>v!=null);
+  const costMin=Math.min(...costVals), costMax=Math.max(...costVals);
+  const cols = [
+    {key:'name', label:'Name-Row'},{key:'tag', label:'原廠標記'},
+    {key:'cost', label:'花費金額 (JPY)'},{key:'costD', label:'%Δ'},
+    {key:'roas', label:'ROAS'},{key:'roasD', label:'%Δ'},
+    {key:'ctr', label:'CTR'},{key:'ctrD', label:'%Δ'},
+    {key:'cvr', label:'CVR'},{key:'cvrD', label:'%Δ'},
+    {key:'cpm', label:'CPM'},{key:'cpmD', label:'%Δ'},
+  ];
+  document.getElementById('metaCreativeTable').innerHTML = sortableHead(cols, metaCreativeSort) + `
+  <tbody>
+  ${rows.map(r=>`
+    <tr>
+      <td class="name-cell">${nameCellWithThumb(r.name)}</td>
+      <td>${tagBadge(r.tag)}</td>
+      <td><span class="heat-val" style="${heatBg(r.cost,costMin,costMax,'169,130,46')}">${fmtInt(r.cost)}</span></td>
+      <td>${deltaChip(r.costD,{size:'sub'})}</td>
+      <td><span class="heat-val" style="${heatBg(r.roas,roasMin,roasMax,'169,130,46')}"><b>${r.roas}</b></span></td>
+      <td>${deltaChip(r.roasD,{size:'sub'})}</td>
+      <td>${r.ctr}%</td><td>${deltaChip(r.ctrD,{size:'sub'})}</td>
+      <td>${r.cvr}%</td><td>${deltaChip(r.cvrD,{size:'sub'})}</td>
+      <td><span class="heat-val" style="${heatBg(r.cpm,cpmMax,cpmMin,'99,120,90')}">${fmt2(r.cpm)}</span></td>
+      <td>${deltaChip(r.cpmD,{size:'sub'})}</td>
+    </tr>`).join('')}
+  </tbody>
+  <tfoot><tr style="font-weight:600;border-top:2px solid #d8cdb8;">
+    <td class="name-cell">總計（Meta 全素材，General＋TEST）</td><td></td>
+    <td><b>${fmtInt(metaCreativeTotal.cost)}</b></td><td>${deltaChip(metaCreativeTotal.costD,{size:'sub'})}</td>
+    <td><b>${metaCreativeTotal.roas}</b></td><td>${deltaChip(metaCreativeTotal.roasD,{size:'sub'})}</td>
+    <td colspan="6"></td>
+  </tr></tfoot>`;
+  bindSortHandlers('metaCreativeTable', metaCreativeSort, renderMetaCreative);
+}
+renderMetaCreative();
+
+/* ---------------- KOL + license fee table ---------------- */
+const kolRows = [{"name": "A:KOL-airi-161", "cost": 60365.0, "lic": 35000.0, "costD": -24.0, "cpa": 30182.5, "cpaD": 242.0, "roas": 0.55, "mediaRoas": 1.31, "roasD": -70.0, "ctr": 2.56, "ctrD": 2.9, "cvr": 1.18, "cvrD": -54.8, "cpm": 3845.51, "cpmD": 19.6}, {"name": "A:KOL-amisa-150", "cost": 63344.0, "lic": 18335.0, "costD": -55.0, "cpa": 4872.62, "cpaD": -23.9, "roas": 3.37, "mediaRoas": 4.74, "roasD": 33.9, "ctr": 2.97, "ctrD": 7.3, "cvr": 3.01, "cvrD": 27.2, "cpm": 3098.51, "cpmD": -9.8}, {"name": "A:KOL-an-77", "cost": 0.0, "lic": 0.0, "costD": null, "cpa": null, "cpaD": null, "roas": null, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-arisa-152", "cost": 18669.0, "lic": 18669.0, "costD": -46.1, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": null, "roasD": -100.0, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-becky-160", "cost": 50853.0, "lic": 20020.0, "costD": -31.8, "cpa": 8475.5, "cpaD": 25.1, "roas": 1.94, "mediaRoas": 3.21, "roasD": -20.8, "ctr": 1.8, "ctrD": -3.9, "cvr": 2.6, "cvrD": -13.3, "cpm": 2397.78, "cpmD": -13.6}, {"name": "A:KOL-chiico-155", "cost": 0.0, "lic": 0.0, "costD": -100.0, "cpa": null, "cpaD": null, "roas": null, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-erica-107", "cost": 0.0, "lic": 0.0, "costD": -100.0, "cpa": null, "cpaD": null, "roas": null, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-hadamegu-97", "cost": 92370.9, "lic": 4666.9, "costD": -49.9, "cpa": 4198.68, "cpaD": -18.0, "roas": 4.36, "mediaRoas": 4.59, "roasD": 25.1, "ctr": 2.48, "ctrD": 8.4, "cvr": 3.14, "cvrD": 16.5, "cpm": 3107.65, "cpmD": 0.9}, {"name": "A:KOL-harutaco--170", "cost": 14889.0, "lic": 0.0, "costD": null, "cpa": 7444.5, "cpaD": null, "roas": 2.36, "mediaRoas": 2.36, "roasD": null, "ctr": 2.06, "ctrD": null, "cvr": 1.92, "cvrD": null, "cpm": 2948.9, "cpmD": null}, {"name": "A:KOL-harutaco-170", "cost": 20000.0, "lic": 20000.0, "costD": null, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-hira-114", "cost": 234880.0, "lic": 4277.0, "costD": -16.9, "cpa": 4270.55, "cpaD": -16.9, "roas": 4.11, "mediaRoas": 4.19, "roasD": 25.0, "ctr": 2.65, "ctrD": -10.5, "cvr": 2.77, "cvrD": 35.3, "cpm": 3074.91, "cpmD": 0.3}, {"name": "A:KOL-hira-20", "cost": 331822.0, "lic": 0.0, "costD": 17.2, "cpa": 4309.38, "cpaD": 24.8, "roas": 3.99, "mediaRoas": 3.99, "roasD": -19.0, "ctr": 3.01, "ctrD": -10.0, "cvr": 2.27, "cvrD": -23.1, "cpm": 2942.44, "cpmD": -13.6}, {"name": "A:KOL-key-132", "cost": 0.0, "lic": 0.0, "costD": null, "cpa": null, "cpaD": null, "roas": null, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-mana-135", "cost": 0.0, "lic": 0.0, "costD": -100.0, "cpa": null, "cpaD": null, "roas": null, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-manmaru-153", "cost": 23685.0, "lic": 23100.0, "costD": -42.3, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": 0.0, "roasD": -100.0, "ctr": 0.66, "ctrD": -69.2, "cvr": 0.0, "cvrD": -100.0, "cpm": 3848.68, "cpmD": 29.6}, {"name": "A:KOL-mari-162", "cost": 64494.0, "lic": 51331.0, "costD": 2.5, "cpa": 32247.0, "cpaD": null, "roas": 0.48, "mediaRoas": 2.37, "roasD": null, "ctr": 3.21, "ctrD": -1.5, "cvr": 1.36, "cvrD": null, "cpm": 2872.76, "cpmD": 9.4}, {"name": "A:KOL-marika-125", "cost": 107091.0, "lic": 0.0, "costD": -35.6, "cpa": 7139.4, "cpaD": 71.8, "roas": 2.4, "mediaRoas": 2.4, "roasD": -42.9, "ctr": 2.48, "ctrD": -3.2, "cvr": 1.99, "cvrD": -42.6, "cpm": 3522.85, "cpmD": -4.6}, {"name": "A:KOL-marika-oka-154", "cost": 17969.0, "lic": 17969.0, "costD": -50.9, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": null, "roasD": -100.0, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-meme-164", "cost": 34177.0, "lic": 4669.0, "costD": 88.2, "cpa": 5696.17, "cpaD": null, "roas": 2.92, "mediaRoas": 3.39, "roasD": null, "ctr": 1.64, "ctrD": 32.5, "cvr": 4.11, "cvrD": null, "cpm": 3323.72, "cpmD": -4.9}, {"name": "A:KOL-miki-158", "cost": 70629.0, "lic": 25669.0, "costD": 49.9, "cpa": 7062.9, "cpaD": -55.0, "roas": 2.64, "mediaRoas": 4.14, "roasD": 155.7, "ctr": 2.01, "ctrD": 9.2, "cvr": 3.39, "cvrD": 67.2, "cpm": 3068.73, "cpmD": 14.8}, {"name": "A:KOL-mito-122", "cost": 0.0, "lic": 0.0, "costD": -100.0, "cpa": null, "cpaD": null, "roas": null, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-nekoneko-157", "cost": 30028.0, "lic": 17710.0, "costD": -57.7, "cpa": 30028.0, "cpaD": 238.7, "roas": 0.54, "mediaRoas": 1.32, "roasD": -71.5, "ctr": 1.56, "ctrD": -39.5, "cvr": 1.67, "cvrD": -30.4, "cpm": 3196.16, "cpmD": -22.0}, {"name": "A:KOL-nene-165", "cost": 31061.0, "lic": 0.0, "costD": null, "cpa": 10353.67, "cpaD": null, "roas": 1.62, "mediaRoas": 1.62, "roasD": null, "ctr": 1.84, "ctrD": null, "cvr": 1.28, "cvrD": null, "cpm": 2430.82, "cpmD": null}, {"name": "A:KOL-pamu-169", "cost": 31069.0, "lic": 11000.0, "costD": null, "cpa": 15534.5, "cpaD": null, "roas": 1.04, "mediaRoas": 1.61, "roasD": null, "ctr": 2.18, "ctrD": null, "cvr": 1.18, "cvrD": null, "cpm": 2582.88, "cpmD": null}, {"name": "A:KOL-parun-148", "cost": 22296.0, "lic": 21999.0, "costD": -70.8, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": 0.0, "roasD": -100.0, "ctr": 1.14, "ctrD": -42.8, "cvr": 0.0, "cvrD": -100.0, "cpm": 3375.0, "cpmD": 5.4}, {"name": "A:KOL-rei-167", "cost": 83019.0, "lic": 58520.0, "costD": null, "cpa": 8301.9, "cpaD": null, "roas": 1.98, "mediaRoas": 6.72, "roasD": null, "ctr": 2.12, "ctrD": null, "cvr": 5.21, "cvrD": null, "cpm": 2704.68, "cpmD": null}, {"name": "A:KOL-riri-172", "cost": 4666.0, "lic": 4666.0, "costD": null, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": null, "roasD": null, "ctr": 0.0, "ctrD": null, "cvr": null, "cvrD": null, "cpm": 0.0, "cpmD": null}, {"name": "A:KOL-risa-90", "cost": 79514.0, "lic": 0.0, "costD": -51.1, "cpa": 3786.38, "cpaD": -16.2, "roas": 4.51, "mediaRoas": 4.51, "roasD": 23.6, "ctr": 3.46, "ctrD": -8.6, "cvr": 2.91, "cvrD": 32.5, "cpm": 3812.89, "cpmD": 1.5}, {"name": "A:KOL-ruu-145", "cost": 0.0, "lic": 0.0, "costD": -100.0, "cpa": null, "cpaD": null, "roas": null, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-yukachinmaru-171", "cost": 8761.0, "lic": 0.0, "costD": null, "cpa": 8761.0, "cpaD": null, "roas": 1.85, "mediaRoas": 1.85, "roasD": null, "ctr": 1.59, "ctrD": null, "cvr": 2.08, "cvrD": null, "cpm": 2894.28, "cpmD": null}, {"name": "A:KOL-yukko-116", "cost": 455633.0, "lic": 0.0, "costD": -11.5, "cpa": 4423.62, "cpaD": 7.4, "roas": 3.78, "mediaRoas": 3.78, "roasD": -7.5, "ctr": 3.26, "ctrD": -0.7, "cvr": 2.01, "cvrD": -8.7, "cpm": 2906.16, "cpmD": -2.6}, {"name": "A:KOL-yume-137", "cost": 0.0, "lic": 0.0, "costD": -100.0, "cpa": null, "cpaD": null, "roas": null, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}];
+const kolGrand = {"cost": 1951284.9, "lic": 357600.9, "costD": -20.8, "cpa": 5559.22, "cpaD": 4.2, "roas": 3.08, "mediaRoas": 3.77, "roasD": -2.7, "ctr": 2.82, "ctrD": -2.2, "cvr": 2.36, "cvrD": -2.9, "cpm": 3018.96, "cpmD": -6.7};
+
+let kolSort = {key:'roas', dir:'desc'};
+function renderKolTable(){
+  const rows = sortRows(kolRows, kolSort);
+  const roasVals = kolRows.map(r=>r.roas).filter(v=>v!=null);
+  const roasMin=Math.min(...roasVals), roasMax=Math.max(...roasVals);
+  const costVals = kolRows.map(r=>r.cost).filter(v=>v!=null);
+  const costMin=Math.min(...costVals), costMax=Math.max(...costVals);
+
+  const cols = [
+    {key:'name', label:'Name-Row'},
+    {key:'cost', label:'花費金額 (JPY)'},{key:'costD', label:'%Δ'},
+    {key:'cpa', label:'CPA'},{key:'cpaD', label:'%Δ'},
+    {key:'roas', label:'ROAS'},{key:'roasD', label:'%Δ'},
+    {key:'ctr', label:'CTR'},{key:'ctrD', label:'%Δ'},
+    {key:'cvr', label:'CVR'},{key:'cvrD', label:'%Δ'},
+    {key:'cpm', label:'CPM'},{key:'cpmD', label:'%Δ'},
+  ];
+  const thead = sortableHead(cols, kolSort);
+
+  const body = rows.map(r=>`
+    <tr>
+      <td class="name-cell">${nameCellWithThumb(r.name)}</td>
+      <td>
+        <span class="heat-val" style="${heatBg(r.cost,costMin,costMax,'169,130,46')}">${fmtInt(r.cost)}</span>
+        ${r.lic ? `<div class="lic-note">攤提授權金：¥${fmtInt(r.lic)}</div>` : `<div class="lic-note muted">無授權金攤提</div>`}
+      </td>
+      <td>${deltaChip(r.costD,{size:'sub'})}</td>
+      <td>${fmt2(r.cpa)}</td><td>${deltaChip(r.cpaD,{size:'sub'})}</td>
+      <td>
+        <span class="heat-val" style="${heatBg(r.roas,roasMin,roasMax,'123,150,110')}"><b>${r.roas}</b></span>
+        ${r.mediaRoas!=null ? `<div class="lic-note">扣除授權金：${r.mediaRoas}</div>` : `<div class="lic-note muted">–</div>`}
+      </td>
+      <td>${deltaChip(r.roasD,{size:'sub'})}</td>
+      <td>${r.ctr==null?'–':r.ctr+'%'}</td><td>${deltaChip(r.ctrD,{size:'sub'})}</td>
+      <td>${r.cvr==null?'–':r.cvr+'%'}</td><td>${deltaChip(r.cvrD,{size:'sub'})}</td>
+      <td>${fmt2(r.cpm)}</td><td>${deltaChip(r.cpmD,{size:'sub'})}</td>
+    </tr>`).join('');
+
+  const grandRow = `<tr class="grand">
+      <td>Grand total</td>
+      <td>
+        ${fmtInt(kolGrand.cost)}
+        <div class="lic-note">攤提授權金：¥${fmtInt(kolGrand.lic)}</div>
+      </td>
+      <td>${deltaChip(kolGrand.costD,{size:'sub'})}</td>
+      <td>${fmt2(kolGrand.cpa)}</td><td>${deltaChip(kolGrand.cpaD,{size:'sub'})}</td>
+      <td>
+        ${kolGrand.roas}
+        <div class="lic-note">扣除授權金：${kolGrand.mediaRoas}</div>
+      </td>
+      <td>${deltaChip(kolGrand.roasD,{size:'sub'})}</td>
+      <td>${kolGrand.ctr}%</td><td>${deltaChip(kolGrand.ctrD,{size:'sub'})}</td>
+      <td>${kolGrand.cvr}%</td><td>${deltaChip(kolGrand.cvrD,{size:'sub'})}</td>
+      <td>${fmt2(kolGrand.cpm)}</td><td>${deltaChip(kolGrand.cpmD,{size:'sub'})}</td>
+    </tr>`;
+
+  document.getElementById('kolTable').innerHTML = thead + `<tbody>${body}${grandRow}</tbody>`;
+
+  bindSortHandlers('kolTable', kolSort, renderKolTable);
+}
+renderKolTable();
+
+/* ---- KOL license-fee negotiation calculator ---- */
+
+/* ---------------- 依內容主題分類 —— 點擊展開素材明細 ----------------
+   2026-09-17 因使用者要求加入：點擊「依內容主題分類」表格的任一類別列，
+   展開顯示該類別所有素材名稱（KOL 名＋Row）與個別成效，預設依 CTR 由低到
+   高排序（最需要關注的排最前面），可點擊子表格欄位標題切換排序依據／方向。
+   資料為該次分析當下重新彙整之全歷史（上稿至今）逐素材數字，重製自
+   scripts/ 資料夾同一套 Naming Rule／花費／曝光邏輯，classification 採與
+   上方分類段落相同的關鍵字優先順序（親子育兒 → 旅遊出遊 → 露營戶外野餐 →
+   賣場購物 → 開箱評測 → 日常生活／其他），並手動核對每類素材數
+   與上方表格一致（2026-09-23 更新：露營7／開箱19／賣場5／旅遊16／日常14／親子20；子表格 CPM 改為不含授權金口徑）。與此手動分析區塊其餘內容一樣，
+   非 build_weekly_report.py 自動管理。 */
+const KOL_CAT_ADS = {"親子育兒": [{"name": "Chii（R51）", "spend": 36231, "cpm": 2390.7, "ctr": 2.29, "cvr": 1.15, "cpa": 9058, "roas": 2.36}, {"name": "mapikoro（R58）", "spend": 83048, "cpm": 2242.6, "ctr": 2.78, "cvr": 0.88, "cpa": 27683, "roas": 0.63}, {"name": "homi（R61）", "spend": 29212, "cpm": 2186.9, "ctr": 1.13, "cvr": 1.32, "cpa": 14606, "roas": 1.27}, {"name": "susan（R76）", "spend": 253584, "cpm": 2703.0, "ctr": 2.41, "cvr": 2.42, "cpa": 13347, "roas": 1.26}, {"name": "mari（R94）", "spend": 104453, "cpm": 2620.9, "ctr": 2.45, "cvr": 0.63, "cpa": 52226, "roas": 0.34}, {"name": "ari（R96）", "spend": 302307, "cpm": 2608.1, "ctr": 2.29, "cvr": 2.69, "cpa": 12596, "roas": 1.4}, {"name": "kona（R103）", "spend": 289941, "cpm": 2501.2, "ctr": 3.32, "cvr": 2.51, "cpa": 4602, "roas": 4.03}, {"name": "okawa（R117）", "spend": 127977, "cpm": 3217.7, "ctr": 1.41, "cvr": 3.49, "cpa": 7999, "roas": 2.58}, {"name": "marika（R125）", "spend": 1082486, "cpm": 3269.8, "ctr": 2.5, "cvr": 2.89, "cpa": 7169, "roas": 2.38}, {"name": "sun（R126）", "spend": 275026, "cpm": 3151.1, "ctr": 2.31, "cvr": 3.09, "cpa": 6112, "roas": 3.0}, {"name": "saitasu（R127）", "spend": 201477, "cpm": 2266.0, "ctr": 1.95, "cvr": 2.84, "cpa": 6947, "roas": 2.4}, {"name": "mana（R135）", "spend": 781690, "cpm": 3791.7, "ctr": 2.63, "cvr": 3.82, "cpa": 3776, "roas": 4.4}, {"name": "matsu（R141）", "spend": 212781, "cpm": 2964.5, "ctr": 2.37, "cvr": 1.88, "cpa": 6649, "roas": 2.53}, {"name": "nao（R142）", "spend": 25730, "cpm": 2409.9, "ctr": 1.92, "cvr": 1.46, "cpa": 8577, "roas": 1.92}, {"name": "manmaru（R153）", "spend": 153078, "cpm": 2942.7, "ctr": 2.04, "cvr": 1.66, "cpa": 21868, "roas": 0.76}, {"name": "marika.oka（R154）", "spend": 122590, "cpm": 3026.8, "ctr": 1.58, "cvr": 2.41, "cpa": 17513, "roas": 0.98}, {"name": "becky（R160）", "spend": 144271, "cpm": 2609.9, "ctr": 1.87, "cvr": 2.49, "cpa": 8487, "roas": 1.95}, {"name": "meme（R164）", "spend": 52334, "cpm": 3380.7, "ctr": 1.51, "cvr": 2.99, "cpa": 8722, "roas": 1.91}, {"name": "nene（R165）", "spend": 31061, "cpm": 2430.8, "ctr": 1.84, "cvr": 1.28, "cpa": 10354, "roas": 1.62}, {"name": "rei（R167）", "spend": 83019, "cpm": 2704.7, "ctr": 2.12, "cvr": 5.21, "cpa": 8302, "roas": 1.98}], "旅遊出遊": [{"name": "Noponopisu（R3）", "spend": null, "cpm": null, "ctr": null, "cvr": null, "cpa": null, "roas": null}, {"name": "emma（R14）", "spend": 160246, "cpm": 3619.7, "ctr": 3.24, "cvr": 1.81, "cpa": 6163, "roas": 2.8}, {"name": "emma（R37）", "spend": 337245, "cpm": 2156.8, "ctr": 3.27, "cvr": 2.06, "cpa": 3212, "roas": 5.36}, {"name": "Hilsama（R39）", "spend": 1359392, "cpm": 2345.9, "ctr": 3.34, "cvr": 2.17, "cpa": 5091, "roas": 3.42}, {"name": "rena（R79）", "spend": 516652, "cpm": 3744.5, "ctr": 2.99, "cvr": 3.78, "cpa": 3312, "roas": 5.35}, {"name": "emily（R100）", "spend": 63328, "cpm": 2809.5, "ctr": 2.28, "cvr": 1.89, "cpa": 12666, "roas": 1.32}, {"name": "kaede（R101）", "spend": 297816, "cpm": 2956.7, "ctr": 2.21, "cvr": 3.8, "cpa": 3919, "roas": 4.39}, {"name": "hoshishi（R109）", "spend": 277336, "cpm": 2424.4, "ctr": 2.97, "cvr": 1.7, "cpa": 17334, "roas": 1.02}, {"name": "katahara（R112）", "spend": 149944, "cpm": 2852.7, "ctr": 2.08, "cvr": 2.93, "cpa": 4686, "roas": 3.8}, {"name": "koba（R113）", "spend": 236713, "cpm": 2594.4, "ctr": 2.35, "cvr": 2.76, "cpa": 5380, "roas": 3.55}, {"name": "mito（R122）", "spend": 539386, "cpm": 3297.9, "ctr": 2.82, "cvr": 2.89, "cpa": 5340, "roas": 3.18}, {"name": "sara（R140）", "spend": 25883, "cpm": 2759.7, "ctr": 1.95, "cvr": 0.0, "cpa": null, "roas": 0.0}, {"name": "kisaki（R147）", "spend": 25874, "cpm": 2918.3, "ctr": 2.13, "cvr": 1.59, "cpa": 8625, "roas": 1.88}, {"name": "amisa（R150）", "spend": 431586, "cpm": 3110.2, "ctr": 2.73, "cvr": 2.87, "cpa": 5328, "roas": 3.15}, {"name": "mari（R162）", "spend": 127433, "cpm": 2721.4, "ctr": 3.24, "cvr": 0.52, "cpa": 63716, "roas": 0.24}, {"name": "harutaco（R170）", "spend": 14889, "cpm": 2948.9, "ctr": 2.06, "cvr": 1.92, "cpa": 7444, "roas": 2.36}], "日常生活／其他": [{"name": "ayaco（R60）", "spend": 214123, "cpm": 3594.4, "ctr": 1.93, "cvr": 3.3, "cpa": 5635, "roas": 2.97}, {"name": "aiko（R82）", "spend": 223520, "cpm": 2560.9, "ctr": 2.01, "cvr": 2.64, "cpa": 18627, "roas": 0.9}, {"name": "okayu（R104）", "spend": null, "cpm": null, "ctr": null, "cvr": null, "cpa": null, "roas": null}, {"name": "okayu（R105）", "spend": 266446, "cpm": 2429.3, "ctr": 2.6, "cvr": 2.16, "cpa": 7401, "roas": 2.54}, {"name": "miigomama（R115）", "spend": 369008, "cpm": 2758.3, "ctr": 2.27, "cvr": 2.44, "cpa": 12300, "roas": 1.45}, {"name": "yukko（R116）", "spend": 4302659, "cpm": 2692.1, "ctr": 3.72, "cvr": 2.03, "cpa": 3703, "roas": 4.61}, {"name": "naa（R128）", "spend": 218304, "cpm": 2246.5, "ctr": 2.47, "cvr": 1.54, "cpa": 24256, "roas": 0.69}, {"name": "yume（R137）", "spend": 218231, "cpm": 3121.3, "ctr": 1.83, "cvr": 3.15, "cpa": 9093, "roas": 1.82}, {"name": "Hitomi（R139）", "spend": 25545, "cpm": 2473.1, "ctr": 2.51, "cvr": 0.39, "cpa": 25545, "roas": 0.63}, {"name": "aren（R144）", "spend": 25828, "cpm": 2242.2, "ctr": 1.47, "cvr": 0.59, "cpa": 25828, "roas": 0.81}, {"name": "parun（R148）", "spend": 330983, "cpm": 3362.2, "ctr": 2.18, "cvr": 2.78, "cpa": 16549, "roas": 1.01}, {"name": "chiico（R155）", "spend": 68311, "cpm": 3717.4, "ctr": 1.87, "cvr": 2.62, "cpa": 7590, "roas": 2.17}, {"name": "pamu（R169）", "spend": 31069, "cpm": 2582.9, "ctr": 2.18, "cvr": 1.18, "cpa": 15534, "roas": 1.04}, {"name": "yukachinmaru（R171）", "spend": 8761, "cpm": 2894.3, "ctr": 1.59, "cvr": 2.08, "cpa": 8761, "roas": 1.85}], "露營戶外野餐": [{"name": "hira（R20）", "spend": 7853595, "cpm": 2468.0, "ctr": 3.56, "cvr": 2.19, "cpa": 3186, "roas": 5.44}, {"name": "coco（R65）", "spend": 77864, "cpm": 2875.2, "ctr": 1.5, "cvr": 2.46, "cpa": 7786, "roas": 3.01}, {"name": "coco（R75）", "spend": 18763, "cpm": 1465.1, "ctr": 0.91, "cvr": 0.0, "cpa": null, "roas": 0.0}, {"name": "youcamp（R99）", "spend": 253509, "cpm": 3149.9, "ctr": 2.7, "cvr": 3.02, "cpa": 5634, "roas": 3.28}, {"name": "damcamp（R138）", "spend": 46582, "cpm": 1587.8, "ctr": 1.05, "cvr": 1.62, "cpa": 9316, "roas": 1.78}, {"name": "KATSU（R143）", "spend": 26385, "cpm": 2899.5, "ctr": 1.81, "cvr": 1.21, "cpa": 13192, "roas": 2.08}, {"name": "arisa（R152）", "spend": 203114, "cpm": 3148.1, "ctr": 2.27, "cvr": 2.42, "cpa": 9232, "roas": 1.8}], "開箱評測": [{"name": "Rachel（R62）", "spend": 28190, "cpm": 3640.2, "ctr": 1.9, "cvr": 2.72, "cpa": 7048, "roas": 1.75}, {"name": "mirei（R67）", "spend": 117787, "cpm": 3313.8, "ctr": 2.17, "cvr": 3.23, "cpa": 4711, "roas": 3.57}, {"name": "dstyle（R84）", "spend": 286665, "cpm": 2754.5, "ctr": 5.68, "cvr": 1.03, "cpa": 4699, "roas": 4.21}, {"name": "mirei（R85）", "spend": 221460, "cpm": 2856.3, "ctr": 1.63, "cvr": 4.05, "cpa": 4342, "roas": 4.11}, {"name": "myua（R86）", "spend": 457705, "cpm": 2605.3, "ctr": 2.24, "cvr": 3.52, "cpa": 3293, "roas": 5.48}, {"name": "sara（R87）", "spend": 751367, "cpm": 2219.7, "ctr": 4.64, "cvr": 1.31, "cpa": 5182, "roas": 3.65}, {"name": "risa（R90）", "spend": 2492280, "cpm": 3116.1, "ctr": 3.93, "cvr": 2.58, "cpa": 3495, "roas": 4.8}, {"name": "mitori（R91）", "spend": 341461, "cpm": 3453.7, "ctr": 2.85, "cvr": 3.3, "cpa": 3672, "roas": 4.92}, {"name": "hadamegu（R97）", "spend": 1053658, "cpm": 2578.1, "ctr": 2.64, "cvr": 2.73, "cpa": 3763, "roas": 4.77}, {"name": "riko（R98）", "spend": 774792, "cpm": 3156.4, "ctr": 2.87, "cvr": 3.54, "cpa": 3506, "roas": 4.91}, {"name": "obimama（R106）", "spend": 128556, "cpm": 2766.3, "ctr": 2.39, "cvr": 1.89, "cpa": 6122, "roas": 2.98}, {"name": "hadmegu（R110）", "spend": 207212, "cpm": 2452.1, "ctr": 3.49, "cvr": 2.29, "cpa": 3397, "roas": 5.19}, {"name": "hadamegu（R124）", "spend": 143956, "cpm": 2384.2, "ctr": 2.58, "cvr": 2.84, "cpa": 4499, "roas": 3.98}, {"name": "maru（R130）", "spend": 93896, "cpm": 2381.0, "ctr": 3.65, "cvr": 1.25, "cpa": 5216, "roas": 3.3}, {"name": "ruu（R145）", "spend": 156331, "cpm": 3230.2, "ctr": 2.03, "cvr": 3.16, "cpa": 5043, "roas": 3.32}, {"name": "mai（R146）", "spend": 86077, "cpm": 4145.3, "ctr": 1.96, "cvr": 3.68, "cpa": 5738, "roas": 3.04}, {"name": "nekoneko（R157）", "spend": 167554, "cpm": 3475.0, "ctr": 2.23, "cvr": 2.23, "cpa": 10472, "roas": 1.99}, {"name": "miki（R158）", "spend": 165930, "cpm": 2935.3, "ctr": 1.99, "cvr": 2.55, "cpa": 10371, "roas": 1.71}, {"name": "airi（R161）", "spend": 144792, "cpm": 3419.8, "ctr": 2.51, "cvr": 2.14, "cpa": 13163, "roas": 1.24}], "賣場購物": [{"name": "an（R77）", "spend": 574865, "cpm": 3168.9, "ctr": 2.74, "cvr": 3.06, "cpa": 5323, "roas": 3.29}, {"name": "erica（R107）", "spend": 1012022, "cpm": 2964.6, "ctr": 2.8, "cvr": 2.5, "cpa": 4707, "roas": 3.91}, {"name": "hira（R114）", "spend": 2042657, "cpm": 2345.4, "ctr": 2.94, "cvr": 2.44, "cpa": 3327, "roas": 5.22}, {"name": "mochiko（R118）", "spend": 348165, "cpm": 2226.6, "ctr": 1.94, "cvr": 2.88, "cpa": 10880, "roas": 1.59}, {"name": "key（R132）", "spend": 157718, "cpm": 2123.2, "ctr": 3.16, "cvr": 0.78, "cpa": 52573, "roas": 0.43}]};
+
+const catDetailSort = {};
+const catDetailBuilt = {};
+
+function renderCatDetail(cat, tableId){
+  if(!catDetailSort[cat]) catDetailSort[cat] = {key:'ctr', dir:'asc'};
+  const items = KOL_CAT_ADS[cat] || [];
+  const rows = sortRows(items, catDetailSort[cat]);
+  const cols = [
+    {key:'name', label:'素材名稱'},
+    {key:'spend', label:'花費 (JPY)'},
+    {key:'cpm', label:'CPM'},
+    {key:'ctr', label:'CTR'},
+    {key:'cvr', label:'CVR'},
+    {key:'cpa', label:'CPA'},
+    {key:'roas', label:'ROAS'},
+  ];
+  document.getElementById(tableId).innerHTML = sortableHead(cols, catDetailSort[cat]) + `
+  <tbody>
+  ${rows.map(r=>`
+    <tr>
+      <td>${r.name}</td>
+      <td>${r.spend==null?'–':'¥'+Math.round(r.spend).toLocaleString()}</td>
+      <td>${r.cpm==null?'–':'¥'+r.cpm.toFixed(1)}</td>
+      <td>${r.ctr==null?'–':r.ctr.toFixed(2)+'%'}</td>
+      <td>${r.cvr==null?'–':r.cvr.toFixed(2)+'%'}</td>
+      <td>${r.cpa==null?'–':'¥'+Math.round(r.cpa).toLocaleString()}</td>
+      <td>${r.roas==null?'–':r.roas.toFixed(2)}</td>
+    </tr>`).join('')}
+  </tbody>`;
+  bindSortHandlers(tableId, catDetailSort[cat], ()=>renderCatDetail(cat, tableId));
+}
+
+document.querySelectorAll('tr.cat-row[data-cat]').forEach((tr, idx)=>{
+  const cat = tr.dataset.cat;
+  const detailRow = tr.nextElementSibling;
+  const tableId = 'catDetail-' + idx;
+  tr.addEventListener('click', ()=>{
+    const isOpen = detailRow.style.display !== 'none';
+    if(isOpen){
+      detailRow.style.display = 'none';
+      tr.classList.remove('expanded');
+    } else {
+      if(!catDetailBuilt[cat]){ renderCatDetail(cat, tableId); catDetailBuilt[cat] = true; }
+      detailRow.style.display = '';
+      tr.classList.add('expanded');
+    }
+  });
+});
+
+/* ---------------- 首次上稿月份表 —— 點擊展開素材明細 ----------------
+   同一套互動模式，套用在上方「首次上稿月份」表格：點擊月份列展開該月新增
+   的個別素材名稱與成效，預設依 CTR 由低到高排序，可點擊子表格欄位標題切
+   換排序。資料來源／重建方式與 KOL_CAT_ADS 相同（見上方註解），素材數已
+   核對與表格一致（2026-09-23 更新：2／2／5／13／21／26／12）。 */
+const KOL_MONTH_ADS = {"2026-03": [{"name": "emma（R14）", "spend": 160246, "cpm": 3619.7, "ctr": 3.24, "cvr": 1.81, "cpa": 6163, "roas": 2.8}, {"name": "hira（R20）", "spend": 7853595, "cpm": 2468.0, "ctr": 3.56, "cvr": 2.19, "cpa": 3186, "roas": 5.44}], "2026-04": [{"name": "emma（R37）", "spend": 337245, "cpm": 2156.8, "ctr": 3.27, "cvr": 2.06, "cpa": 3212, "roas": 5.36}, {"name": "Hilsama（R39）", "spend": 1359392, "cpm": 2345.9, "ctr": 3.34, "cvr": 2.17, "cpa": 5091, "roas": 3.42}], "2026-05": [{"name": "Chii（R51）", "spend": 36231, "cpm": 2390.7, "ctr": 2.29, "cvr": 1.15, "cpa": 9058, "roas": 2.36}, {"name": "mapikoro（R58）", "spend": 83048, "cpm": 2242.6, "ctr": 2.78, "cvr": 0.88, "cpa": 27683, "roas": 0.63}, {"name": "ayaco（R60）", "spend": 214123, "cpm": 3594.4, "ctr": 1.93, "cvr": 3.3, "cpa": 5635, "roas": 2.97}, {"name": "homi（R61）", "spend": 29212, "cpm": 2186.9, "ctr": 1.13, "cvr": 1.32, "cpa": 14606, "roas": 1.27}, {"name": "Rachel（R62）", "spend": 28190, "cpm": 3640.2, "ctr": 1.9, "cvr": 2.72, "cpa": 7048, "roas": 1.75}], "2026-06": [{"name": "coco（R65）", "spend": 77864, "cpm": 2875.2, "ctr": 1.5, "cvr": 2.46, "cpa": 7786, "roas": 3.01}, {"name": "mirei（R67）", "spend": 117787, "cpm": 3313.8, "ctr": 2.17, "cvr": 3.23, "cpa": 4711, "roas": 3.57}, {"name": "coco（R75）", "spend": 18763, "cpm": 1465.1, "ctr": 0.91, "cvr": 0.0, "cpa": null, "roas": 0.0}, {"name": "susan（R76）", "spend": 253584, "cpm": 2703.0, "ctr": 2.41, "cvr": 2.42, "cpa": 13347, "roas": 1.26}, {"name": "an（R77）", "spend": 574865, "cpm": 3168.9, "ctr": 2.74, "cvr": 3.06, "cpa": 5323, "roas": 3.29}, {"name": "rena（R79）", "spend": 516652, "cpm": 3744.5, "ctr": 2.99, "cvr": 3.78, "cpa": 3312, "roas": 5.35}, {"name": "aiko（R82）", "spend": 223520, "cpm": 2560.9, "ctr": 2.01, "cvr": 2.64, "cpa": 18627, "roas": 0.9}, {"name": "dstyle（R84）", "spend": 286665, "cpm": 2754.5, "ctr": 5.68, "cvr": 1.03, "cpa": 4699, "roas": 4.21}, {"name": "mirei（R85）", "spend": 221460, "cpm": 2856.3, "ctr": 1.63, "cvr": 4.05, "cpa": 4342, "roas": 4.11}, {"name": "myua（R86）", "spend": 457705, "cpm": 2605.3, "ctr": 2.24, "cvr": 3.52, "cpa": 3293, "roas": 5.48}, {"name": "sara（R87）", "spend": 751367, "cpm": 2219.7, "ctr": 4.64, "cvr": 1.31, "cpa": 5182, "roas": 3.65}, {"name": "risa（R90）", "spend": 2492280, "cpm": 3116.1, "ctr": 3.93, "cvr": 2.58, "cpa": 3495, "roas": 4.8}, {"name": "mitori（R91）", "spend": 341461, "cpm": 3453.7, "ctr": 2.85, "cvr": 3.3, "cpa": 3672, "roas": 4.92}], "2026-07": [{"name": "Noponopisu（R3）", "spend": null, "cpm": null, "ctr": null, "cvr": null, "cpa": null, "roas": null}, {"name": "mari（R94）", "spend": 104453, "cpm": 2620.9, "ctr": 2.45, "cvr": 0.63, "cpa": 52226, "roas": 0.34}, {"name": "ari（R96）", "spend": 302307, "cpm": 2608.1, "ctr": 2.29, "cvr": 2.69, "cpa": 12596, "roas": 1.4}, {"name": "hadamegu（R97）", "spend": 1053658, "cpm": 2578.1, "ctr": 2.64, "cvr": 2.73, "cpa": 3763, "roas": 4.77}, {"name": "riko（R98）", "spend": 774792, "cpm": 3156.4, "ctr": 2.87, "cvr": 3.54, "cpa": 3506, "roas": 4.91}, {"name": "youcamp（R99）", "spend": 253509, "cpm": 3149.9, "ctr": 2.7, "cvr": 3.02, "cpa": 5634, "roas": 3.28}, {"name": "emily（R100）", "spend": 63328, "cpm": 2809.5, "ctr": 2.28, "cvr": 1.89, "cpa": 12666, "roas": 1.32}, {"name": "kaede（R101）", "spend": 297816, "cpm": 2956.7, "ctr": 2.21, "cvr": 3.8, "cpa": 3919, "roas": 4.39}, {"name": "kona（R103）", "spend": 289941, "cpm": 2501.2, "ctr": 3.32, "cvr": 2.51, "cpa": 4602, "roas": 4.03}, {"name": "okayu（R104）", "spend": null, "cpm": null, "ctr": null, "cvr": null, "cpa": null, "roas": null}, {"name": "okayu（R105）", "spend": 266446, "cpm": 2429.3, "ctr": 2.6, "cvr": 2.16, "cpa": 7401, "roas": 2.54}, {"name": "obimama（R106）", "spend": 128556, "cpm": 2766.3, "ctr": 2.39, "cvr": 1.89, "cpa": 6122, "roas": 2.98}, {"name": "erica（R107）", "spend": 1012022, "cpm": 2964.6, "ctr": 2.8, "cvr": 2.5, "cpa": 4707, "roas": 3.91}, {"name": "hoshishi（R109）", "spend": 277336, "cpm": 2424.4, "ctr": 2.97, "cvr": 1.7, "cpa": 17334, "roas": 1.02}, {"name": "hadmegu（R110）", "spend": 207212, "cpm": 2452.1, "ctr": 3.49, "cvr": 2.29, "cpa": 3397, "roas": 5.19}, {"name": "katahara（R112）", "spend": 149944, "cpm": 2852.7, "ctr": 2.08, "cvr": 2.93, "cpa": 4686, "roas": 3.8}, {"name": "koba（R113）", "spend": 236713, "cpm": 2594.4, "ctr": 2.35, "cvr": 2.76, "cpa": 5380, "roas": 3.55}, {"name": "hira（R114）", "spend": 2042657, "cpm": 2345.4, "ctr": 2.94, "cvr": 2.44, "cpa": 3327, "roas": 5.22}, {"name": "miigomama（R115）", "spend": 369008, "cpm": 2758.3, "ctr": 2.27, "cvr": 2.44, "cpa": 12300, "roas": 1.45}, {"name": "yukko（R116）", "spend": 4302659, "cpm": 2692.1, "ctr": 3.72, "cvr": 2.03, "cpa": 3703, "roas": 4.61}, {"name": "okawa（R117）", "spend": 127977, "cpm": 3217.7, "ctr": 1.41, "cvr": 3.49, "cpa": 7999, "roas": 2.58}], "2026-08": [{"name": "mochiko（R118）", "spend": 348165, "cpm": 2226.6, "ctr": 1.94, "cvr": 2.88, "cpa": 10880, "roas": 1.59}, {"name": "mito（R122）", "spend": 539386, "cpm": 3297.9, "ctr": 2.82, "cvr": 2.89, "cpa": 5340, "roas": 3.18}, {"name": "hadamegu（R124）", "spend": 143956, "cpm": 2384.2, "ctr": 2.58, "cvr": 2.84, "cpa": 4499, "roas": 3.98}, {"name": "marika（R125）", "spend": 1082486, "cpm": 3269.8, "ctr": 2.5, "cvr": 2.89, "cpa": 7169, "roas": 2.38}, {"name": "sun（R126）", "spend": 275026, "cpm": 3151.1, "ctr": 2.31, "cvr": 3.09, "cpa": 6112, "roas": 3.0}, {"name": "saitasu（R127）", "spend": 201477, "cpm": 2266.0, "ctr": 1.95, "cvr": 2.84, "cpa": 6947, "roas": 2.4}, {"name": "naa（R128）", "spend": 218304, "cpm": 2246.5, "ctr": 2.47, "cvr": 1.54, "cpa": 24256, "roas": 0.69}, {"name": "maru（R130）", "spend": 93896, "cpm": 2381.0, "ctr": 3.65, "cvr": 1.25, "cpa": 5216, "roas": 3.3}, {"name": "key（R132）", "spend": 157718, "cpm": 2123.2, "ctr": 3.16, "cvr": 0.78, "cpa": 52573, "roas": 0.43}, {"name": "mana（R135）", "spend": 781690, "cpm": 3791.7, "ctr": 2.63, "cvr": 3.82, "cpa": 3776, "roas": 4.4}, {"name": "yume（R137）", "spend": 218231, "cpm": 3121.3, "ctr": 1.83, "cvr": 3.15, "cpa": 9093, "roas": 1.82}, {"name": "damcamp（R138）", "spend": 46582, "cpm": 1587.8, "ctr": 1.05, "cvr": 1.62, "cpa": 9316, "roas": 1.78}, {"name": "Hitomi（R139）", "spend": 25545, "cpm": 2473.1, "ctr": 2.51, "cvr": 0.39, "cpa": 25545, "roas": 0.63}, {"name": "sara（R140）", "spend": 25883, "cpm": 2759.7, "ctr": 1.95, "cvr": 0.0, "cpa": null, "roas": 0.0}, {"name": "matsu（R141）", "spend": 212781, "cpm": 2964.5, "ctr": 2.37, "cvr": 1.88, "cpa": 6649, "roas": 2.53}, {"name": "nao（R142）", "spend": 25730, "cpm": 2409.9, "ctr": 1.92, "cvr": 1.46, "cpa": 8577, "roas": 1.92}, {"name": "KATSU（R143）", "spend": 26385, "cpm": 2899.5, "ctr": 1.81, "cvr": 1.21, "cpa": 13192, "roas": 2.08}, {"name": "aren（R144）", "spend": 25828, "cpm": 2242.2, "ctr": 1.47, "cvr": 0.59, "cpa": 25828, "roas": 0.81}, {"name": "ruu（R145）", "spend": 156331, "cpm": 3230.2, "ctr": 2.03, "cvr": 3.16, "cpa": 5043, "roas": 3.32}, {"name": "mai（R146）", "spend": 86077, "cpm": 4145.3, "ctr": 1.96, "cvr": 3.68, "cpa": 5738, "roas": 3.04}, {"name": "kisaki（R147）", "spend": 25874, "cpm": 2918.3, "ctr": 2.13, "cvr": 1.59, "cpa": 8625, "roas": 1.88}, {"name": "parun（R148）", "spend": 330983, "cpm": 3362.2, "ctr": 2.18, "cvr": 2.78, "cpa": 16549, "roas": 1.01}, {"name": "amisa（R150）", "spend": 431586, "cpm": 3110.2, "ctr": 2.73, "cvr": 2.87, "cpa": 5328, "roas": 3.15}, {"name": "arisa（R152）", "spend": 203114, "cpm": 3148.1, "ctr": 2.27, "cvr": 2.42, "cpa": 9232, "roas": 1.8}, {"name": "manmaru（R153）", "spend": 153078, "cpm": 2942.7, "ctr": 2.04, "cvr": 1.66, "cpa": 21868, "roas": 0.76}, {"name": "marika.oka（R154）", "spend": 122590, "cpm": 3026.8, "ctr": 1.58, "cvr": 2.41, "cpa": 17513, "roas": 0.98}], "2026-09": [{"name": "chiico（R155）", "spend": 68311, "cpm": 3717.4, "ctr": 1.87, "cvr": 2.62, "cpa": 7590, "roas": 2.17}, {"name": "nekoneko（R157）", "spend": 167554, "cpm": 3475.0, "ctr": 2.23, "cvr": 2.23, "cpa": 10472, "roas": 1.99}, {"name": "miki（R158）", "spend": 165930, "cpm": 2935.3, "ctr": 1.99, "cvr": 2.55, "cpa": 10371, "roas": 1.71}, {"name": "becky（R160）", "spend": 144271, "cpm": 2609.9, "ctr": 1.87, "cvr": 2.49, "cpa": 8487, "roas": 1.95}, {"name": "airi（R161）", "spend": 144792, "cpm": 3419.8, "ctr": 2.51, "cvr": 2.14, "cpa": 13163, "roas": 1.24}, {"name": "mari（R162）", "spend": 127433, "cpm": 2721.4, "ctr": 3.24, "cvr": 0.52, "cpa": 63716, "roas": 0.24}, {"name": "meme（R164）", "spend": 52334, "cpm": 3380.7, "ctr": 1.51, "cvr": 2.99, "cpa": 8722, "roas": 1.91}, {"name": "nene（R165）", "spend": 31061, "cpm": 2430.8, "ctr": 1.84, "cvr": 1.28, "cpa": 10354, "roas": 1.62}, {"name": "rei（R167）", "spend": 83019, "cpm": 2704.7, "ctr": 2.12, "cvr": 5.21, "cpa": 8302, "roas": 1.98}, {"name": "pamu（R169）", "spend": 31069, "cpm": 2582.9, "ctr": 2.18, "cvr": 1.18, "cpa": 15534, "roas": 1.04}, {"name": "harutaco（R170）", "spend": 14889, "cpm": 2948.9, "ctr": 2.06, "cvr": 1.92, "cpa": 7444, "roas": 2.36}, {"name": "yukachinmaru（R171）", "spend": 8761, "cpm": 2894.3, "ctr": 1.59, "cvr": 2.08, "cpa": 8761, "roas": 1.85}]};
+
+const monthDetailSort = {};
+const monthDetailBuilt = {};
+
+function renderMonthDetail(month, tableId){
+  if(!monthDetailSort[month]) monthDetailSort[month] = {key:'ctr', dir:'asc'};
+  const items = KOL_MONTH_ADS[month] || [];
+  const rows = sortRows(items, monthDetailSort[month]);
+  const cols = [
+    {key:'name', label:'素材名稱'},
+    {key:'spend', label:'花費 (JPY)'},
+    {key:'cpm', label:'CPM'},
+    {key:'ctr', label:'CTR'},
+    {key:'cvr', label:'CVR'},
+    {key:'cpa', label:'CPA'},
+    {key:'roas', label:'ROAS'},
+  ];
+  document.getElementById(tableId).innerHTML = sortableHead(cols, monthDetailSort[month]) + `
+  <tbody>
+  ${rows.map(r=>`
+    <tr>
+      <td>${r.name}</td>
+      <td>${r.spend==null?'–':'¥'+Math.round(r.spend).toLocaleString()}</td>
+      <td>${r.cpm==null?'–':'¥'+r.cpm.toFixed(1)}</td>
+      <td>${r.ctr==null?'–':r.ctr.toFixed(2)+'%'}</td>
+      <td>${r.cvr==null?'–':r.cvr.toFixed(2)+'%'}</td>
+      <td>${r.cpa==null?'–':'¥'+Math.round(r.cpa).toLocaleString()}</td>
+      <td>${r.roas==null?'–':r.roas.toFixed(2)}</td>
+    </tr>`).join('')}
+  </tbody>`;
+  bindSortHandlers(tableId, monthDetailSort[month], ()=>renderMonthDetail(month, tableId));
+}
+
+document.querySelectorAll('tr.month-row[data-month]').forEach((tr, idx)=>{
+  const month = tr.dataset.month;
+  const detailRow = tr.nextElementSibling;
+  const tableId = 'monthDetail-' + idx;
+  tr.addEventListener('click', ()=>{
+    const isOpen = detailRow.style.display !== 'none';
+    if(isOpen){
+      detailRow.style.display = 'none';
+      tr.classList.remove('expanded');
+    } else {
+      if(!monthDetailBuilt[month]){ renderMonthDetail(month, tableId); monthDetailBuilt[month] = true; }
+      detailRow.style.display = '';
+      tr.classList.add('expanded');
+    }
+  });
+});
+</script>
+
+<div id="lightbox">
+  <span class="lb-close">&times;</span>
+  <img id="lightboxImg" src="" alt="">
+  <div class="lb-cap" id="lightboxCap"></div>
+</div>
+
+</body>
+</html>
