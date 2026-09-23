@@ -804,6 +804,16 @@ function sortRows(rows, sortState){
   return [...rows].sort((a,b)=>{
     const key = sortState.key;
     let av=a[key], bv=b[key];
+    if(key==='name'){
+      // Name-Row 排序依 Row Number（名稱尾端的 -123 或「（R123）」），無編號者排最後
+      const rn = s => { const m = String(s==null?'':s).match(/-(\d+)$|R(\d+)）$/); return m ? parseInt(m[1]||m[2],10) : null; };
+      const ar = rn(av), br = rn(bv);
+      if(ar!=null || br!=null){
+        if(ar==null) return 1;
+        if(br==null) return -1;
+        if(ar!==br) return sortState.dir==='desc' ? br-ar : ar-br;
+      }
+    }
     if(typeof av==='string' || typeof bv==='string'){
       av = av==null ? '' : String(av); bv = bv==null ? '' : String(bv);
       return sortState.dir==='desc' ? bv.localeCompare(av) : av.localeCompare(bv);
