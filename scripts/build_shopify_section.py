@@ -122,8 +122,8 @@ SECTION_TMPL = """  <!-- ================= SHOPIFY (weekly) =================
     <div class="kpi-grid" id="shopKpiGrid"></div>
     <div class="grid-2" style="margin-top:16px;">
       <div class="card shop-chart-card">
-        <div class="shop-chart-title">每週 Shopify 總銷售額 vs. Meta 廣告花費（JPY）</div>
-        <div class="shop-legend"><span><i class="sw bar" style="background:#a9822e"></i>Shopify 總銷售額</span><span><i class="sw line" style="background:#2a78b8"></i>Meta 廣告花費</span></div>
+        <div class="shop-chart-title">每週 Shopify 總銷售額、Meta 廣告花費 與 CVR</div>
+        <div class="shop-legend"><span><i class="sw bar" style="background:#a9822e"></i>Shopify 總銷售額（左軸）</span><span><i class="sw bar" style="background:#2a78b8"></i>Meta 廣告花費（左軸）</span><span><i class="sw line" style="background:#b8467a"></i>Shopify CVR = 訂單數 ÷ 工作階段數（右軸）</span></div>
         <div class="shop-chart" id="shopChartSales"></div>
       </div>
       <div class="card shop-chart-card">
@@ -163,7 +163,7 @@ JS_TMPL = r"""
 /* ===== SHOPIFY START (scripts/build_shopify_section.py) ===== */
 const shopWeeks = __ROWS__;
 (function renderShopify(){
-  const GOLD = '#a9822e', BLUE = '#2a78b8';
+  const GOLD = '#a9822e', BLUE = '#2a78b8', PINK = '#b8467a';
   const cur = shopWeeks[shopWeeks.length-1];
   const tiles = [
     {label:'Shopify 總銷售額', value:money(cur.sales), delta:cur.salesD},
@@ -183,27 +183,39 @@ const shopWeeks = __ROWS__;
   const compactYen = v => v>=1e6 ? '¥'+(v/1e6).toFixed(1)+'M' : v>=1e3 ? '¥'+Math.round(v/1e3)+'K' : '¥'+Math.round(v);
   function niceMax(v){ if(v<=0) return 1; const p=Math.pow(10,Math.floor(Math.log10(v))); const n=v/p; return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p; }
 
-  function chart(elId, {series, yFmt, tipFn}){
+  function chart(elId, {series, yFmt, yFmtR, tipFn}){
     const el = document.getElementById(elId);
-    const W=560, H=250, m={t:14,r:14,b:26,l:46};
+    const hasR = series.some(s=>s.axis==='right');
+    const W=560, H=250, m={t:14,r:hasR?50:14,b:26,l:46};
     const iw=W-m.l-m.r, ih=H-m.t-m.b, n=shopWeeks.length, step=iw/n;
-    const yMax = niceMax(Math.max(...series.flatMap(s=>shopWeeks.map(w=>w[s.key]||0))));
+    const maxOf = ss => niceMax(Math.max(...ss.flatMap(s=>shopWeeks.map(w=>w[s.key]||0))));
+    const yMax = maxOf(series.filter(s=>s.axis!=='right'));
+    // right axis (e.g. CVR %) uses a tight max instead of niceMax, so a narrow 1.5–2.8% band isn't squashed flat
+    const rawR = hasR ? Math.max(...series.filter(s=>s.axis==='right').flatMap(s=>shopWeeks.map(w=>w[s.key]||0))) : 0;
+    const yMaxR = hasR ? Math.ceil(rawR*1.05/4*5)/5*4 : null;  // 4 ticks on a 0.2 grid → clean 1-decimal labels
     const y = v => m.t + ih - (v/yMax)*ih;
+    const yR = v => m.t + ih - (v/yMaxR)*ih;
+    const yOf = s => s.axis==='right' ? yR : y;
     const xc = i => m.l + step*i + step/2;
     let g = '<g class="grid">';
     for(let k=0;k<=4;k++){ const v=yMax*k/4; g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}"/>`; }
     g += '</g><g class="axis">';
-    for(let k=0;k<=4;k++){ const v=yMax*k/4; g+=`<text x="${m.l-6}" y="${y(v)+3}" text-anchor="end">${yFmt(v)}</text>`; }
+    for(let k=0;k<=4;k++){ const v=yMax*k/4; g+=`<text x="${m.l-6}" y="${y(v)+3}" text-anchor="end">${yFmt(v)}</text>`;
+      if(hasR){ const vr=yMaxR*k/4; g+=`<text x="${W-m.r+6}" y="${y(v)+3}" text-anchor="start" style="fill:${series.find(s=>s.axis==='right').color}">${(yFmtR||yFmt)(vr)}</text>`; } }
     shopWeeks.forEach((w,i)=>{ if(w.wk%4===1 || i===n-1) g+=`<text x="${xc(i)}" y="${H-8}" text-anchor="middle">W${w.wk}</text>`; });
     g += '</g>';
     let marks = '';
+    // bars: every bar series is grouped side by side inside each week's slot (same left axis)
+    const bars = series.filter(s=>s.type==='bar'), nb = bars.length;
+    const gw = Math.max(2, step-3), bw = nb ? Math.max(1.5, (gw - (nb-1))/nb) : 0;
     series.forEach(s=>{
       if(s.type==='bar'){
-        const bw = Math.max(2, step-2);
+        const bi = bars.indexOf(s);
         shopWeeks.forEach((w,i)=>{ const v=w[s.key]||0; if(!v) return; const top=y(v), h=m.t+ih-top;
-          marks += `<rect x="${xc(i)-bw/2}" y="${top}" width="${bw}" height="${h}" rx="${Math.min(2,bw/2)}" fill="${s.color}" opacity="${i===n-1?1:0.78}"/>`; });
+          const x0 = xc(i) - gw/2 + bi*(bw+1);
+          marks += `<rect x="${x0}" y="${top}" width="${bw}" height="${h}" rx="${Math.min(1.5,bw/2)}" fill="${s.color}" opacity="${i===n-1?1:0.8}"/>`; });
       } else {
-        const pts = shopWeeks.map((w,i)=> w[s.key]==null ? null : [xc(i), y(w[s.key])]);
+        const pts = shopWeeks.map((w,i)=> w[s.key]==null ? null : [xc(i), yOf(s)(w[s.key])]);
         let d='', pen=false;
         pts.forEach(p=>{ if(!p){pen=false;return;} d += (pen?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1); pen=true; });
         marks += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" ${s.dash?'stroke-dasharray="5 4"':''}/>`;
@@ -228,9 +240,9 @@ const shopWeeks = __ROWS__;
   }
 
   chart('shopChartSales', {
-    series:[{key:'sales', type:'bar', color:GOLD}, {key:'metaCost', type:'line', color:BLUE}],
-    yFmt: compactYen,
-    tipFn: w=>`<b>W${w.wk}</b>（${w.range}）<br><span class="sw" style="background:${GOLD}"></span>銷售額 ${money(w.sales)}<br><span class="sw" style="background:${BLUE}"></span>Meta 花費 ${money(w.metaCost)}`
+    series:[{key:'sales', type:'bar', color:GOLD}, {key:'metaCost', type:'bar', color:BLUE}, {key:'cvr', type:'line', color:PINK, axis:'right'}],
+    yFmt: compactYen, yFmtR: v=>v.toFixed(1)+'%',
+    tipFn: w=>`<b>W${w.wk}</b>（${w.range}）<br><span class="sw" style="background:${GOLD}"></span>銷售額 ${money(w.sales)}<br><span class="sw" style="background:${BLUE}"></span>Meta 花費 ${money(w.metaCost)}<br><span class="sw" style="background:${PINK}"></span>CVR ${fmtPct1(w.cvr)}`
   });
   chart('shopChartRoas', {
     series:[{key:'roas', type:'line', color:GOLD}, {key:'metaRoas', type:'line', color:BLUE, dash:true}],
