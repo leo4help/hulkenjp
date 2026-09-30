@@ -153,6 +153,15 @@ def main():
         alltime += used_all
         recent += not used_all
 
+    # Rows already in LIC_ROW_DATA that no longer have ANY media rows (e.g. a spend that
+    # turned out to be misattributed and was re-mapped to another Row — R174→R173 on
+    # 2026-09-30) must not keep their stale B/C from an earlier run.
+    seen = set(med['RowS'].unique())
+    for r, entry in L.items():
+        if r not in seen and entry.get('B') is not None:
+            entry.update(B=None, C=None, activeDays=0, windowCost=0.0, windowRev=0.0, usedAllTime=True)
+            entry.pop('firstActive', None); entry.pop('lastActive', None)
+            nodata += 1
     L = {k: L[k] for k in sorted(L, key=lambda k: int(k))}
     html = html[:m.start(1)] + json.dumps(L, ensure_ascii=False) + html[m.end(1):]
     # keep the badge label in sync with the window length

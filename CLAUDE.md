@@ -111,6 +111,17 @@ Section IDs/nav: `#overview`, `#channels`, `#meta-test`, `#meta-creative`, `#kol
 > - **`NAME_ALIASES`** (defined at the top of `scripts/build_weekly_report.py` and `scripts/build_all_lifetime.py` — keep both copies in sync) canonicalizes NameRow spellings that differ between a creative's media-campaign ad name and its license ghost-row ad name. Two entries exist as of 2026-09-16 (Row 25 "Wakazo" duplication, Row 154 "marika" dot-vs-dash). Add a new entry to **both files** the moment a similar duplicate NameRow is spotted for a different creative — it will otherwise silently split one creative's history into two rows.
 > - **`Weekly Report Manual` can have an ambiguous/duplicate `Week_1st_day` label** — confirmed on the W37 build (2026-09-16): 7 rows for the actual W37 week were mislabeled with W36's own `2026-09-03` date, so a naive filter by `Week_1st_day` silently pulled the wrong week's numbers. `scripts/build_weekly_report.py` detects this (raises instead of guessing) and falls back to explicit row-index ranges. **Still needs a fix at the source** — flag to whoever maintains the Manual sheet that W37's rows need their `Week_1st_day` corrected, so this stops recurring.
 
+> **Shopify 週數據區塊取代「近期 KOL 表現討論」(W39, 2026-09-30，使用者要求).** W39 起報告最後一段不再放 `#kol-discuss`（W38 手動加的 Lifetime KOL 分析，含 `KOL_CAT_ADS`/`KOL_MONTH_ADS` JS），改放 `#shopify`「Shopify 官網成效（週）」。來源是使用者放在當週資料夾的 Shopify 每日匯出 CSV（例：`2026W39/SP - 2026-01-01 - 2026-09-30.csv`，欄位 日／工作階段數／訂單數／總銷售額）。在 `build_weekly_report.py` 之後執行 **`scripts/build_shopify_section.py`**（可重複執行；若範本已有 `#shopify` 就整段更新數字，若還是 `#kol-discuss` 就把它移除並替換）：
+> ```bash
+> python3 scripts/build_shopify_section.py --html 2026W39/hulken_week39_report.html \
+>   --shopify-csv "2026W39/SP - 2026-01-01 - 2026-09-30.csv" \
+>   --cache _cache/ad_data_historical_cache.pkl.gz \
+>   --bridge 2026W39/Hulken_Claude_Bridge.xlsx --bridge-cutoff 2026-09-24 --week-num 39
+> ```
+> 方法論（使用者指定）：Daily 依報告週期週四～週三彙整（W1 = 2026-01-01～01-07，週次 = (日期−2026-01-01)//7+1）；Shopify 流量主要由 Meta 帶來（其他渠道導其他商城），所以 **Shopify ROAS = Shopify 總銷售額 ÷ Meta 廣告花費**，Meta 花費 = `AD_Channel=='Meta AD'` 且 `goal!='-'`（含 CPC、不含授權金；與 Weekly Report Manual 的 Meta 列一致，W38/W39 已核對）。附「含授權金」ROAS 小字與 Meta 後台回報 ROAS 對照；Meta 花費 < ¥10,000 的週（W1）不顯示 ROAS。使用者說 W39「這週比較特別」——之後幾週是否延續 Shopify 區塊或恢復 KOL 分析，建置前先問使用者。
+>
+> **`build_weekly_report.py` 不會自動加 Weekly Insight callout**（只會移除舊的）：W39 用小段 python 手動把 `Weekly Insight` 當週 `全渠道` 列插到 `#channels` hint 後面。
+
 ### Step 4 — Update the root redirect
 `index.html` at the project root is a **static, unchanging** file — it fetches `manifest.json` at runtime and redirects to whatever week that points to. Every week, after building the new report, update `manifest.json` (small file, project root):
 
@@ -258,6 +269,8 @@ Hulken Weekly Report/
 ---
 
 ## Open items / things to double check with the user (not urgent, don't act unilaterally)
+
+- **W39 (2026-09-30): R174 上刊錯誤，已在 W39 資料層修正 —— W40 建置時務必檢查。** 使用者告知 10/1 前名為 `A:KOL-mirai_B:影片_C:親子戶外活動_D:親子戶外活動_E:collections_R:174_Z:` 的廣告，實際投放的是 beniko 素材（應為 `A:KOL-beniko_B:影片_C:畫家推薦_D:畫家推薦_E:collections_R:173_Z:`），所以 R174 在 10/1 前**媒體花費為 0**；使用者已在 Meta 後台改名並從 10/1 起正式投放真正的 R174，並表示不改 Bridge、下週數據會正常。處理方式：保留原始 `2026W39/Hulken_Claude_Bridge.xlsx` 不動，另存 `2026W39/Hulken_Claude_Bridge_fixed.xlsx`（純數值版，只把那 14 列 2026-09-24~09-30 的 `廣告名稱` 改成 R173，其餘 6 個分頁逐格核對一致），W39 週報與 `all.html` 全部改用 `_fixed` 版重建。R174 的 KOL 授權金幽靈列（9/25 起攤提，W39 ¥15,402）**沒有搬動**，仍掛在 R174（已簽約、尚未上線的狀態）。另外 `scripts/update_lic_row_bc.py` 補了一個修正：已存在於 `LIC_ROW_DATA`、但現在完全沒有媒體列的 Row 會把舊的 B/C 清空（以前會殘留舊值）。**W40 請注意：** (1) `update_cache_incremental.py` 會從 W40 Bridge 取 09-24~09-30 併入快取 —— 先確認 W40 Bridge 裡那段日期已經沒有 `R:174` 的媒體列（即 Meta 匯出已反映改名）；如果還有，比照上面把 10/1 前的改成 R173 再併入。(2) 誤名廣告原本掛在 `Row174｜A:KOL_B:HulkenJP_C:CPA_D:BT_Z:`（無 TEST），R173 自己的廣告在 `TEST | Row173｜…`；使用者確認 R173 應整支歸 TEST，所以 `_fixed` 版也把那 14 列的 `行銷活動名稱` 改成 `TEST | Row173｜A:KOL_B:HulkenJP_C:CPA_D:BT_Z:`（General 因此少 ¥27,684、TEST 多 ¥27,684）。W40 若 Bridge 仍有這段舊資料，兩個欄位都要一起改。
 
 - **W37 (2026-09-16): `Weekly Report Manual` sheet has an ambiguous `Week_1st_day` label.** 7 rows that are actually this week's (W37) `Weekly Report Manual` data are tagged with `Week_1st_day = 2026-09-03` (W36's own date), duplicating the label already used by W36's real 7 rows (14 rows total under that one date instead of 7). Worked around this week via explicit row-index ranges (rows 54-60 vs 47-53) rather than filtering by date — see `scripts/build_weekly_report.py`'s `--manual-cur-idx`/`--manual-prev-idx` fallback. Flag to whoever maintains the Manual sheet so the underlying label gets corrected; otherwise every future script run risks silently pulling the wrong week unless someone catches the row-count mismatch (the script does check for this and raises rather than guessing, but the sheet itself is still wrong).
 - **W35 (2026-09-02): 6 ad creative rows have no `AD Images/<Row>.jpg` yet** — Row 80, 152, 153, 154, 155, 157 (all referenced in this week's `Claude_Analysis_Data`, several also newly appearing in the `KOL授權金` tab). Page still works via the built-in 缺圖 placeholder, but flag to the user in case screenshots are still pending.
