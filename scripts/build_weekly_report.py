@@ -496,6 +496,51 @@ def compute_report_data(cache_path, bridge_path, week_start, week_end,
         'roasD': pct_delta(gt_roas, pgt_roas),
     }
 
+    # ---- Overview: channelMergedRows (added 2026-10-07, W40, user request) ----
+    # Same Weekly Report Manual rows as channelRows, but summed per Channel
+    # (品牌+非品牌 / RPP+TDA merged) BEFORE deriving ratios -- never average
+    # the per-AD-Type ratios. Rendered as a second table under the
+    # Overview·全渠道 table ("同渠道整合比較"), sharing channelGrand as its total.
+    def _chan_metrics(df):
+        cost = df['Cost'].sum(); impr = df['Impression'].sum(); click = df['Click'].sum()
+        purch = df['Purchase'].sum(); rev = df['Purchase Value'].sum()
+        cpm = safe_div(cost, impr)
+        return {'cost': cost, 'rev': rev, 'purch': purch,
+                'ctr': None if safe_div(click, impr) is None else safe_div(click, impr) * 100,
+                'cvr': None if safe_div(purch, click) is None else safe_div(purch, click) * 100,
+                'cpa': safe_div(cost, purch) if purch else None,
+                'cpm': None if cpm is None else cpm * 1000,
+                'roas': safe_div(rev, cost)}
+    channelMergedRows = []
+    for ch in cur_manual['Channel'].drop_duplicates().tolist():
+        c = _chan_metrics(cur_manual[cur_manual['Channel'] == ch])
+        pdf = prev_manual[prev_manual['Channel'] == ch]
+        p = _chan_metrics(pdf) if len(pdf) else {k: None for k in c}
+        types = cur_manual[cur_manual['Channel'] == ch]['AD Type'].astype(str).tolist()
+        channelMergedRows.append({
+            'channel': ch, 'types': ' + '.join(types), 'nTypes': len(types),
+            'cost': r2(c['cost'], 1), 'costD': pct_delta(c['cost'], p['cost']),
+            'share': r2(c['cost'] / total_cost * 100, 2) if total_cost else None,
+            'rev': r2(c['rev'], 0), 'revD': pct_delta(c['rev'], p['rev']),
+            'purch': r2(c['purch'], 2), 'purchD': pct_delta(c['purch'], p['purch']),
+            'ctr': r2(c['ctr']), 'ctrD': pct_delta(c['ctr'], p['ctr']),
+            'cvr': r2(c['cvr']), 'cvrD': pct_delta(c['cvr'], p['cvr']),
+            'cpa': r2(c['cpa']), 'cpaD': pct_delta(c['cpa'], p['cpa']),
+            'cpm': r2(c['cpm']), 'cpmD': pct_delta(c['cpm'], p['cpm']),
+            'roas': r2(c['roas']), 'roasD': pct_delta(c['roas'], p['roas']),
+        })
+    _g = _chan_metrics(cur_manual); _pg = _chan_metrics(prev_manual)
+    channelMergedGrand = {
+        'cost': r2(_g['cost'], 0), 'costD': pct_delta(_g['cost'], _pg['cost']),
+        'rev': r2(_g['rev'], 0), 'revD': pct_delta(_g['rev'], _pg['rev']),
+        'purch': r2(_g['purch'], 2), 'purchD': pct_delta(_g['purch'], _pg['purch']),
+        'ctr': r2(_g['ctr']), 'ctrD': pct_delta(_g['ctr'], _pg['ctr']),
+        'cvr': r2(_g['cvr']), 'cvrD': pct_delta(_g['cvr'], _pg['cvr']),
+        'cpa': r2(_g['cpa']), 'cpaD': pct_delta(_g['cpa'], _pg['cpa']),
+        'cpm': r2(_g['cpm']), 'cpmD': pct_delta(_g['cpm'], _pg['cpm']),
+        'roas': r2(_g['roas']), 'roasD': pct_delta(_g['roas'], _pg['roas']),
+    }
+
     # KPI hero tiles come from ad_data itself (Meta+Google combined,
     # goal not in ['-','CPC']) -- NOT the Weekly Report Manual.
     overview_cur = cur_win[~cur_win['goal'].isin(['-', 'CPC'])]
@@ -557,6 +602,7 @@ def compute_report_data(cache_path, bridge_path, week_start, week_end,
 
     return {
         'kpis': kpis, 'channelRows': channelRows, 'channelGrand': channelGrand,
+        'channelMergedRows': channelMergedRows, 'channelMergedGrand': channelMergedGrand,
         'brandSplit': brandSplit, 'testSplit': testSplit, 'overviewGrandRef': overviewGrandRef,
         'metaTestRows': metaTestRows, 'metaTestKol': metaTestKol,
         'metaCreative': metaCreative, 'metaCreativeTotal': metaCreativeTotal,
@@ -570,6 +616,82 @@ def compute_report_data(cache_path, bridge_path, week_start, week_end,
 
 def dumps(obj):
     return json.dumps(obj, ensure_ascii=False)
+
+
+CHANNEL_MERGED_MARKUP = """
+    <!-- 同渠道整合比較 (added 2026-10-07, W40): Weekly Report Manual summed per Channel -->
+    <div class="sec-head" style="margin-top:28px;"><h2 style="font-size:18px;">同渠道整合比較</h2><span class="sec-tag">品牌＋非品牌 / RPP＋TDA 合併後依渠道比較（點欄位標題可排序）</span></div>
+    <div class="table-scroll">
+      <table id="channelMergedTable"></table>
+    </div>
+    <div class="hint">各渠道先加總 Cost／曝光／點擊／購買／銷售額再計算比率（非各廣告類型比率平均）；%Δ 同樣對比上週。</div>
+"""
+
+CHANNEL_MERGED_JS = r"""
+/* ---------------- Channel merged table (同渠道整合比較, W40+) ---------------- */
+const channelMergedRows = [];
+const channelMergedGrand = {};
+let channelMergedSort = {key:'cost', dir:'desc'};
+function renderChannelMergedTable(){
+  const sorted = sortRows(channelMergedRows, channelMergedSort);
+  const cols = [
+    {key:'channel', label:'Channel'},{key:'cost', label:'Cost'},{key:'share', label:'Cost Share'},
+    {key:'rev', label:'銷售額'},{key:'purch', label:'購買數'},
+    {key:'ctr', label:'CTR'},{key:'cvr', label:'CVR'},{key:'cpa', label:'CPA'},{key:'cpm', label:'CPM'},{key:'roas', label:'ROAS'},
+  ];
+  const nz = v => v==null ? '–' : v;
+  const g = channelMergedGrand;
+  document.getElementById('channelMergedTable').innerHTML = sortableHead(cols, channelMergedSort) + `
+  <tbody>
+  ${sorted.map(r=>`
+    <tr>
+      <td class="name-cell">${r.channel}<div style="font-size:11px;color:var(--ink-faint);font-weight:400;margin-top:2px;">${r.types}</div></td>
+      <td>${stack(fmtInt(r.cost), r.costD)}</td>
+      <td>${r.share==null?'–':r.share+'%'}</td>
+      <td>${stack(fmtInt(r.rev), r.revD)}</td>
+      <td>${stack(r.purch==null?'–':fmt2(r.purch).replace(/\.00$/,''), r.purchD)}</td>
+      <td>${stack(r.ctr==null?'–':r.ctr+'%', r.ctrD)}</td>
+      <td>${stack(r.cvr==null?'–':r.cvr+'%', r.cvrD)}</td>
+      <td>${stack(r.cpa==null?'–':fmt2(r.cpa), r.cpaD)}</td>
+      <td>${stack(r.cpm==null?'–':fmt2(r.cpm), r.cpmD)}</td>
+      <td>${stack(`<span class="heat-val" style="${heatBg(r.roas,0,25,'123,150,110')}"><b>${nz(r.roas)}</b></span>`, r.roasD)}</td>
+    </tr>`).join('')}
+    <tr class="grand">
+      <td>Grand total</td>
+      <td>${stack(fmtInt(g.cost), g.costD)}</td>
+      <td>100%</td>
+      <td>${stack(fmtInt(g.rev), g.revD)}</td>
+      <td>${stack(fmt2(g.purch).replace(/\.00$/,''), g.purchD)}</td>
+      <td>${stack(nz(g.ctr)+'%', g.ctrD)}</td>
+      <td>${stack(nz(g.cvr)+'%', g.cvrD)}</td>
+      <td>${stack(fmt2(g.cpa), g.cpaD)}</td>
+      <td>${stack(fmt2(g.cpm), g.cpmD)}</td>
+      <td>${stack(nz(g.roas), g.roasD)}</td>
+    </tr>
+  </tbody>`;
+  bindSortHandlers('channelMergedTable', channelMergedSort, renderChannelMergedTable);
+}
+renderChannelMergedTable();
+"""
+
+
+def ensure_channel_merged_block(html):
+    """Inject the 同渠道整合比較 markup + JS if the template predates W40."""
+    if 'id="channelMergedTable"' in html:
+        return html
+    # markup: at the end of the #channels section (after the hint and any
+    # Weekly Insight callout), i.e. right before that section's </section>
+    start = html.find('<section id="channels">')
+    end = html.find('</section>', start)
+    if start < 0 or end < 0:
+        raise SystemExit("could not locate #channels section to inject 同渠道整合比較")
+    html = html[:end] + CHANNEL_MERGED_MARKUP.lstrip('\n') + '  ' + html[end:]
+    anchor = 'renderChannelTable();\n'
+    i = html.find(anchor, html.find('function renderChannelTable'))
+    if i < 0:
+        raise SystemExit("could not locate renderChannelTable(); call to inject merged-table JS")
+    i += len(anchor)
+    return html[:i] + CHANNEL_MERGED_JS + html[i:]
 
 
 def sub_const(html, name, value):
@@ -716,8 +838,12 @@ def build_html(template_path, out_path, data, week_num, prev_week_num,
     if n != 1:
         raise SystemExit(f"WoW-deltas comment substitution matched {n} times, expected 1")
 
+    # 9b. 同渠道整合比較 table (added 2026-10-07, W40). Templates from W40 on
+    #     already carry it; inject it once if the template predates it.
+    html = ensure_channel_merged_block(html)
+
     # 10. data consts
-    for name in ['kpis', 'channelRows', 'channelGrand', 'metaTestRows',
+    for name in ['kpis', 'channelRows', 'channelGrand', 'channelMergedRows', 'channelMergedGrand', 'metaTestRows',
                  'metaTestKol', 'metaCreative', 'metaCreativeTotal',
                  'kolRows', 'kolGrand']:
         html = sub_const(html, name, data[name])

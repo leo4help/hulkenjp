@@ -396,6 +396,12 @@
       <table id="channelTable"></table>
     </div>
     <div class="hint">%Δ 為對比上週（Week_1st_day 2026-09-24）之週增減。</div>
+      <!-- 同渠道整合比較 (added 2026-10-07, W40): Weekly Report Manual summed per Channel -->
+    <div class="sec-head" style="margin-top:28px;"><h2 style="font-size:18px;">同渠道整合比較</h2><span class="sec-tag">品牌＋非品牌 / RPP＋TDA 合併後依渠道比較（點欄位標題可排序）</span></div>
+    <div class="table-scroll">
+      <table id="channelMergedTable"></table>
+    </div>
+    <div class="hint">各渠道先加總 Cost／曝光／點擊／購買／銷售額再計算比率（非各廣告類型比率平均）；%Δ 同樣對比上週。</div>
   </section>
 
   <!-- ================= META TEST ================= -->
@@ -657,6 +663,51 @@ function renderChannelTable(){
   bindSortHandlers('channelTable', channelSort, renderChannelTable);
 }
 renderChannelTable();
+
+/* ---------------- Channel merged table (同渠道整合比較, W40+) ---------------- */
+const channelMergedRows = [{"channel": "Meta", "types": "非品牌", "nTypes": 1, "cost": 1192813.0, "costD": -31.4, "share": 75.52, "rev": 4442312.0, "revD": -20.2, "purch": 261.0, "purchD": -21.1, "ctr": 2.94, "ctrD": -4.2, "cvr": 1.96, "cvrD": 1.1, "cpa": 4570.16, "cpaD": -13.0, "cpm": 2627.41, "cpmD": -15.8, "roas": 3.72, "roasD": 16.4}, {"channel": "Google", "types": "非品牌 + 品牌", "nTypes": 2, "cost": 252239.0, "costD": 10.5, "share": 15.97, "rev": 1348071.0, "revD": 22.9, "purch": 80.0, "purchD": 14.3, "ctr": 1.04, "ctrD": -4.7, "cvr": 2.33, "cvrD": -11.1, "cpa": 3152.99, "cpaD": -3.3, "cpm": 766.31, "cpmD": -18.1, "roas": 5.34, "roasD": 11.2}, {"channel": "Amazon", "types": "非品牌 + 品牌", "nTypes": 2, "cost": 134333.0, "costD": 28.6, "share": 8.51, "rev": 556342.0, "revD": -39.6, "purch": 34.0, "purchD": -39.3, "ctr": 1.78, "ctrD": -8.2, "cvr": 1.49, "cvrD": -46.3, "cpa": 3950.97, "cpaD": 111.8, "cpm": 1047.02, "cpmD": 4.4, "roas": 4.14, "roasD": -53.1}, {"channel": "Rakuten", "types": "RPP - 非品牌* + TDA - 非品牌*", "nTypes": 2, "cost": 0.0, "costD": null, "share": 0.0, "rev": 0.0, "revD": null, "purch": 0.0, "purchD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpa": null, "cpaD": null, "cpm": null, "cpmD": null, "roas": null, "roasD": null}];
+const channelMergedGrand = {"cost": 1579385.0, "costD": -23.8, "rev": 6346725.0, "revD": -16.3, "purch": 375.0, "purchD": -17.9, "ctr": 2.09, "ctrD": -13.1, "cvr": 1.97, "cvrD": -6.2, "cpa": 4211.69, "cpaD": -7.1, "cpm": 1732.83, "cpmD": -24.3, "roas": 4.02, "roasD": 9.8};
+let channelMergedSort = {key:'cost', dir:'desc'};
+function renderChannelMergedTable(){
+  const sorted = sortRows(channelMergedRows, channelMergedSort);
+  const cols = [
+    {key:'channel', label:'Channel'},{key:'cost', label:'Cost'},{key:'share', label:'Cost Share'},
+    {key:'rev', label:'銷售額'},{key:'purch', label:'購買數'},
+    {key:'ctr', label:'CTR'},{key:'cvr', label:'CVR'},{key:'cpa', label:'CPA'},{key:'cpm', label:'CPM'},{key:'roas', label:'ROAS'},
+  ];
+  const nz = v => v==null ? '–' : v;
+  const g = channelMergedGrand;
+  document.getElementById('channelMergedTable').innerHTML = sortableHead(cols, channelMergedSort) + `
+  <tbody>
+  ${sorted.map(r=>`
+    <tr>
+      <td class="name-cell">${r.channel}<div style="font-size:11px;color:var(--ink-faint);font-weight:400;margin-top:2px;">${r.types}</div></td>
+      <td>${stack(fmtInt(r.cost), r.costD)}</td>
+      <td>${r.share==null?'–':r.share+'%'}</td>
+      <td>${stack(fmtInt(r.rev), r.revD)}</td>
+      <td>${stack(r.purch==null?'–':fmt2(r.purch).replace(/\.00$/,''), r.purchD)}</td>
+      <td>${stack(r.ctr==null?'–':r.ctr+'%', r.ctrD)}</td>
+      <td>${stack(r.cvr==null?'–':r.cvr+'%', r.cvrD)}</td>
+      <td>${stack(r.cpa==null?'–':fmt2(r.cpa), r.cpaD)}</td>
+      <td>${stack(r.cpm==null?'–':fmt2(r.cpm), r.cpmD)}</td>
+      <td>${stack(`<span class="heat-val" style="${heatBg(r.roas,0,25,'123,150,110')}"><b>${nz(r.roas)}</b></span>`, r.roasD)}</td>
+    </tr>`).join('')}
+    <tr class="grand">
+      <td>Grand total</td>
+      <td>${stack(fmtInt(g.cost), g.costD)}</td>
+      <td>100%</td>
+      <td>${stack(fmtInt(g.rev), g.revD)}</td>
+      <td>${stack(fmt2(g.purch).replace(/\.00$/,''), g.purchD)}</td>
+      <td>${stack(nz(g.ctr)+'%', g.ctrD)}</td>
+      <td>${stack(nz(g.cvr)+'%', g.cvrD)}</td>
+      <td>${stack(fmt2(g.cpa), g.cpaD)}</td>
+      <td>${stack(fmt2(g.cpm), g.cpmD)}</td>
+      <td>${stack(nz(g.roas), g.roasD)}</td>
+    </tr>
+  </tbody>`;
+  bindSortHandlers('channelMergedTable', channelMergedSort, renderChannelMergedTable);
+}
+renderChannelMergedTable();
 
 /* ---------------- Meta Test tables ---------------- */
 const metaTestRows = [{"label": "General", "cost": 745665.0, "costD": -41.2, "share": 63.43, "cpa": 4052.53, "cpaD": -16.8, "roas": 4.13, "roasD": 18.3, "ctr": 2.37, "ctrD": -8.8, "cvr": 3.03, "cvrD": 14.5, "cpm": 2902.76, "cpmD": -13.2}, {"label": "TEST", "cost": 429901.0, "costD": -5.5, "share": 36.57, "cpa": 5583.13, "cpaD": -12.8, "roas": 3.18, "roasD": 26.2, "ctr": 2.05, "ctrD": -9.8, "cvr": 2.49, "cvrD": 8.2, "cpm": 2842.4, "cpmD": -14.9}];

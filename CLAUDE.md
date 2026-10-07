@@ -122,6 +122,8 @@ Section IDs/nav: `#overview`, `#channels`, `#meta-test`, `#meta-creative`, `#kol
 >
 > **`build_weekly_report.py` 不會自動加 Weekly Insight callout**（只會移除舊的）：W39 用小段 python 手動把 `Weekly Insight` 當週 `全渠道` 列插到 `#channels` hint 後面。
 
+> **同渠道整合比較 table (added 2026-10-07, W40, 使用者要求).** `#channels` 區塊在原本 Overview·全渠道 表格（與 hint／insight callout）之後，多一張 `#channelMergedTable`「同渠道整合比較」：同樣來自 `Weekly Report Manual`，但依 `Channel` 合併（Google／Amazon 品牌＋非品牌、Rakuten RPP＋TDA），**先加總 Cost／Impression／Click／Purchase／Purchase Value 再算比率**，欄位：Cost、Cost Share、銷售額、購買數、CTR、CVR、CPA、CPM、ROAS（皆含 WoW %Δ），Grand total 與上表一致。由 `build_weekly_report.py` 的 `channelMergedRows`／`channelMergedGrand` 產生；若模板早於 W40，`ensure_channel_merged_block()` 會自動注入 markup＋JS（插在 `#channels` 的 `</section>` 前），W40 之後的模板已內建，只需更新 const。
+
 ### Step 4 — Update the root redirect
 `index.html` at the project root is a **static, unchanging** file — it fetches `manifest.json` at runtime and redirects to whatever week that points to. Every week, after building the new report, update `manifest.json` (small file, project root):
 
