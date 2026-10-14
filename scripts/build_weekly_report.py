@@ -86,7 +86,7 @@ same date), --manual-week-1st-day will raise a clear error; fall back to
 per week) after inspecting the sheet by hand, and flag the bad label to
 whoever maintains the Manual sheet.
 """
-import argparse
+import argparse, os
 import json
 import re
 
@@ -225,10 +225,48 @@ def agg_metrics(df):
 # Data computation (PART 1)
 # ---------------------------------------------------------------------------
 
+def _channel_frames_from_data(cur_win, prev_win, week_start, week_end, prev_start, prev_end,
+                              amazon_dir, rakuten_cur, rakuten_prev):
+    import amazon_search_terms as amz
+    COLS = ['Week_1st_day', 'Channel', 'AD Type', 'Cost', 'Impression', 'Click', 'Purchase', 'Purchase Value']
+
+    def ad_rows(win, ws):
+        out = []
+        w = win[win['goal'] != '-']
+        meta = w[w['AD_Channel'] == 'Meta AD']
+        goo = w[w['AD_Channel'] == 'Google AD']
+        brand = goo[CAMPAIGN].astype(str).str.contains('包含品牌', na=False)
+        for ch, typ, df in [('Meta', '非品牌', meta), ('Google', '非品牌', goo[~brand]), ('Google', '品牌', goo[brand])]:
+            out.append({'Week_1st_day': ws, 'Channel': ch, 'AD Type': typ,
+                        'Cost': df[COST].sum(), 'Impression': df['曝光次數'].sum(), 'Click': df['連結點擊次數'].sum(),
+                        'Purchase': df['購買次數'].sum(), 'Purchase Value': df[REV].sum()})
+        return out
+
+    cur = ad_rows(cur_win, week_start)
+    prev = ad_rows(prev_win, prev_start)
+    missing = []
+    a_cur = amz.find_week_file(amazon_dir, week_start, week_end) if amazon_dir else None
+    a_prev = amz.find_week_file(amazon_dir, prev_start, prev_end) if amazon_dir else None
+    if a_cur and a_prev:
+        cur += amz.manual_rows(a_cur, week_start)
+        prev += amz.manual_rows(a_prev, prev_start)
+    elif a_cur or a_prev:
+        missing.append('Amazon（%s缺資料）' % ('上週' if a_cur else '本週'))
+    else:
+        missing.append('Amazon')
+    if rakuten_cur or rakuten_prev:
+        raise SystemExit("Rakuten file loader not implemented yet -- ask the user for the file format first")
+    missing.append('樂天')
+    note = ('本週未提供 ' + '、'.join(missing) + ' 資料，未列入上表；Grand total 與 %Δ 皆為不含這些渠道的同口徑比較。') if missing else ''
+    return (pd.DataFrame(cur, columns=COLS), pd.DataFrame(prev, columns=COLS), note)
+
+
 def compute_report_data(cache_path, bridge_path, week_start, week_end,
                          prev_start, prev_end, manual_xlsx,
                          manual_week_1st_day=None,
-                         manual_cur_idx=None, manual_prev_idx=None):
+                         manual_cur_idx=None, manual_prev_idx=None,
+                         channel_source='manual', amazon_dir=None,
+                         rakuten_cur=None, rakuten_prev=None):
     cache = pd.read_pickle(cache_path, compression='gzip')
     if 'NameRow' in cache.columns:
         cache = cache.copy()
@@ -417,9 +455,25 @@ def compute_report_data(cache_path, bridge_path, week_start, week_end,
         'cpmD': pct_delta(kol_cur_m['cpm'], kol_prev_m['cpm']),
     }
 
-    # ---- Overview: channelRows / channelGrand from Weekly Report Manual ----
-    wrm = pd.read_excel(manual_xlsx, sheet_name='Weekly Report Manual')
-    if manual_week_1st_day:
+    # ---- Overview: channelRows / channelGrand ----
+    # W41+ (2026-10-14): channel_source='data' -- the Weekly Report Manual sheet
+    # is no longer maintained. Rows are rebuilt from the raw data instead:
+    #   Meta   = ad_data Meta AD, goal != '-' (incl. CPC, excl. license) -> all 非品牌
+    #   Google = ad_data Google AD, goal != '-'; campaign name contains 包含品牌 -> 品牌, else 非品牌
+    #   Amazon = amazon_data/Sponsored_Products_SearchTerm_<start>_<end>.csv (see amazon_search_terms.py)
+    #   Rakuten= one row, AD Type 無法區隔, only when a Rakuten file is given (format TBD)
+    # A channel with no data in EITHER week is dropped from both weeks so the
+    # grand total / WoW stay like-for-like; channelNote explains what's missing.
+    channelNote = ''
+    if channel_source == 'data':
+        cur_manual, prev_manual, channelNote = _channel_frames_from_data(
+            cur_win, prev_win, week_start, week_end, prev_start, prev_end,
+            amazon_dir, rakuten_cur, rakuten_prev)
+    else:
+        wrm = pd.read_excel(manual_xlsx, sheet_name='Weekly Report Manual')
+    if channel_source == 'data':
+        pass
+    elif manual_week_1st_day:
         cur_manual = wrm[wrm['Week_1st_day'] == pd.Timestamp(manual_week_1st_day)].reset_index(drop=True)
         prev_manual = wrm[wrm['Week_1st_day'] == pd.Timestamp(prev_start)].reset_index(drop=True)
         # Only a row whose (Week_1st_day, Channel, AD Type) triple repeats is
@@ -603,6 +657,7 @@ def compute_report_data(cache_path, bridge_path, week_start, week_end,
     return {
         'kpis': kpis, 'channelRows': channelRows, 'channelGrand': channelGrand,
         'channelMergedRows': channelMergedRows, 'channelMergedGrand': channelMergedGrand,
+        'channelNote': channelNote,
         'brandSplit': brandSplit, 'testSplit': testSplit, 'overviewGrandRef': overviewGrandRef,
         'metaTestRows': metaTestRows, 'metaTestKol': metaTestKol,
         'metaCreative': metaCreative, 'metaCreativeTotal': metaCreativeTotal,
@@ -842,6 +897,29 @@ def build_html(template_path, out_path, data, week_num, prev_week_num,
     #     already carry it; inject it once if the template predates it.
     html = ensure_channel_merged_block(html)
 
+    # 9c. Insight & Suggestion section (W41+, replaces the Weekly Insight
+    #     callout; editable online via _worker.js + D1). Inject once, then
+    #     refresh this week's key + Claude-written draft from insights.json.
+    import insight_section
+    html = insight_section.ensure_block(html)
+    week_key = week_start.strftime('%Y-%m-%d')
+    html, n = re.subn(r"const INSIGHT_WEEK = '[^']*';", f"const INSIGHT_WEEK = '{week_key}';", html, count=1)
+    if n != 1:
+        raise SystemExit("INSIGHT_WEEK substitution failed")
+    html = sub_const(html, 'INSIGHTS_BUILTIN', data.get('insightsBuiltin') or {})
+
+    # 9d. channel-coverage note under the 全渠道 table (W41+: e.g. 本週未提供樂天資料)
+    import html as _h
+    note = data.get('channelNote') or ''
+    note_div = f'<div class="hint" id="channelNote"{"" if note else " hidden"}>{_h.escape(note)}</div>'
+    if 'id="channelNote"' in html:
+        html = re.sub(r'<div class="hint" id="channelNote"[^>]*>.*?</div>', lambda m: note_div, html, count=1, flags=re.S)
+    else:
+        m = re.search(r'<div class="hint">%Δ 為對比上週（Week_1st_day [^<]*</div>', html)
+        if not m:
+            raise SystemExit("could not find channels hint to attach channelNote")
+        html = html[:m.end()] + '\n    ' + note_div + html[m.end():]
+
     # 10. data consts
     for name in ['kpis', 'channelRows', 'channelGrand', 'channelMergedRows', 'channelMergedGrand', 'metaTestRows',
                  'metaTestKol', 'metaCreative', 'metaCreativeTotal',
@@ -873,6 +951,12 @@ def main():
     ap.add_argument('--manual-week-1st-day', default=None, help='preferred: filters Weekly Report Manual by this Week_1st_day value')
     ap.add_argument('--manual-cur-idx', type=int, nargs=2, default=None, help='fallback: 0-based half-open row range for this week, use only if --manual-week-1st-day errors out on a duplicate label')
     ap.add_argument('--manual-prev-idx', type=int, nargs=2, default=None, help='fallback: 0-based half-open row range for previous week')
+    ap.add_argument('--channel-source', choices=['manual', 'data'], default='data',
+                    help="W41+: 'data' (default) rebuilds the 全渠道 table from ad_data + amazon_data/; 'manual' = legacy Weekly Report Manual sheet")
+    ap.add_argument('--amazon-dir', default='amazon_data')
+    ap.add_argument('--insights-json', default='insights.json', help="Claude-written Insight & Suggestion drafts, key = week start YYYY-MM-DD")
+    ap.add_argument('--rakuten-cur', default=None)
+    ap.add_argument('--rakuten-prev', default=None)
     ap.add_argument('--dry-run-json', default=None, help='also dump the computed data dict to this path, for inspection/diffing')
     args = ap.parse_args()
 
@@ -888,7 +972,16 @@ def main():
         args.cache, args.bridge, week_start, week_end, prev_start, prev_end,
         manual_xlsx, manual_week_1st_day=args.manual_week_1st_day,
         manual_cur_idx=args.manual_cur_idx, manual_prev_idx=args.manual_prev_idx,
+        channel_source=args.channel_source, amazon_dir=args.amazon_dir,
+        rakuten_cur=args.rakuten_cur, rakuten_prev=args.rakuten_prev,
     )
+
+    ins_path = args.insights_json
+    if ins_path and os.path.exists(ins_path):
+        with open(ins_path, encoding='utf-8') as f:
+            data['insightsBuiltin'] = json.load(f).get(week_start.strftime('%Y-%m-%d'), {})
+    else:
+        data['insightsBuiltin'] = {}
 
     if args.dry_run_json:
         with open(args.dry_run_json, 'w', encoding='utf-8') as f:

@@ -16,6 +16,34 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 
 ---
 
+## ⚠️ W41 起的新流程（2026-10-14，優先於下方舊步驟中衝突的部分）
+
+**每週資料夾應有的檔案（缺一就先停下來提醒使用者補上，不要做完分析才說；使用者若事先說「本週沒有 X」才跳過）：**
+1. `Hulken_Claude_Bridge.xlsx`（Meta / Google / KOL 授權金，同以往）
+2. Amazon：`Sponsored_Products_SearchTerm_*.csv`（Sponsored Products 搜尋字詞報表，**一週一檔**，涵蓋該報告週 週四～週三）。Amazon 後台的 Lifetime 報表沒有日維度，所以使用者改成每週下載一份。收到後改名為 `Sponsored_Products_SearchTerm_<起>_<迄>.csv`，放一份在當週資料夾、一份在 `amazon_data/`（gitignored；跨週累計排除建議要用）。W41 一次補齊了 8/13 起的 9 週歷史。注意：後台匯出上限 300 列（依花費排序，最後一列約 ¥75），與以前 Weekly Report Manual 口徑相同（W40 金額逐元吻合）。
+3. Shopify：`Leo Report - <起> - <迄>.csv`（只含近一個月），與上週的 `SP - 2026-01-01 - ... (merged).csv` 合併（重疊日以新檔為準、排除報告週之後的日期）再跑 `build_shopify_section.py`。
+4. 樂天：檔名未定（使用者會放進資料夾）。**第一次收到時要先看格式**，在 `build_weekly_report.py` 的 `_channel_frames_from_data()` 補 loader（目前收到 `--rakuten-cur` 會直接報錯提醒），AD Type 一律寫「無法區隔」。
+
+**Weekly Report Manual 分頁不再更新**——`build_weekly_report.py` 預設 `--channel-source data`，全渠道表改由原始資料組出：
+- Meta = ad_data Meta AD、`goal != '-'`（含 CPC、不含授權金）→ 全部「非品牌」（與舊 Manual 的 Meta 列逐元吻合）
+- Google = ad_data Google AD、`goal != '-'`；**行銷活動名稱含「包含品牌」= 品牌**，其餘 = 非品牌（目前品牌：Pmax-260622-包含品牌字、Shopping-AD-260621-包含品牌字）
+- Amazon = `amazon_data/` 本週與上週的搜尋字詞報表，依 `scripts/amazon_search_terms.py` 分類（ASIN 正則 `^b0[a-z0-9]{8}$`；品牌字 hulken／ハルケン／はるけん／フルケン／halken／浩肯；品牌ASIN = `scripts/amazon_own_asins.json` 17 個自家 ASIN；品牌 = 品牌字＋品牌ASIN，其餘非品牌）
+- 某渠道本週或上週缺資料 → 兩週都不列入，表格下方 `#channelNote` 自動說明，Grand total / %Δ 維持同口徑。
+- W40 以前的週報仍是 Manual 口徑，不回頭改。
+
+**Insight & Suggestion（取代 Weekly Insight 分頁與舊 callout）：** 不再讀 `Weekly Insight` 分頁。Claude 每週自己分析，寫進專案根目錄 `insights.json`（key = 報告週起始日 YYYY-MM-DD；`rows` = {channel 分類, title, insight, suggestion}，`actions` = 下週 Action Plan；格式參考 innodanc 週報，版型維持 Hulken 自己的）。`build_weekly_report.py` 會透過 `scripts/insight_section.py` 在 `#channels` 後面插入 `#insight` 區塊（nav 也加連結），內嵌當週草稿。寫洞察時：數字一律從當週 build 結果核對；連續 2 週以上的趨勢要明講；Amazon 依使用者的 Amazon 分析規則（品牌/非品牌四分類、0 訂單浪費、排除建議門檻：累計 >¥5,000 且 0 訂單，或 >¥10,000 且 ≤1 訂單 → ASIN 排除產品、文字排除關鍵字；追蹤前幾週建議是否生效）。推論要標「推論」。
+
+**線上編輯（Cloudflare，2026-10-14 建立）：**
+- 專案根目錄 `_worker.js`（Pages advanced mode）：`GET/PUT/DELETE /api/insights`，驗證 Cloudflare Access JWT，只有 `ALLOWED_EDITORS` 能寫（沒設定時一律不能寫）；其他路徑交給 `env.ASSETS`（/all 等 clean URL 照常）。
+- D1 資料庫 `hulken-report`（id `d9257124-3ac0-493d-b0c9-8ecd236954cf`），Pages 專案 `hulkenjp` **Production** 已綁 `DB`，變數 `CF_ACCESS_TEAM_DOMAIN = lucky-sun-db7c.cloudflareaccess.com`、`CF_ACCESS_AUD = 1c845f14…a6bcf`（Access 應用程式 hulkenjp.pages.dev 的 AUD）、`ALLOWED_EDITORS = ads@wakazocorp.com`。Preview 環境沒綁（只部署 main）。
+- 線上編輯過的週以 D1 為準（頁面「還原原始版本」= 刪掉 D1 版本、回到 insights.json 草稿）。改 insights.json 只影響沒被線上編輯過的週。
+- Cloudflare 帳號用 Chrome 裡登入 ads@wakazocorp.com 的 dashboard（帳號 id `e78d1edeb121ddf12bf1f0016c3e9d57`）。dashboard 內 `fetch('/api/v4/...')` 只能 GET，POST/PATCH 會被 403 擋，寫入要用 UI 操作。
+- 本機 file:// 開頁面時 API 讀不到 → 只讀、不顯示編輯鈕，屬正常。
+
+**每週 push 指令要包含：** 當週報告 HTML、`all.html`、`manifest.json`、`weeks.json`、`insights.json`、`AD Images`、CLAUDE.md（有改時）、`scripts`（有改時）、`_worker.js`（有改時）、`.gitignore`（有改時）。原始資料（xlsx、csv、`amazon_data/`）不 push。
+
+---
+
 ## Weekly workflow (every week)
 
 ### Step 1 — User places the data file
@@ -27,7 +55,7 @@ User drops the week's data file into a new week folder, e.g. `2026W33/Hulken_Cla
 1. Read `Hulken_Claude_Bridge.xlsx` → `Claude_Analysis_Data` tab (trailing 28 days, fast).
 2. Read `_cache/ad_data_historical_cache.pkl.gz` (everything older than 28 days, already has derived columns like `goal`/`testFlag`/`NameRow`/`Row`/`isKOL`).
 3. Concat the two → equivalent to the full `ad_data`, without ever opening the full `Halken JP_Mastersheet.xlsx`.
-4. Also read `Weekly Report Manual`, `Datastudio Custom Metrics`, and `Weekly Insight` from the Bridge file (all small).
+4. Also read `Datastudio Custom Metrics` from the Bridge file. （⚠️ W41 起已停用，見最上方「W41 起的新流程」） `Weekly Report Manual` and `Weekly Insight` are no longer read from W41 on.
 5. Only fall back to the full `Halken JP_Mastersheet.xlsx` if the user actually sends it (e.g. cache needs rebuilding, or checking data older than the cache cutoff).
 
 Known accepted gap: the `成果指標` text column has blanks in the Bridge file vs. the full Mastersheet — already confirmed by the user as ignorable, don't re-raise it. See `Mastersheet_Tab_Guide.md` for the full list of known quirks, the KOL 授權金 formula, and which tabs never need opening.
@@ -64,7 +92,7 @@ What has to change in the new file:
   - `const metaTestRows` / `const metaTestKol` — Meta 測試素材 section (General vs TEST split). **W34 onward**, each `metaTestKol` row also carries `cost`/`costD` (花費金額, JPY) — see the 花費金額欄位 note below.
   - `const metaCreative` / `const metaCreativeTotal` — Meta 常態素材 table. **W34 onward**, each `metaCreative` row also carries `costD` (it already had `cost`) and `metaCreativeTotal` also carries `costD` — see the 花費金額欄位 note below.
   - `const kolRows` / `const kolGrand` — KOL 表現＋授權金 table
-- **The insight callout block (added 2026-08-20-ish, re-affirmed as a hard requirement 2026-09-10 after it went missing for two weeks running).** Inside the `#channels` section, immediately after its `<div class="hint">%Δ 為對比上週...</div>` line, there is (or should be) a `<div class="callout">...</div>` block with one `<div class="row">...</div>` per row of the Bridge/Mastersheet's `Weekly Insight` tab where `Section == '全渠道'` and `Week_1st_day` equals this week's own start date — copy the `Note` text verbatim, don't paraphrase or invent. If there are no such rows for this week, omit the whole `<div class="callout">` block (per Mastersheet_Tab_Guide.md — don't fabricate insights). **This step is easy to miss because copying the previous week's HTML as a template silently carries forward whatever that week did** — it went missing starting W35 (dropped with no one noticing) and stayed missing into W36 until the user caught it and had it restored on 2026-09-10. Explicitly check for this block, every week, even though it's easy to overlook since it's plain HTML rather than one of the `const` data blocks above.
+- （⚠️ W41 起已停用，見最上方「W41 起的新流程」） **The insight callout block (added 2026-08-20-ish, re-affirmed as a hard requirement 2026-09-10 after it went missing for two weeks running).** Inside the `#channels` section, immediately after its `<div class="hint">%Δ 為對比上週...</div>` line, there is (or should be) a `<div class="callout">...</div>` block with one `<div class="row">...</div>` per row of the Bridge/Mastersheet's `Weekly Insight` tab where `Section == '全渠道'` and `Week_1st_day` equals this week's own start date — copy the `Note` text verbatim, don't paraphrase or invent. If there are no such rows for this week, omit the whole `<div class="callout">` block (per Mastersheet_Tab_Guide.md — don't fabricate insights). **This step is easy to miss because copying the previous week's HTML as a template silently carries forward whatever that week did** — it went missing starting W35 (dropped with no one noticing) and stayed missing into W36 until the user caught it and had it restored on 2026-09-10. Explicitly check for this block, every week, even though it's easy to overlook since it's plain HTML rather than one of the `const` data blocks above.
   > **Bug found + fixed 2026-09-16: removing this block with a naive regex silently truncates it instead of deleting it.** The callout div nests one `<div class="row">` per insight line, e.g. `<div class="callout"><div class="row">A</div><div class="row">B</div><div class="row">C</div></div>`. A non-greedy `<div class="callout">.*?</div>` regex stops at the FIRST `</div>` it finds — the close tag of row A — so it only deletes the opening tag and the first row, leaving every other row (and the outer closing `</div>`) dangling in the page as unwrapped, visibly-rendered plain text instead of being removed. This happened on the live W37 report (built with no Weekly Insight data on purpose, but 3 leftover rows from W36's own callout still showed up as bare text under the Overview table) and was only caught because the user spotted the stray text and asked why it was there. `scripts/build_weekly_report.py`'s `_remove_balanced_div()` fixes this by counting nested `<div>`/`</div>` tags to find the true matching close tag — don't reintroduce a plain regex for this removal.
 - **Week picker is no longer per-page** (changed 2026-08-26 — see the 週次選單 note below). Do NOT add a `const WEEKS = [...]` array to new report files; instead update the shared `weeks.json` at the project root.
 - Footer week/date-range text.
@@ -120,7 +148,7 @@ Section IDs/nav: `#overview`, `#channels`, `#meta-test`, `#meta-creative`, `#kol
 > ```
 > 方法論（使用者指定）：Daily 依報告週期週四～週三彙整（W1 = 2026-01-01～01-07，週次 = (日期−2026-01-01)//7+1）；Shopify 流量主要由 Meta 帶來（其他渠道導其他商城），所以 **Shopify ROAS = Shopify 總銷售額 ÷ Meta 廣告花費**，Meta 花費 = `AD_Channel=='Meta AD'` 且 `goal!='-'`（含 CPC、不含授權金；與 Weekly Report Manual 的 Meta 列一致，W38/W39 已核對）。附「含授權金」ROAS 小字與 Meta 後台回報 ROAS 對照；Meta 花費 < ¥10,000 的週（W1）不顯示 ROAS。使用者說 W39「這週比較特別」——之後幾週是否延續 Shopify 區塊或恢復 KOL 分析，建置前先問使用者。
 >
-> **`build_weekly_report.py` 不會自動加 Weekly Insight callout**（只會移除舊的）：W39 用小段 python 手動把 `Weekly Insight` 當週 `全渠道` 列插到 `#channels` hint 後面。
+> （⚠️ W41 起已停用，見最上方「W41 起的新流程」） **`build_weekly_report.py` 不會自動加 Weekly Insight callout**（只會移除舊的）：W39 用小段 python 手動把 `Weekly Insight` 當週 `全渠道` 列插到 `#channels` hint 後面。
 
 > **同渠道整合比較 table (added 2026-10-07, W40, 使用者要求).** `#channels` 區塊在原本 Overview·全渠道 表格（與 hint／insight callout）之後，多一張 `#channelMergedTable`「同渠道整合比較」：同樣來自 `Weekly Report Manual`，但依 `Channel` 合併（Google／Amazon 品牌＋非品牌、Rakuten RPP＋TDA），**先加總 Cost／Impression／Click／Purchase／Purchase Value 再算比率**，欄位：Cost、Cost Share、銷售額、購買數、CTR、CVR、CPA、CPM、ROAS（皆含 WoW %Δ），Grand total 與上表一致。由 `build_weekly_report.py` 的 `channelMergedRows`／`channelMergedGrand` 產生；若模板早於 W40，`ensure_channel_merged_block()` 會自動注入 markup＋JS（插在 `#channels` 的 `</section>` 前），W40 之後的模板已內建，只需更新 const。
 
@@ -267,6 +295,12 @@ Hulken Weekly Report/
 - **Access Application:** protects `hulkenjp.pages.dev`, Policy "HulkenJP Only" → Allow, `Emails ending in @wakazocorp.com`, Session Duration 30 days.
 - **Login method:** One-Time PIN (email code) — added under **Integrations → Identity providers** (this was surprisingly hard to find in Cloudflare's current nav; if it moves again, use the Quick Search (⌘K) in the Zero Trust dashboard rather than guessing the sidebar).
 - If the user ever reports the login screen showing "Sign in with Cloudflare" instead of an email box, the One-Time PIN identity provider got removed or "Accept all available identity providers" got turned off on the Application — check **Access controls → Applications → hulkenjp.pages.dev → Login methods**.
+
+---
+
+## Amazon 自家 ASIN 清單（2026-10-14）
+
+`scripts/amazon_own_asins.json` 存使用者提供的 17 個自家 ASIN（Amazon 品牌／非品牌分類的「品牌ASIN」依據；比對不分大小寫；若之後使用者提供 `manage_products_data.csv` 且有衝突，以檔案為準並同步更新這個 json）。不需要再向使用者索取商品清單。
 
 ---
 

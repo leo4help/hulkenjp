@@ -5,3 +5,4 @@ _to_delete/
 Mastersheet_Tab_Guide.md
 __pycache__/
 *.pyc
+amazon_data/
