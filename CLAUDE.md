@@ -154,7 +154,7 @@ Section IDs/nav: `#overview`, `#channels`, `#meta-test`, `#meta-creative`, `#kol
 >   --cache _cache/ad_data_historical_cache.pkl.gz \
 >   --bridge 2026W39/Hulken_Claude_Bridge.xlsx --bridge-cutoff 2026-09-24 --week-num 39
 > ```
-> 方法論（使用者指定）：Daily 依報告週期週四～週三彙整（W1 = 2026-01-01～01-07，週次 = (日期−2026-01-01)//7+1）；Shopify 流量主要由 Meta 帶來（其他渠道導其他商城），所以 **Shopify ROAS = Shopify 總銷售額 ÷ Meta 廣告花費**，Meta 花費 = `AD_Channel=='Meta AD'` 且 `goal!='-'`（含 CPC、不含授權金；與 Weekly Report Manual 的 Meta 列一致，W38/W39 已核對）。附「含授權金」ROAS 小字與 Meta 後台回報 ROAS 對照；Meta 花費 < ¥10,000 的週（W1）不顯示 ROAS。使用者說 W39「這週比較特別」——之後幾週是否延續 Shopify 區塊或恢復 KOL 分析，建置前先問使用者。
+> 方法論（使用者指定）：Daily 依報告週期週四～週三彙整（W1 = 2026-01-01～01-07，週次 = (日期−2026-01-01)//7+1）。**2026-10-14 更正（使用者）：導向 Shopify 的是 Meta ＋ Google（不是只有 Meta；Amazon／樂天導各自商城）**，所以 **Shopify ROAS = Shopify 總銷售額 ÷ 廣告花費（Meta＋Google）**；花費 = ad_data 中 Meta AD＋Google AD、`goal!='-'`（Meta 含 CPC、不含授權金；Google 品牌＋非品牌）。附「含授權金」ROAS（分母再加 Meta KOL 授權金）與「後台回報 ROAS」（Meta＋Google 購買轉換值 ÷ 同一筆花費）對照。Google 數據 5/30 起才有，之前週次只有 Meta。KPI 下方有「本週增量」卡片：廣告花費 與 Shopify 銷售額 的 WoW 絕對差額＋每多花 ¥1 多帶來多少銷售額（使用者要看「多賺的是否比多花的多」）。W39、W40、W41 的 Shopify 區塊都已用新口徑重跑。任何洞察或文字提到 Shopify ROAS／官網成效時，都要用 Meta＋Google，不要再寫「÷ Meta 花費」。廣告花費 < ¥10,000 的週（W1）不顯示 ROAS。
 >
 > （⚠️ W41 起已停用，見最上方「W41 起的新流程」） **`build_weekly_report.py` 不會自動加 Weekly Insight callout**（只會移除舊的）：W39 用小段 python 手動把 `Weekly Insight` 當週 `全渠道` 列插到 `#channels` hint 後面。
 

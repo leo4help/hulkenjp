@@ -19,12 +19,16 @@
   - Shopify 匯出為 Daily（欄位：日／工作階段數／訂單數／總銷售額），依報告週期
     「週四～週三」彙整成週：W1 = 2026-01-01(四)~01-07，週次 = (日期-2026-01-01)//7 + 1，
     與廣告週報的 Week_1st_day 完全對齊（W39 = 09-24~09-30）。
-  - Shopify 銷售主要由 Meta 廣告帶動（其他渠道導去 Amazon／樂天等其他商城），
-    所以 Shopify ROAS 只用 Meta 花費當分母：Shopify ROAS = Shopify 總銷售額 ÷ Meta 廣告花費。
-  - Meta 廣告花費 = ad_data 中 AD_Channel=='Meta AD' 且 goal != '-'（含 CPC，不含 KOL
-    授權金幽靈列），與 Weekly Report Manual 的 Meta 列口徑一致（W39 已核對 = 1,739,157）。
-    另外附「含授權金」ROAS 小字 = 銷售額 ÷ (Meta 花費 + Meta 授權金幽靈列)。
-  - Meta 後台回報 ROAS = 同範圍 購買轉換值 ÷ Meta 花費，僅作對照（歸因口徑不同）。
+  - **2026-10-14 更正（使用者）：導向 Shopify 的是 Meta ＋ Google**（Amazon／樂天導各自商城）。
+    所以 Shopify ROAS = Shopify 總銷售額 ÷ 廣告花費（Meta ＋ Google）。W39–W40 原本只除以
+    Meta 花費，已用本腳本重跑更正。
+  - 廣告花費 = ad_data 中 AD_Channel in (Meta AD, Google AD) 且 goal != '-'（Meta 含 CPC、
+    不含 KOL 授權金幽靈列；Google 含品牌與非品牌），與全渠道表 Meta + Google 列口徑一致。
+    Google 數據自 2026-05-30 才進 ad_data，之前週次的廣告花費只有 Meta。
+    「含授權金」ROAS 小字 = 銷售額 ÷ (廣告花費 + Meta KOL 授權金幽靈列)。
+  - 後台回報 ROAS = Meta＋Google 自己歸因的購買轉換值 ÷ 同一筆花費，僅作對照。
+  - 「本週增量」卡片：廣告花費 與 Shopify 總銷售額 的 WoW 絕對差額（¥），以及每多花 ¥1
+    多帶來多少銷售額（使用者 2026-10-14 要求：呈現多賺的是否比多花的多）。
 """
 import argparse
 import json
@@ -47,18 +51,20 @@ def week_no(s):
     return (s - YEAR_START).dt.days // 7 + 1
 
 
-def load_meta_weekly(cache, bridge, cutoff):
+def load_ad_weekly(cache, bridge, cutoff):
     c = pd.read_pickle(cache, compression='gzip')
     b = enrich(pd.read_excel(bridge, sheet_name='Claude_Analysis_Data'))
     b = b[b[DATE] >= cutoff]
     common = [x for x in c.columns if x in b.columns]
     ad = pd.concat([c[common], b[common]], ignore_index=True).drop_duplicates()
     ad[DATE] = pd.to_datetime(ad[DATE])
-    ad = ad[(ad['AD_Channel'] == 'Meta AD') & (ad[DATE] >= YEAR_START)]
+    ad = ad[ad['AD_Channel'].isin(['Meta AD', 'Google AD']) & (ad[DATE] >= YEAR_START)]
     ad['wk'] = week_no(ad[DATE])
-    media = ad[ad['goal'] != '-'].groupby('wk').agg(metaCost=(COST, 'sum'), metaRev=(REV, 'sum'))
-    lic = ad[ad['goal'] == '-'].groupby('wk').agg(metaLic=(COST, 'sum'))
-    return media.join(lic, how='outer').fillna(0)
+    m = ad[ad['goal'] != '-']
+    meta = m[m['AD_Channel'] == 'Meta AD'].groupby('wk').agg(metaCost=(COST, 'sum'), metaRev=(REV, 'sum'))
+    goo = m[m['AD_Channel'] == 'Google AD'].groupby('wk').agg(googleCost=(COST, 'sum'), googleRev=(REV, 'sum'))
+    lic = ad[(ad['goal'] == '-') & (ad['AD_Channel'] == 'Meta AD')].groupby('wk').agg(metaLic=(COST, 'sum'))
+    return meta.join(goo, how='outer').join(lic, how='outer').fillna(0)
 
 
 def load_shopify_weekly(path):
@@ -80,7 +86,9 @@ def r(x, nd=2):
 
 
 def build_rows(shop, meta, last_wk):
-    df = shop.join(meta, how='left').fillna({'metaCost': 0, 'metaRev': 0, 'metaLic': 0})
+    df = shop.join(meta, how='left').fillna({'metaCost': 0, 'metaRev': 0, 'googleCost': 0, 'googleRev': 0, 'metaLic': 0})
+    df['adCost'] = df['metaCost'] + df['googleCost']
+    df['adRev'] = df['metaRev'] + df['googleRev']
     df = df[df.index <= last_wk]
     rows, prev = [], None
     for wk, x in df.iterrows():
@@ -92,24 +100,28 @@ def build_rows(shop, meta, last_wk):
             'days': int(x.days),
             'sessions': int(x.sessions), 'orders': int(x.orders), 'sales': float(x.sales),
             'aov': div(x.sales, x.orders), 'cvr': None if not x.sessions else x.orders / x.sessions * 100,
-            'metaCost': float(x.metaCost), 'metaLic': float(x.metaLic),
-            'roas': div(x.sales, x.metaCost),
-            'roasLic': div(x.sales, x.metaCost + x.metaLic),
-            'metaRoas': div(x.metaRev, x.metaCost),
+            'adCost': float(x.adCost), 'metaCost': float(x.metaCost), 'googleCost': float(x.googleCost),
+            'metaLic': float(x.metaLic),
+            'roas': div(x.sales, x.adCost),
+            'roasLic': div(x.sales, x.adCost + x.metaLic),
+            'adRoas': div(x.adRev, x.adCost),
         }
-        if x.metaCost < MIN_META_COST:
-            cur['roas'] = cur['roasLic'] = cur['metaRoas'] = None
-        for k in ['sessions', 'orders', 'sales', 'aov', 'cvr', 'metaCost', 'roas', 'metaRoas']:
+        if x.adCost < MIN_META_COST:
+            cur['roas'] = cur['roasLic'] = cur['adRoas'] = None
+        for k in ['sessions', 'orders', 'sales', 'aov', 'cvr', 'adCost', 'roas', 'adRoas']:
             cur[k + 'D'] = pct_delta(cur[k], prev[k]) if prev else None
+        # absolute WoW change (¥) for the 本週增量 card
+        cur['adCostAbsD'] = (cur['adCost'] - prev['adCost']) if prev else None
+        cur['salesAbsD'] = (cur['sales'] - prev['sales']) if prev else None
         prev = cur
         rows.append(cur)
     for c in rows:
-        for k in ['sales', 'aov', 'metaCost', 'metaLic']:
+        for k in ['sales', 'aov', 'adCost', 'metaCost', 'googleCost', 'metaLic', 'adCostAbsD', 'salesAbsD']:
             c[k] = r(c[k], 0)
-        for k in ['cvr', 'roas', 'roasLic', 'metaRoas']:
+        for k in ['cvr', 'roas', 'roasLic', 'adRoas']:
             c[k] = r(c[k], 2)
         for k in list(c):
-            if k.endswith('D') and c[k] is not None:
+            if k.endswith('D') and not k.endswith('AbsD') and c[k] is not None:
                 c[k] = r(c[k], 1)
     return rows
 
@@ -118,24 +130,25 @@ SECTION_TMPL = """  <!-- ================= SHOPIFY (weekly) =================
        W39 起取代原本的「近期 KOL 表現討論」手動區塊（使用者 2026-09-30 要求）。
        由 scripts/build_shopify_section.py 產生／更新，可重複執行。 -->
   <section id="shopify">
-    <div class="sec-head"><h2>Shopify 官網成效（週）</h2><span class="sec-tag">Shopify 總銷售額 ÷ Meta 廣告花費 · W__FIRST__–W__LAST__（週四～週三）</span></div>
+    <div class="sec-head"><h2>Shopify 官網成效（週）</h2><span class="sec-tag">Shopify 總銷售額 ÷ 廣告花費（Meta＋Google）· W__FIRST__–W__LAST__（週四～週三）</span></div>
     <div class="kpi-grid" id="shopKpiGrid"></div>
+    <div class="card shop-delta" id="shopDeltaCard"></div>
     <div class="grid-2" style="margin-top:16px;">
       <div class="card shop-chart-card">
-        <div class="shop-chart-title">每週 Shopify 總銷售額、Meta 廣告花費 與 CVR</div>
-        <div class="shop-legend"><span><i class="sw bar" style="background:#a9822e"></i>Shopify 總銷售額（左軸）</span><span><i class="sw bar" style="background:#2a78b8"></i>Meta 廣告花費（左軸）</span><span><i class="sw line" style="background:#b8467a"></i>Shopify CVR = 訂單數 ÷ 工作階段數（右軸）</span></div>
+        <div class="shop-chart-title">每週 Shopify 總銷售額、廣告花費（Meta＋Google）與 CVR</div>
+        <div class="shop-legend"><span><i class="sw bar" style="background:#a9822e"></i>Shopify 總銷售額（左軸）</span><span><i class="sw bar" style="background:#2a78b8"></i>廣告花費 Meta＋Google（左軸）</span><span><i class="sw line" style="background:#b8467a"></i>Shopify CVR = 訂單數 ÷ 工作階段數（右軸）</span></div>
         <div class="shop-chart" id="shopChartSales"></div>
       </div>
       <div class="card shop-chart-card">
-        <div class="shop-chart-title">每週 ROAS：Shopify 實際 vs. Meta 後台回報</div>
-        <div class="shop-legend"><span><i class="sw line" style="background:#a9822e"></i>Shopify ROAS（銷售額 ÷ Meta 花費）</span><span><i class="sw line dash" style="border-color:#2a78b8"></i>Meta 後台回報 ROAS</span></div>
+        <div class="shop-chart-title">每週 ROAS：Shopify 實際 vs. 廣告後台回報</div>
+        <div class="shop-legend"><span><i class="sw line" style="background:#a9822e"></i>Shopify ROAS（銷售額 ÷ Meta＋Google 花費）</span><span><i class="sw line dash" style="border-color:#2a78b8"></i>Meta＋Google 後台回報 ROAS</span></div>
         <div class="shop-chart" id="shopChartRoas"></div>
       </div>
     </div>
     <div class="table-scroll table-scroll-v" style="margin-top:16px;">
       <table id="shopTable"></table>
     </div>
-    <div class="hint">Shopify 後台匯出為每日數據，已依廣告週報相同的週期（週四～週三）彙整成週次；Shopify 流量主要來自 Meta 廣告（Google／Amazon／樂天廣告導向其他商城），故 <b>Shopify ROAS = Shopify 總銷售額 ÷ Meta 廣告花費</b>，Meta 花費口徑同全渠道表的 Meta 列（含 CPC、不含 KOL 授權金）；ROAS 下方金黃色小字為把 Meta KOL 攤提授權金也算進成本後的 ROAS。「Meta 後台回報 ROAS」為 Meta 自己歸因的購買轉換值 ÷ 同一筆花費，僅供對照兩者歸因落差。CVR = 訂單數 ÷ 工作階段數；%Δ 為對比前一週；點欄位標題可排序。W1 的 Meta 花費僅數百円，ROAS 不具參考性故不列。</div>
+    <div class="hint">Shopify 後台匯出為每日數據，已依廣告週報相同的週期（週四～週三）彙整成週次；導向 Shopify 的廣告是 Meta 與 Google（Amazon／樂天廣告導向各自商城），故 <b>Shopify ROAS = Shopify 總銷售額 ÷ 廣告花費（Meta＋Google）</b>，花費口徑同全渠道表的 Meta、Google 列（Meta 含 CPC、不含 KOL 授權金；Google 含品牌與非品牌）；ROAS 下方金黃色小字為把 Meta KOL 攤提授權金也算進成本後的 ROAS。「後台回報 ROAS」為 Meta＋Google 各自歸因的購買轉換值 ÷ 同一筆花費，僅供對照歸因落差。Google 數據自 2026/5/30 起才納入，之前週次的廣告花費只有 Meta。「本週增量」為與上週相比的絕對差額。CVR = 訂單數 ÷ 工作階段數；%Δ 為對比前一週；點欄位標題可排序。W1 廣告花費僅數百円，ROAS 不具參考性故不列。</div>
   </section>
 """
 
@@ -159,6 +172,23 @@ CSS = """
   .shop-tip .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle;}
 """
 
+CSS_DELTA = """
+  /* ---------- Shopify 本週增量 card (2026-10-14) ---------- */
+  .shop-delta{margin-top:12px;padding:16px 20px;}
+  .shop-delta .sd-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .shop-delta .sd-head h4{margin:0;font-size:14px;font-weight:800;color:var(--brand-deep);}
+  .shop-delta .sd-badge{font-size:12px;font-weight:800;padding:2px 10px;border-radius:999px;}
+  .shop-delta .sd-badge.good{background:#e3f3ea;color:var(--good);} .shop-delta .sd-badge.bad{background:#fbe7e3;color:var(--bad);}
+  .shop-delta .sd-row{display:grid;grid-template-columns:200px 1fr 150px;align-items:center;gap:12px;margin:6px 0;font-size:13px;}
+  .shop-delta .sd-label{font-weight:700;color:var(--ink-soft);}
+  .shop-delta .sd-track{position:relative;height:14px;background:var(--tan-soft);border-radius:7px;}
+  .shop-delta .sd-zero{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--ink-faint);}
+  .shop-delta .sd-bar{position:absolute;top:0;height:100%;border-radius:7px;}
+  .shop-delta .sd-val{font-size:16px;font-weight:800;text-align:right;}
+  .shop-delta .sd-foot{font-size:12.5px;color:var(--ink-soft);margin-top:8px;}
+  @media (max-width:640px){.shop-delta .sd-row{grid-template-columns:1fr;}.shop-delta .sd-val{text-align:left;}}
+"""
+
 JS_TMPL = r"""
 /* ===== SHOPIFY START (scripts/build_shopify_section.py) ===== */
 const shopWeeks = __ROWS__;
@@ -179,6 +209,22 @@ const shopWeeks = __ROWS__;
       <div class="kpi-value">${k.value}</div>
       ${deltaChip(k.delta)}
     </div>`).join('');
+
+  // 本週增量：廣告花費 vs Shopify 總銷售額（WoW 絕對差額）
+  (function(){
+    const el = document.getElementById('shopDeltaCard'); if(!el) return;
+    const dc = cur.adCostAbsD, ds = cur.salesAbsD;
+    if(dc==null || ds==null){ el.style.display='none'; return; }
+    const sgn = v => (v>0?'+':v<0?'−':'±') + money(Math.abs(v));
+    const mx = Math.max(Math.abs(dc), Math.abs(ds)) || 1;
+    const bar = (v,color) => { const w = Math.abs(v)/mx*50; return `<div class="sd-track"><div class="sd-zero"></div><div class="sd-bar" style="background:${color};width:${w}%;${v>=0?'left:50%':'right:50%'}"></div></div>`; };
+    const good = ds > dc;
+    const ratio = dc > 0 ? `每多花 ¥1 廣告費，Shopify 銷售額多 ¥${(ds/dc).toFixed(1)}` : (dc < 0 && ds >= 0 ? '廣告花費減少，銷售額仍增加' : '');
+    el.innerHTML = `<div class="sd-head"><h4>本週增量（vs 上週）</h4><span class="sd-badge ${good?'good':'bad'}">${good?'銷售增量 ＞ 花費增量':'銷售增量 ＜ 花費增量'}</span></div>
+      <div class="sd-row"><span class="sd-label">廣告花費（Meta＋Google）</span>${bar(dc,'#2a78b8')}<span class="sd-val" style="color:#2a78b8">${sgn(dc)}</span></div>
+      <div class="sd-row"><span class="sd-label">Shopify 總銷售額</span>${bar(ds,'#a9822e')}<span class="sd-val" style="color:#a9822e">${sgn(ds)}</span></div>
+      <div class="sd-foot">${ratio ? ratio + '；' : ''}淨增 ${sgn(ds-dc)}（銷售額增量 − 廣告花費增量，未扣商品成本）</div>`;
+  })();
 
   const compactYen = v => v>=1e6 ? '¥'+(v/1e6).toFixed(1)+'M' : v>=1e3 ? '¥'+Math.round(v/1e3)+'K' : '¥'+Math.round(v);
   function niceMax(v){ if(v<=0) return 1; const p=Math.pow(10,Math.floor(Math.log10(v))); const n=v/p; return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p; }
@@ -240,22 +286,22 @@ const shopWeeks = __ROWS__;
   }
 
   chart('shopChartSales', {
-    series:[{key:'sales', type:'bar', color:GOLD}, {key:'metaCost', type:'bar', color:BLUE}, {key:'cvr', type:'line', color:PINK, axis:'right'}],
+    series:[{key:'sales', type:'bar', color:GOLD}, {key:'adCost', type:'bar', color:BLUE}, {key:'cvr', type:'line', color:PINK, axis:'right'}],
     yFmt: compactYen, yFmtR: v=>v.toFixed(1)+'%',
-    tipFn: w=>`<b>W${w.wk}</b>（${w.range}）<br><span class="sw" style="background:${GOLD}"></span>銷售額 ${money(w.sales)}<br><span class="sw" style="background:${BLUE}"></span>Meta 花費 ${money(w.metaCost)}<br><span class="sw" style="background:${PINK}"></span>CVR ${fmtPct1(w.cvr)}`
+    tipFn: w=>`<b>W${w.wk}</b>（${w.range}）<br><span class="sw" style="background:${GOLD}"></span>銷售額 ${money(w.sales)}<br><span class="sw" style="background:${BLUE}"></span>廣告花費 ${money(w.adCost)}（Meta ${money(w.metaCost)}／Google ${money(w.googleCost)}）<br><span class="sw" style="background:${PINK}"></span>CVR ${fmtPct1(w.cvr)}`
   });
   chart('shopChartRoas', {
-    series:[{key:'roas', type:'line', color:GOLD}, {key:'metaRoas', type:'line', color:BLUE, dash:true}],
+    series:[{key:'roas', type:'line', color:GOLD}, {key:'adRoas', type:'line', color:BLUE, dash:true}],
     yFmt: v=>v.toFixed(1),
-    tipFn: w=>`<b>W${w.wk}</b>（${w.range}）<br><span class="sw" style="background:${GOLD}"></span>Shopify ROAS ${fmt2(w.roas)}<br><span class="sw" style="background:${BLUE}"></span>Meta 回報 ROAS ${fmt2(w.metaRoas)}`
+    tipFn: w=>`<b>W${w.wk}</b>（${w.range}）<br><span class="sw" style="background:${GOLD}"></span>Shopify ROAS ${fmt2(w.roas)}<br><span class="sw" style="background:${BLUE}"></span>後台回報 ROAS ${fmt2(w.adRoas)}`
   });
 
   // 可排序週表 —— 沿用頁面共用的 sortRows / sortableHead / bindSortHandlers
   const cols = [
     {key:'wk', label:'週次'}, {key:'range', label:'期間'}, {key:'sessions', label:'工作階段數'},
     {key:'orders', label:'訂單數'}, {key:'sales', label:'Shopify 總銷售額'}, {key:'aov', label:'客單價'},
-    {key:'cvr', label:'CVR'}, {key:'metaCost', label:'Meta 廣告花費'}, {key:'roas', label:'Shopify ROAS'},
-    {key:'metaRoas', label:'Meta 回報 ROAS'},
+    {key:'cvr', label:'CVR'}, {key:'adCost', label:'廣告花費（Meta＋Google）'}, {key:'roas', label:'Shopify ROAS'},
+    {key:'adRoas', label:'後台回報 ROAS'},
   ];
   const cell = (v, d) => `<div class="stack-cell"><span>${v}</span>${deltaChip(d,{size:'sub'})}</div>`;
   const shopSort = {key:'wk', dir:'desc'};
@@ -271,9 +317,9 @@ const shopWeeks = __ROWS__;
         <td>${cell(money(w.sales), w.salesD)}</td>
         <td>${cell(money(w.aov), w.aovD)}</td>
         <td>${cell(fmtPct1(w.cvr), w.cvrD)}</td>
-        <td>${cell(money(w.metaCost), w.metaCostD)}</td>
+        <td><div class="stack-cell"><span>${money(w.adCost)}</span>${deltaChip(w.adCostD,{size:'sub'})}<span class="lic-note" style="color:var(--ink-faint)">Meta ${money(w.metaCost)}・Google ${money(w.googleCost)}</span></div></td>
         <td><div class="stack-cell"><b>${fmt2(w.roas)}</b>${deltaChip(w.roasD,{size:'sub'})}${w.metaLic>0?`<span class="lic-note">含授權金 ${fmt2(w.roasLic)}</span>`:''}</div></td>
-        <td>${cell(fmt2(w.metaRoas), w.metaRoasD)}</td>
+        <td>${cell(fmt2(w.adRoas), w.adRoasD)}</td>
       </tr>`).join('')}</tbody>`;
     bindSortHandlers('shopTable', shopSort, renderShopTable);
   }
@@ -294,7 +340,7 @@ def main():
     a = ap.parse_args()
 
     rows = build_rows(load_shopify_weekly(a.shopify_csv),
-                      load_meta_weekly(a.cache, a.bridge, pd.Timestamp(a.bridge_cutoff)),
+                      load_ad_weekly(a.cache, a.bridge, pd.Timestamp(a.bridge_cutoff)),
                       a.week_num)
     if rows[-1]['wk'] != a.week_num:
         raise SystemExit(f"Shopify CSV has no data for W{a.week_num} (last week in CSV: W{rows[-1]['wk']})")
@@ -319,6 +365,8 @@ def main():
     # --- CSS (once) ---
     if 'Shopify weekly section (W39+)' not in html:
         html = html.replace('</style>', CSS + '</style>', 1)
+    if 'Shopify 本週增量 card' not in html:
+        html = html.replace('</style>', CSS_DELTA + '</style>', 1)
 
     # --- JS: drop the KOL-discussion scripts, then (re)insert Shopify block ---
     js = JS_TMPL.replace('__ROWS__', json.dumps(rows, ensure_ascii=False))
@@ -330,7 +378,8 @@ def main():
     open(a.html, 'w', encoding='utf-8').write(html)
     c = rows[-1]
     print(f"W{c['wk']}: sales ¥{c['sales']:,.0f} ({c['salesD']}%), orders {c['orders']}, sessions {c['sessions']}, "
-          f"Meta cost ¥{c['metaCost']:,.0f}, Shopify ROAS {c['roas']} ({c['roasD']}%), Meta-reported ROAS {c['metaRoas']}")
+          f"ad cost ¥{c['adCost']:,.0f} (Meta ¥{c['metaCost']:,.0f} + Google ¥{c['googleCost']:,.0f}), Shopify ROAS {c['roas']} ({c['roasD']}%), "
+          f"incl. license {c['roasLic']}, platform ROAS {c['adRoas']}, Δcost ¥{c['adCostAbsD']:,.0f} vs Δsales ¥{c['salesAbsD']:,.0f}")
 
 
 if __name__ == '__main__':
