@@ -3,8 +3,8 @@
  * Same approach as the innodanc weekly report: Insight & Suggestion is editable online,
  * stored in Cloudflare D1.
  *
- *   GET    /api/insights           -> { me, canEdit, insights: { "2026-10-08": {rows, actions, _by, _at} } }
- *   PUT    /api/insights           -> body { week: "YYYY-MM-DD" (report week start, Thursday), data: { rows: [...], actions: [...] } }
+ *   GET    /api/insights           -> { me, canEdit, insights: { "2026-10-08": {blocks, _by, _at} } }
+ *   PUT    /api/insights           -> body { week: "YYYY-MM-DD" (report week start, Thursday), data: { blocks: { overall:{rows,actions}, metaTest:{rows}, metaCreative:{rows}, kol:{rows}, shopify:{rows} } } }
  *   DELETE /api/insights?week=...  -> delete the online version (page falls back to the built-in insights.json draft)
  *   anything else                  -> static files (env.ASSETS; clean URLs like /all keep working)
  *
@@ -112,17 +112,46 @@ async function ensureSchema(db) {
   schemaReady = true;
 }
 
-function validate(data) {
-  if (!data || typeof data !== "object") return "data must be an object";
-  if (!Array.isArray(data.rows) || !Array.isArray(data.actions)) return "data.rows and data.actions must be arrays";
-  for (const r of data.rows) {
+const BLOCK_KEYS = ["overall", "metaTest", "metaCreative", "kol", "shopify"];
+
+function validRows(rows) {
+  if (!Array.isArray(rows)) return "rows must be an array";
+  for (const r of rows) {
     if (!r || typeof r !== "object") return "row must be an object";
     for (const k of ["channel", "title", "insight", "suggestion"]) {
       if (r[k] !== undefined && typeof r[k] !== "string") return `row.${k} must be a string`;
     }
   }
-  for (const a of data.actions) if (typeof a !== "string") return "actions must be strings";
   return null;
+}
+
+// v2 (2026-10-14): data = { blocks: { overall: {rows, actions}, metaTest: {rows}, metaCreative: {rows}, kol: {rows}, shopify: {rows} } }
+function validate(data) {
+  if (!data || typeof data !== "object" || !data.blocks || typeof data.blocks !== "object") return "data.blocks must be an object";
+  for (const [k, v] of Object.entries(data.blocks)) {
+    if (!BLOCK_KEYS.includes(k)) return `unknown block ${k}`;
+    if (!v || typeof v !== "object") return `block ${k} must be an object`;
+    const e = validRows(v.rows);
+    if (e) return `${k}: ${e}`;
+    if (v.actions !== undefined) {
+      if (!Array.isArray(v.actions)) return `${k}.actions must be an array`;
+      for (const a of v.actions) if (typeof a !== "string") return "actions must be strings";
+    }
+  }
+  return null;
+}
+
+function cleanData(data) {
+  const blocks = {};
+  for (const k of BLOCK_KEYS) {
+    const v = data.blocks[k];
+    if (!v) continue;
+    blocks[k] = {
+      rows: v.rows.map((r) => ({ channel: r.channel || "", title: r.title || "", insight: r.insight || "", suggestion: r.suggestion || "" })),
+    };
+    if (Array.isArray(v.actions)) blocks[k].actions = v.actions;
+  }
+  return { blocks };
 }
 
 async function handleInsights(request, env, url) {
@@ -147,12 +176,7 @@ async function handleInsights(request, env, url) {
     if (!body || !KEY_RE.test(body.week || "")) return json({ error: "week must be YYYY-MM-DD" }, 400);
     const err = validate(body.data);
     if (err) return json({ error: err }, 400);
-    const clean = {
-      rows: body.data.rows.map((r) => ({
-        channel: r.channel || "", title: r.title || "", insight: r.insight || "", suggestion: r.suggestion || "",
-      })),
-      actions: body.data.actions,
-    };
+    const clean = cleanData(body.data);
     const text = JSON.stringify(clean);
     if (text.length > MAX_BYTES) return json({ error: "content too long" }, 413);
     const at = new Date().toISOString().replace(/\.\d+Z$/, "Z");

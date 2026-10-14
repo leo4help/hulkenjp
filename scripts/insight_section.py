@@ -1,19 +1,30 @@
 """
-Insight & Suggestion section (added 2026-10-14, W41) — replaces the old
-Weekly-Insight-tab callout. Content format borrowed from the innodanc weekly
-report (rows of 分類 / 標題 / 核心洞察 / 執行建議 + a 下週 Action Plan list);
-look & feel stays Hulken's own (CSS vars, card/table styles).
+Insight & Suggestion — v2 (2026-10-14, W41): FIVE editable blocks.
 
-Data flow:
-  * insights.json (project root) holds Claude's written draft per week, key =
-    that week's start date (Thursday) "YYYY-MM-DD". build_weekly_report.py
-    embeds that week's entry as INSIGHTS_BUILTIN and the key as INSIGHT_WEEK.
-  * Online edits are stored in Cloudflare D1 via _worker.js (/api/insights).
-    The page fetches /api/insights; an online version for INSIGHT_WEEK wins
-    over the built-in draft. Only ALLOWED_EDITORS (ads@wakazocorp.com) can
-    edit; everyone else behind Cloudflare Access just reads.
-  * Opened from file:// (local preview) the API fetch fails -> read-only.
+  overall      own section #insight right after #channels  — media / overall (+ 下週 Action Plan)
+  metaTest     right after #meta-test section               — Meta TEST creatives
+  metaCreative right after #meta-creative section           — Meta 常態 creatives
+  kol          right after #kol section                     — KOL performance incl. license fees
+  shopify      right after #shopify section                 — Shopify trend
+
+Blocks 2-5 are <div>s placed AFTER their section's </section> (not inside), because
+build_shopify_section.py replaces the whole #shopify section on every run.
+
+insights.json (key = report week start YYYY-MM-DD):
+  {"blocks": {"overall": {"rows": [...], "actions": [...]}, "metaTest": {"rows": [...]}, ...}}
+  row = {channel, title, insight, suggestion}; **text** = bold.
+Online edits go to Cloudflare D1 through _worker.js (/api/insights) as the same
+{"blocks": {...}} object. A legacy v1 entry {rows, actions} is read as the overall block.
+Only ALLOWED_EDITORS (ads@wakazocorp.com) can edit. file:// preview = read-only.
 """
+
+BLOCKS = [
+    ('overall', 'channels', 'Insight &amp; Suggestion', '媒體與整體狀況'),
+    ('metaTest', 'meta-test', 'Insight &amp; Suggestion · Meta TEST', '測試素材分析'),
+    ('metaCreative', 'meta-creative', 'Insight &amp; Suggestion · Meta 常態素材', '常態素材分析'),
+    ('kol', 'kol', 'Insight &amp; Suggestion · KOL', 'KOL 表現（含授權金）分析'),
+    ('shopify', 'shopify', 'Insight &amp; Suggestion · Shopify', '官網趨勢分析'),
+]
 
 CSS = r"""
   /* ---------- Insight & Suggestion (W41+) ---------- */
@@ -43,49 +54,61 @@ CSS = r"""
   .ins-ops{text-align:center!important;white-space:nowrap;width:44px;}
   .ins-act-ed{margin:0;padding-left:22px;} .ins-act-ed li{display:flex;gap:4px;align-items:center;margin:5px 0;}
   body.ins-editing #insight .card{box-shadow:0 0 0 2px #e8cf8a;}
+  .ins-block{margin:22px 0 8px;}
+  .ins-block-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .ins-block-head h3{margin:0;font-size:15px;font-weight:800;color:var(--brand-deep);}
+  .ins-block-head .ins-tag{font-size:12px;color:var(--ink-faint);font-weight:600;}
+  body.ins-editing .ins-block .card{box-shadow:0 0 0 2px #e8cf8a;}
 """
 
-HTML = r"""
-  <!-- ================= INSIGHT & SUGGESTION (W41+, editable) ================= -->
-  <section id="insight">
-    <div class="sec-head"><h2>Insight &amp; Suggestion</h2><span class="sec-tag">核心洞察與執行建議 · 本週重點</span></div>
-    <div class="ins-bar">
-      <button class="ins-btn primary" id="insEditBtn" style="display:none">✎ 編輯</button>
-      <span class="ins-status" id="insStatus"></span>
-      <span style="flex:1"></span>
-      <button class="ins-btn danger" id="insRevertBtn" style="display:none" title="刪除線上修改，回到建置時的原始版本">還原原始版本</button>
-    </div>
-    <datalist id="insChOpts"><option>整體</option><option>Meta</option><option>Google</option><option>Amazon</option><option>樂天</option><option>KOL</option><option>素材</option><option>Shopify</option><option>追蹤</option></datalist>
-    <div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" id="insTable"></table></div></div>
-    <div class="ins-sub">下週 Action Plan</div>
-    <div class="card" id="insActions"></div>
-  </section>
-"""
+DATALIST = '<datalist id="insChOpts"><option>整體</option><option>Meta</option><option>Google</option><option>Amazon</option><option>樂天</option><option>TEST</option><option>常態</option><option>KOL</option><option>授權金</option><option>素材</option><option>Shopify</option><option>庫存</option><option>追蹤</option></datalist>'
+
+
+def _block_html(key, title, tag, first):
+    bar = ('<div class="ins-bar">'
+           '<button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button>'
+           '<span class="ins-status"></span><span style="flex:1"></span>'
+           + ('<button class="ins-btn danger" id="insRevertBtn" style="display:none" title="刪除本週所有線上修改，回到建置時的原始版本">還原原始版本</button>' if first else '')
+           + '</div>')
+    body = ('<div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;">'
+            f'<table class="ins-table" data-ins-table="{key}"></table></div></div>')
+    if first:
+        return ('\n  <!-- ================= INSIGHT & SUGGESTION · overall (v2, editable) ================= -->\n'
+                f'  <section id="insight" data-ins-v="2">\n'
+                f'    <div class="sec-head"><h2>{title}</h2><span class="sec-tag">{tag}</span></div>\n'
+                f'    {bar}\n    {DATALIST}\n    <div class="ins-block" data-ins-block="{key}" style="margin-top:0">{body}</div>\n'
+                '    <div class="ins-sub">下週 Action Plan</div>\n    <div class="card" id="insActions"></div>\n  </section>\n')
+    return (f'\n  <div class="ins-block" data-ins-block="{key}">\n'
+            f'    <div class="ins-block-head"><h3>{title}</h3><span class="ins-tag">{tag}</span></div>\n'
+            f'    {bar}\n    {body}\n  </div>\n')
+
 
 JS = r"""
-/* ---------------- Insight & Suggestion (W41+, editable via Cloudflare D1) ---------------- */
+/* ---------------- Insight & Suggestion v2 (5 blocks, editable via Cloudflare D1) ---------------- */
 const INSIGHT_WEEK = '';
 const INSIGHTS_BUILTIN = {};
 (function(){
-  const API='/api/insights';
+  const API='/api/insights', KEYS=['overall','metaTest','metaCreative','kol','shopify'];
   const $i=id=>document.getElementById(id);
   const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const md=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
-  const norm=o=>({rows:((o&&o.rows)||[]).map(r=>({channel:r.channel||'',title:r.title||'',insight:r.insight||'',suggestion:r.suggestion||''})),actions:((o&&o.actions)||[]).slice()});
+  const nrow=r=>({channel:r.channel||'',title:r.title||'',insight:r.insight||'',suggestion:r.suggestion||''});
+  function norm(o){o=o||{};let b=o.blocks;if(!b)b={overall:{rows:o.rows||[],actions:o.actions||[]}};
+    const out={blocks:{}};KEYS.forEach(k=>{const x=b[k]||{};out.blocks[k]={rows:(x.rows||[]).map(nrow)};if(k==='overall')out.blocks[k].actions=(x.actions||[]).slice()});return out}
   let remote=null,work=null,apiOK=false,canEdit=false,editing=false,state='',timer=null;
   const cur=()=>work||remote||norm(INSIGHTS_BUILTIN);
   const ed=()=>{if(!work)work=JSON.parse(JSON.stringify(norm(cur())));return work};
-  const clean=d=>({rows:d.rows.filter(r=>(r.title+r.insight+r.suggestion).trim()),actions:d.actions.filter(a=>a&&a.trim())});
-  function grow(el){el.style.height='auto';el.style.height=(el.scrollHeight+2)+'px'}
+  const clean=d=>{const o={blocks:{}};KEYS.forEach(k=>{const x=d.blocks[k];o.blocks[k]={rows:x.rows.filter(r=>(r.title+r.insight+r.suggestion).trim())};if(x.actions)o.blocks[k].actions=x.actions.filter(a=>a&&a.trim())});return o};
+  const grow=el=>{el.style.height='auto';el.style.height=(el.scrollHeight+2)+'px'};
   function queue(){state='pending';bar();clearTimeout(timer);timer=setTimeout(save,900)}
   async function save(){
     clearTimeout(timer);if(!work)return;state='saving';bar();
     try{const r=await fetch(API,{method:'PUT',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify({week:INSIGHT_WEEK,data:clean(work)})});
-      const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||('HTTP '+r.status));remote=j.item;state='saved'}
+      const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||('HTTP '+r.status));remote=Object.assign(norm(j.item),{_by:j.item._by,_at:j.item._at});state='saved'}
     catch(e){state='error:'+e.message}
     bar();
   }
-  function fmtAt(t){if(!t)return '';const d=new Date(t);if(isNaN(d))return t;const z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}/${z(d.getMonth()+1)}/${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`}
+  const fmtAt=t=>{if(!t)return '';const d=new Date(t);if(isNaN(d))return t;const z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}/${z(d.getMonth()+1)}/${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`};
   function bar(){
     let m='';
     if(state==='pending'||state==='saving')m='<span class="dot"></span>儲存中…';
@@ -93,39 +116,42 @@ const INSIGHTS_BUILTIN = {};
     else if(state==='saved')m='<span class="dot ok"></span>已儲存，其他人重新整理即可看到';
     else if(remote&&remote._by)m=`最後編輯：${esc(remote._by)} · ${fmtAt(remote._at)}`;
     else if(editing)m='修改會自動儲存';
-    $i('insStatus').innerHTML=m;
-    const b=$i('insEditBtn');b.style.display=(apiOK&&canEdit)?'':'none';b.textContent=editing?'✓ 完成編輯':'✎ 編輯';b.classList.toggle('on',editing);
-    $i('insRevertBtn').style.display=(apiOK&&canEdit&&remote)?'':'none';
+    document.querySelectorAll('.ins-status').forEach(s=>s.innerHTML=m);
+    document.querySelectorAll('.ins-edit').forEach(b=>{b.style.display=(apiOK&&canEdit)?'':'none';b.textContent=editing?'✓ 完成編輯':'✎ 編輯';b.classList.toggle('on',editing)});
+    const rv=$i('insRevertBtn');if(rv)rv.style.display=(apiOK&&canEdit&&remote)?'':'none';
     document.body.classList.toggle('ins-editing',editing);
   }
-  function render(){
-    const d=editing?ed():cur();const rows=d.rows||[];const t=$i('insTable');
+  const move=(X,i,op)=>{if(op==='del'){const v=X[i];if((typeof v==='string'?v:(v.title+v.insight+v.suggestion)).trim()&&!confirm('確定刪除這一列？'))return false;X.splice(i,1)}
+    if(op==='up'&&i>0)[X[i-1],X[i]]=[X[i],X[i-1]];if(op==='down'&&i<X.length-1)[X[i+1],X[i]]=[X[i],X[i+1]];return true};
+  function renderBlock(k){
+    const t=document.querySelector(`[data-ins-table="${k}"]`);if(!t)return;
+    const rows=(editing?ed():cur()).blocks[k].rows;
     let s='<thead><tr><th>核心洞察 (Insight)</th><th>執行建議 (Suggestion)</th>'+(editing?'<th></th>':'')+'</tr></thead><tbody>';
     if(editing){
       rows.forEach((r,i)=>s+=`<tr data-i="${i}"><td><div class="ins-line"><input list="insChOpts" class="ins-in ins-ch-in" data-f="channel" value="${esc(r.channel)}" placeholder="分類"><input class="ins-in ins-title" data-f="title" value="${esc(r.title)}" placeholder="洞察標題（粗體）"></div><textarea class="ins-ta" data-f="insight" placeholder="洞察內容（**文字** = 粗體）">${esc(r.insight)}</textarea></td><td><textarea class="ins-ta" data-f="suggestion" placeholder="執行建議">${esc(r.suggestion)}</textarea></td><td class="ins-ops"><button class="ins-btn sm" data-op="up">↑</button><button class="ins-btn sm" data-op="down">↓</button><button class="ins-btn sm danger" data-op="del">✕</button></td></tr>`);
-      s+='<tr><td colspan="3"><button class="ins-btn" id="insAddRow">＋ 新增一列</button></td></tr>';
+      s+='<tr><td colspan="3"><button class="ins-btn ins-add">＋ 新增一列</button></td></tr>';
     }else if(rows.length)rows.forEach(r=>s+=`<tr><td>${r.channel?`<span class="ins-ch">${esc(r.channel)}</span><br>`:''}${r.title?`<b>${esc(r.title)}</b>：`:''}${md(r.insight)}</td><td>${md(r.suggestion)}</td></tr>`);
-    else s+='<tr><td colspan="2" class="ins-empty">本週尚未填寫洞察</td></tr>';
+    else s+='<tr><td colspan="2" class="ins-empty">本週尚未填寫</td></tr>';
     t.innerHTML=s+'</tbody>';
-    const acts=d.actions||[];const box=$i('insActions');
-    if(editing){
-      box.innerHTML=`<ol class="ins-act-ed">${acts.map((a,i)=>`<li data-i="${i}"><input class="ins-in" value="${esc(a)}" placeholder="下週執行重點"><button class="ins-btn sm" data-op="up">↑</button><button class="ins-btn sm" data-op="down">↓</button><button class="ins-btn sm danger" data-op="del">✕</button></li>`).join('')}</ol><button class="ins-btn" id="insAddAct" style="margin-top:8px">＋ 新增一項</button>`;
-    }else box.innerHTML=acts.length?`<ol class="ins-actions">${acts.map(a=>`<li>${md(a)}</li>`).join('')}</ol>`:'<div class="ins-empty">本週尚未填寫 Action Plan</div>';
-    bar();
     if(!editing)return;
     t.querySelectorAll('textarea').forEach(grow);
-    t.querySelectorAll('[data-f]').forEach(el=>el.addEventListener('input',()=>{ed().rows[+el.closest('tr').dataset.i][el.dataset.f]=el.value;if(el.tagName==='TEXTAREA')grow(el);queue()}));
-    const move=(X,i,op)=>{if(op==='del'){if((typeof X[i]==='string'?X[i]:(X[i].title+X[i].insight+X[i].suggestion)).trim()&&!confirm('確定刪除這一列？'))return false;X.splice(i,1)}
-      if(op==='up'&&i>0)[X[i-1],X[i]]=[X[i],X[i-1]];if(op==='down'&&i<X.length-1)[X[i+1],X[i]]=[X[i],X[i+1]];return true};
-    t.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>{if(move(ed().rows,+b.closest('tr').dataset.i,b.dataset.op)){queue();render()}});
-    $i('insAddRow').onclick=()=>{ed().rows.push({channel:'',title:'',insight:'',suggestion:''});queue();render();const l=[...t.querySelectorAll('.ins-title')].pop();l&&l.focus()};
-    box.querySelectorAll('li input').forEach(el=>el.addEventListener('input',()=>{ed().actions[+el.closest('li').dataset.i]=el.value;queue()}));
-    box.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>{if(move(ed().actions,+b.closest('li').dataset.i,b.dataset.op)){queue();render()}});
-    $i('insAddAct').onclick=()=>{ed().actions.push('');queue();render();const l=[...box.querySelectorAll('li input')].pop();l&&l.focus()};
+    t.querySelectorAll('[data-f]').forEach(el=>el.addEventListener('input',()=>{ed().blocks[k].rows[+el.closest('tr').dataset.i][el.dataset.f]=el.value;if(el.tagName==='TEXTAREA')grow(el);queue()}));
+    t.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>{if(move(ed().blocks[k].rows,+b.closest('tr').dataset.i,b.dataset.op)){queue();renderBlock(k)}});
+    t.querySelector('.ins-add').onclick=()=>{ed().blocks[k].rows.push(nrow({}));queue();renderBlock(k);const l=[...t.querySelectorAll('.ins-title')].pop();l&&l.focus()};
   }
-  $i('insEditBtn').onclick=async()=>{if(editing){if(state==='pending')await save();editing=false;if(!state.startsWith('error:')){work=null;state=''}}else editing=true;render()};
-  $i('insRevertBtn').onclick=async()=>{
-    if(!confirm('把本週的 Insight & Suggestion 還原成建置時的原始版本？（所有人都會看到還原後的內容）'))return;
+  function renderActions(){
+    const box=$i('insActions');if(!box)return;const acts=(editing?ed():cur()).blocks.overall.actions||[];
+    if(editing){
+      box.innerHTML=`<ol class="ins-act-ed">${acts.map((a,i)=>`<li data-i="${i}"><input class="ins-in" value="${esc(a)}" placeholder="下週執行重點"><button class="ins-btn sm" data-op="up">↑</button><button class="ins-btn sm" data-op="down">↓</button><button class="ins-btn sm danger" data-op="del">✕</button></li>`).join('')}</ol><button class="ins-btn" id="insAddAct" style="margin-top:8px">＋ 新增一項</button>`;
+      box.querySelectorAll('li input').forEach(el=>el.addEventListener('input',()=>{ed().blocks.overall.actions[+el.closest('li').dataset.i]=el.value;queue()}));
+      box.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>{if(move(ed().blocks.overall.actions,+b.closest('li').dataset.i,b.dataset.op)){queue();renderActions()}});
+      $i('insAddAct').onclick=()=>{ed().blocks.overall.actions.push('');queue();renderActions();const l=[...box.querySelectorAll('li input')].pop();l&&l.focus()};
+    }else box.innerHTML=acts.length?`<ol class="ins-actions">${acts.map(a=>`<li>${md(a)}</li>`).join('')}</ol>`:'<div class="ins-empty">本週尚未填寫 Action Plan</div>';
+  }
+  function render(){KEYS.forEach(renderBlock);renderActions();bar()}
+  document.querySelectorAll('.ins-edit').forEach(b=>b.onclick=async()=>{if(editing){if(state==='pending')await save();editing=false;if(!state.startsWith('error:')){work=null;state=''}}else editing=true;render()});
+  const rv=$i('insRevertBtn');if(rv)rv.onclick=async()=>{
+    if(!confirm('把本週全部五個 Insight & Suggestion 區塊還原成建置時的原始版本？（所有人都會看到還原後的內容）'))return;
     try{const r=await fetch(API+'?week='+encodeURIComponent(INSIGHT_WEEK),{method:'DELETE',credentials:'same-origin'});if(!r.ok)throw new Error('HTTP '+r.status);
       remote=null;work=null;state='';editing=false;render()}catch(e){alert('還原失敗：'+e.message)}};
   addEventListener('beforeunload',e=>{if(state==='pending'||state==='saving'){e.preventDefault();e.returnValue=''}});
@@ -136,25 +162,29 @@ const INSIGHTS_BUILTIN = {};
 """
 
 
-def ensure_block(html):
-    """Inject CSS / section / JS once (idempotent). Section goes right after
-    the #channels section; nav gets an 'Insight & Suggestion' link after 全渠道成效."""
-    if 'id="insight"' in html:
-        return html
-    i = html.find('</style>')
-    if i < 0:
-        raise SystemExit('insight_section: no </style> found')
-    html = html[:i] + CSS + html[i:]
-    start = html.find('<section id="channels">')
+def _section_end(html, sec_id):
+    start = html.find(f'<section id="{sec_id}"')
+    if start < 0:
+        raise SystemExit(f'insight_section: #{sec_id} section not found')
     end = html.find('</section>', start)
-    if start < 0 or end < 0:
-        raise SystemExit('insight_section: #channels section not found')
-    end += len('</section>')
-    html = html[:end] + '\n' + HTML.rstrip('\n') + html[end:]
+    return end + len('</section>')
+
+
+def ensure_block(html):
+    """Inject the five blocks + CSS + JS once (idempotent via data-ins-v="2")."""
+    if 'data-ins-v="2"' in html:
+        return html
+    if 'id="insight"' in html:
+        raise SystemExit('insight_section: template has the old v1 Insight section — build from a v2 (W41+) report or a pre-W41 template')
+    i = html.find('</style>')
+    html = html[:i] + CSS + html[i:]
+    # insert from the bottom of the page up so earlier offsets stay valid
+    for idx in sorted(range(len(BLOCKS)), key=lambda n: -_section_end(html, BLOCKS[n][1])):
+        key, sec, title, tag = BLOCKS[idx]
+        e = _section_end(html, sec)
+        html = html[:e] + _block_html(key, title, tag, idx == 0).rstrip('\n') + html[e:]
     nav_old = '<a href="#channels">全渠道成效</a>'
     if nav_old in html:
         html = html.replace(nav_old, nav_old + '\n    <a href="#insight">Insight &amp; Suggestion</a>', 1)
     j = html.rfind('</script>')
-    if j < 0:
-        raise SystemExit('insight_section: no </script> found')
     return html[:j] + JS + html[j:]
