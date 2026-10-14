@@ -14,7 +14,7 @@ insights.json (key = report week start YYYY-MM-DD):
   {"blocks": {"overall": {"rows": [...], "actions": [...]}, "metaTest": {"rows": [...]}, ...}}
   row = {channel, title, insight, suggestion}; **text** = bold.
 Online edits go to Cloudflare D1 through _worker.js (/api/insights) as the same
-{"blocks": {...}} object. A legacy v1 entry {rows, actions} is read as the overall block.
+{"blocks": {...}} object. A legacy v1 online entry {rows, actions} is shown as the overall block, and blocks 2-5 fall back to the built-in draft.
 Only ALLOWED_EDITORS (ads@wakazocorp.com) can edit. file:// preview = read-only.
 """
 
@@ -157,7 +157,7 @@ const INSIGHTS_BUILTIN = {};
   addEventListener('beforeunload',e=>{if(state==='pending'||state==='saving'){e.preventDefault();e.returnValue=''}});
   render();
   if(location.protocol.startsWith('http'))fetch(API,{cache:'no-store',credentials:'same-origin'}).then(r=>r.ok?r.json():Promise.reject(r.status)).then(j=>{
-    apiOK=true;canEdit=!!j.canEdit;const o=(j.insights||{})[INSIGHT_WEEK];remote=o?Object.assign(norm(o),{_by:o._by,_at:o._at}):null;render()}).catch(()=>{apiOK=false;bar()});
+    apiOK=true;canEdit=!!j.canEdit;const o=(j.insights||{})[INSIGHT_WEEK];if(o){const n=norm(o);if(!o.blocks){const bi=norm(INSIGHTS_BUILTIN);KEYS.forEach(k=>{if(k!=='overall')n.blocks[k]=bi.blocks[k]})}remote=Object.assign(n,{_by:o._by,_at:o._at})}else remote=null;render()}).catch(()=>{apiOK=false;bar()});
 })();
 """
 

@@ -35,6 +35,8 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 
 **Insight & Suggestion 分成五個區塊（2026-10-14 使用者要求，v2）：** ① `#insight`（全渠道表後）＝媒體與整體狀況＋下週 Action Plan；② `#meta-test` 下方＝Meta TEST 素材分析；③ `#meta-creative` 下方＝Meta 常態素材分析；④ `#kol` 下方＝KOL 表現（含授權金，含「只付授權金沒投放」的追蹤）；⑤ `#shopify` 下方＝Shopify 趨勢。`insights.json` 每週格式 `{"blocks": {overall:{rows,actions}, metaTest:{rows}, metaCreative:{rows}, kol:{rows}, shopify:{rows}}}`；②–⑤ 是放在各 section `</section>` **之後**的 div（因為 `build_shopify_section.py` 每次會整段替換 #shopify）。`scripts/insight_section.py` 以 `data-ins-v="2"` 判斷是否已注入；W41 起的報告當模板會直接沿用。`_worker.js` 同步改為接受 `blocks`，舊的 `{rows, actions}` 線上版本前端會當成 ① 顯示。
 
+**線上版本優先：** 使用者若已在線上編輯過某週，頁面顯示的是 D1 的版本，改 insights.json 不會生效。要調整已編輯過的週，先在 D1 Console 讀出 `SELECT data FROM insights WHERE week=...`，以使用者的線上內容為準修改，再用 `UPDATE` 寫回（W41 就是這樣把使用者 v1 的「素材」「KOL」兩列移到對應區塊，並補上 TEST／Shopify 區塊），同時同步 insights.json。dashboard Console 的 input 可用 JS 設值（`HTMLInputElement.prototype` 的 value setter + input 事件）再按 Execute。
+
 **背景（使用者 2026-10-14 告知）：** 品牌目前有嚴重的貨量（庫存）問題，Amazon 轉換率與所有媒體的 ROAS 下滑有相當部分來自供貨端——寫洞察時要把這點納入，不要把轉換下滑全歸因於廣告；貨量恢復前後要特別追蹤 CVR 是否回升。
 
 **線上編輯（Cloudflare，2026-10-14 建立）：**
