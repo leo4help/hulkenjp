@@ -28,6 +28,14 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 
 - **W42 TEST/General（2026-10-21）：** W42 Bridge 裡 10/08–10/14 仍是使用者 W41 改名前的舊活動名稱，已比照 W41 修正（90/119/169→General、92/180/184→TEST，91 格）後才併入快取；10/15 起的資料已是新名稱。
 
+**Amazon 投放的是 AUTO Campaign（使用者 2026-10-21 說明）：** 活動層級無法區分品牌／非品牌，也不能分開調整品牌、非品牌的預算或出價。報表中的品牌／非品牌（品牌字、品牌ASIN、非品牌字、非品牌ASIN）是依搜尋字詞**事後分類**，只用來看流量組成與成效。寫 Amazon 建議時：不要寫「品牌預算加／減」「非品牌規模維持」「某品牌字降出價」這種需要手動活動才能做的動作；可行的槓桿是整體 AUTO 活動預算、否定關鍵字、排除產品（ASIN）。
+
+**花費金額異常標記（2026-10-21）：** `build_weekly_report.py` 的 `ensure_cost_anomaly()` 在 Meta TEST／常態／KOL 表的花費欄加「⚠ 異常」標籤，規則：0 < 花費 < ¥1,000 且 ROAS ≥ 20（已暫停的廣告出現小額回溯，例：W42 原廠-92 ¥353、ROAS 203.95）。使用者會口頭說明，洞察不必特別解釋。
+
+**改線上 Insight 的較簡單方式（2026-10-21）：** Chrome 若已通過 Access 登入 hulkenjp.pages.dev，直接在報告頁執行 `fetch('/api/insights')` 讀、`PUT /api/insights` 寫（以 ads@wakazocorp.com 身分），不用進 Cloudflare dashboard（dashboard 登入常會過期）。修改時以線上內容為準、只改需要改的字串，改完把同樣內容同步回 insights.json。
+
+- **W42 uta-176 移出 TEST（使用者 2026-10-21）：** `TEST | Row176｜…` 改成 `Row176｜…`（W42 `_fixed` Bridge 28 格、快取 10/08–10/14 14 列）。線上 Insight 只改受影響的字串：TEST 區塊數字（¥455,203、ROAS 2.64）、移除 TEST 列中 uta-176、常態區塊數字（¥1,052,571、ROAS +2.6%）並在「新進常態」列加 uta-176、整體 Meta 列 TEST 2.64；使用者自己改過的建議與 Action Plan 都保留。
+
 **Weekly Report Manual 分頁不再更新**——`build_weekly_report.py` 預設 `--channel-source data`，全渠道表改由原始資料組出：
 - Meta = ad_data Meta AD、`goal != '-'`（含 CPC、不含授權金）→ 全部「非品牌」（與舊 Manual 的 Meta 列逐元吻合）
 - Google = ad_data Google AD、`goal != '-'`；**行銷活動名稱含「包含品牌」= 品牌**，其餘 = 非品牌（目前品牌：Pmax-260622-包含品牌字、Shopping-AD-260621-包含品牌字）

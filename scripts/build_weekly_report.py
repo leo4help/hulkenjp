@@ -749,6 +749,35 @@ def ensure_channel_merged_block(html):
     return html[:i] + CHANNEL_MERGED_JS + html[i:]
 
 
+COST_ANOMALY_JS = r"""
+/* 花費金額異常標記（2026-10-21 使用者要求）：已暫停的廣告出現小額回溯花費時，
+   ROAS 會被放大到失真（例：原廠-92 W42 ¥353、ROAS 203.95）。規則：0 < 花費 < ¥1,000 且 ROAS ≥ 20。 */
+function costAnomaly(r){
+  if(!(r && r.cost>0 && r.cost<1000 && r.roas!=null && r.roas>=20)) return '';
+  return '<span class="anom-badge" title="已暫停的廣告出現小額回溯花費，ROAS 不具參考性">⚠ 異常</span>';
+}
+"""
+COST_ANOMALY_CSS = """
+  /* ---------- cost anomaly badge (2026-10-21) ---------- */
+  .anom-badge{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:6px;font-size:10.5px;font-weight:800;color:#a14a00;background:#fff1d6;border:1px solid #f0c674;white-space:nowrap;vertical-align:middle;cursor:help;}
+"""
+
+
+def ensure_cost_anomaly(html):
+    """Flag tiny back-dated spend on paused ads in the Meta TEST / 常態 / KOL cost cells (idempotent)."""
+    if 'function costAnomaly' in html:
+        return html
+    html = html.replace('</style>', COST_ANOMALY_CSS + '</style>', 1)
+    i = html.find('function renderMetaTestKol')
+    if i < 0:
+        raise SystemExit('ensure_cost_anomaly: renderMetaTestKol not found')
+    html = html[:i] + COST_ANOMALY_JS.lstrip('\n') + html[i:]
+    pat = """heatBg(r.cost,costMin,costMax,'169,130,46')}">${fmtInt(r.cost)}</span>"""
+    if html.count(pat) < 2:
+        raise SystemExit('ensure_cost_anomaly: cost cell pattern not found')
+    return html.replace(pat, pat + '${costAnomaly(r)}')
+
+
 def sub_const(html, name, value):
     pattern = re.compile(r"(const " + name + r" ?= ?)(\[.*?\]|\{.*?\})(;)", re.S)
     new_html, n = pattern.subn(lambda m: m.group(1) + dumps(value) + m.group(3), html, count=1)
@@ -896,6 +925,7 @@ def build_html(template_path, out_path, data, week_num, prev_week_num,
     # 9b. 同渠道整合比較 table (added 2026-10-07, W40). Templates from W40 on
     #     already carry it; inject it once if the template predates it.
     html = ensure_channel_merged_block(html)
+    html = ensure_cost_anomaly(html)
 
     # 9c. Insight & Suggestion section (W41+, replaces the Weekly Insight
     #     callout; editable online via _worker.js + D1). Inject once, then
