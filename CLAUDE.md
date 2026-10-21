@@ -21,8 +21,12 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 **每週資料夾應有的檔案（缺一就先停下來提醒使用者補上，不要做完分析才說；使用者若事先說「本週沒有 X」才跳過）：**
 1. `Hulken_Claude_Bridge.xlsx`（Meta / Google / KOL 授權金，同以往）
 2. Amazon：`Sponsored_Products_SearchTerm_*.csv`（Sponsored Products 搜尋字詞報表，**一週一檔**，涵蓋該報告週 週四～週三）。Amazon 後台的 Lifetime 報表沒有日維度，所以使用者改成每週下載一份。收到後改名為 `Sponsored_Products_SearchTerm_<起>_<迄>.csv`，放一份在當週資料夾、一份在 `amazon_data/`（gitignored；跨週累計排除建議要用）。W41 一次補齊了 8/13 起的 9 週歷史。注意：後台匯出上限 300 列（依花費排序，最後一列約 ¥75），與以前 Weekly Report Manual 口徑相同（W40 金額逐元吻合）。
-3. Shopify：`Leo Report - <起> - <迄>.csv`（只含近一個月），與上週的 `SP - 2026-01-01 - ... (merged).csv` 合併（重疊日以新檔為準、排除報告週之後的日期）再跑 `build_shopify_section.py`。
+3. Shopify：**W42 起改用 Shopify MCP 抓（見下方），不再需要使用者下載**；舊做法是 `Leo Report - <起> - <迄>.csv`（只含近一個月），與上週的 `SP - 2026-01-01 - ... (merged).csv` 合併（重疊日以新檔為準、排除報告週之後的日期）再跑 `build_shopify_section.py`。
 4. 樂天：檔名未定（使用者會放進資料夾）。**第一次收到時要先看格式**，在 `build_weekly_report.py` 的 `_channel_frames_from_data()` 補 loader（目前收到 `--rakuten-cur` 會直接報錯提醒），AD Type 一律寫「無法區隔」。
+
+**Shopify 資料改用 Shopify MCP（2026-10-21 驗證通過，使用者不用再下載 CSV）：** Shopify MCP 連的是 HULKEN® Japan（hulken-japan.myshopify.com，JPY／JST）。`FROM sales SHOW orders, total_sales TIMESERIES day SINCE <起> UNTIL <迄>` ＋ `FROM sessions SHOW sessions TIMESERIES day ...` 與使用者後台匯出的「Leo Report」CSV（日／工作階段數／訂單數／總銷售額）10/08–10/21 共 14 天逐日逐欄 100% 一致（總銷售額 = total_sales）。之後每週：用 MCP 抓「上週最後 7 天＋本週」的日資料（重抓上週，避免當時資料未定），寫成同格式 CSV 併入上週的 `SP - 2026-01-01 - ... (merged).csv`（重疊日以 MCP 新資料為準）→ 存成當週 `SP - 2026-01-01 - <週三> (merged).csv` → 照舊跑 `build_shopify_section.py`。週檢查清單裡的 Shopify 檔案改為「不需要」；只有 MCP 連不上時才請使用者手動下載。
+
+- **W42 TEST/General（2026-10-21）：** W42 Bridge 裡 10/08–10/14 仍是使用者 W41 改名前的舊活動名稱，已比照 W41 修正（90/119/169→General、92/180/184→TEST，91 格）後才併入快取；10/15 起的資料已是新名稱。
 
 **Weekly Report Manual 分頁不再更新**——`build_weekly_report.py` 預設 `--channel-source data`，全渠道表改由原始資料組出：
 - Meta = ad_data Meta AD、`goal != '-'`（含 CPC、不含授權金）→ 全部「非品牌」（與舊 Manual 的 Meta 列逐元吻合）

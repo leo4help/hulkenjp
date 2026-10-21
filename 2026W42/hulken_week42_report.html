@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HULKEN JP · Week 42 廣告成效週報</title>
+<style>
+  :root{
+    --ink:#2b2620;
+    --ink-soft:#6b6255;
+    --ink-faint:#9a9186;
+    --bg-page:#f6f1e6;
+    --bg-card:#ffffff;
+    --brand:#5b4a2f;
+    --brand-deep:#3d3220;
+    --brand-gold:#a9822e;
+    --tan:#e4d5b7;
+    --tan-soft:#f0e6d2;
+    --line:#e7ded0;
+    --good:#1e8e5a;
+    --bad:#c6402e;
+    --shadow: 0 1px 2px rgba(43,38,32,0.04), 0 4px 16px rgba(43,38,32,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family: -apple-system, "Hiragino Sans", "Noto Sans TC", "PingFang TC", "Segoe UI", sans-serif;
+    background:var(--bg-page);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px 64px;}
+
+  /* ---------- Header ---------- */
+  header.top{
+    background:var(--tan);
+    padding:28px 0 24px;
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{max-width:1180px;margin:0 auto;padding:0 24px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+  .logo-row{display:flex;align-items:center;gap:14px;}
+  .logo-block{
+    background:#efeadf;border:1px solid #d9cba5;border-radius:6px;
+    padding:8px 14px;font-weight:800;font-size:22px;letter-spacing:0.5px;color:var(--brand-deep);
+  }
+  .logo-block sup{font-size:11px;}
+  .logo-jp{font-size:26px;font-weight:300;color:var(--ink-soft);}
+  .title-block h1{margin:10px 0 2px;font-size:26px;font-weight:800;color:var(--brand-deep);}
+  .title-block .sub{color:var(--ink-soft);font-size:14px;}
+  .meta-chip{
+    background:rgba(255,255,255,0.6);border:1px solid #d9cba5;border-radius:999px;
+    padding:6px 14px;font-size:13px;color:var(--brand-deep);font-weight:600;white-space:nowrap;
+  }
+  .week-picker{position:relative;display:inline-block;}
+  .week-picker .meta-chip{cursor:pointer;display:inline-flex;align-items:center;gap:6px;user-select:none;}
+  .week-picker .meta-chip:hover{background:rgba(255,255,255,0.85);}
+  .week-picker .caret{font-size:10px;transition:transform .15s ease;}
+  .week-picker.open .caret{transform:rotate(180deg);}
+  .week-menu{
+    display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:240px;
+    background:#fffdf8;border:1px solid #d9cba5;border-radius:10px;
+    box-shadow:0 8px 24px rgba(60,45,20,0.18);overflow:hidden;z-index:30;
+  }
+  .week-picker.open .week-menu{display:block;}
+  .week-menu a{
+    display:block;padding:10px 16px;font-size:13px;color:var(--ink);text-decoration:none;
+    border-bottom:1px solid #f0e6cc;
+  }
+  .week-menu a:last-child{border-bottom:none;}
+  .week-menu a:hover{background:#f5ecd6;}
+  .week-menu a.current{background:#efe2ba;font-weight:700;color:var(--brand-deep);cursor:default;}
+  .week-menu .wm-date{display:block;font-size:11.5px;color:var(--ink-soft);font-weight:400;margin-top:2px;}
+  .beta-badge{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:0.4px;background:#f3d9a8;color:#8a5a10;border:1px solid #d9b370;vertical-align:middle;}
+
+  /* ---------- Section nav ---------- */
+  nav.secnav{
+    position:sticky;top:0;z-index:20;
+    background:rgba(246,241,230,0.92);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.secnav .inner{max-width:1180px;margin:0 auto;padding:10px 24px;display:flex;gap:6px;overflow-x:auto;}
+  nav.secnav a{
+    white-space:nowrap;font-size:13px;font-weight:600;color:var(--ink-soft);
+    text-decoration:none;padding:8px 14px;border-radius:8px;transition:background .15s,color .15s;
+  }
+  nav.secnav a:hover{background:var(--tan-soft);color:var(--brand-deep);}
+
+  section{padding-top:40px;scroll-margin-top:64px;}
+  section:first-of-type{padding-top:32px;}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .sec-head h2{font-size:19px;margin:0;color:var(--brand-deep);font-weight:800;}
+  .sec-head .sec-tag{font-size:12px;color:var(--ink-faint);font-weight:600;}
+
+  /* ---------- KPI tiles ---------- */
+  .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;}
+  @media (max-width:960px){.kpi-grid{grid-template-columns:repeat(3,1fr);}}
+  @media (max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+  .kpi-card{
+    background:var(--bg-card);border:1px solid var(--line);border-radius:12px;
+    padding:16px 16px 14px;box-shadow:var(--shadow);
+  }
+  .kpi-card .kpi-label{font-size:12px;color:var(--ink-soft);font-weight:700;margin-bottom:8px;}
+  .kpi-card .kpi-value{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-0.2px;}
+  .delta{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;font-weight:700;margin-top:6px;}
+  .delta.up{color:var(--good);}
+  .delta.down{color:var(--bad);}
+  .delta.flat{color:var(--ink-faint);}
+  /* ROAS is the headline metric — its KPI tile gets a distinct filled treatment so it reads first */
+  .kpi-card.hero{
+    background:linear-gradient(135deg,var(--brand-gold),#7d5f22);
+    border-color:transparent;box-shadow:0 4px 14px rgba(169,130,46,0.35);
+    position:relative;
+  }
+  .kpi-card.hero::after{
+    content:'最重要指標';position:absolute;top:10px;right:12px;font-size:9.5px;font-weight:800;
+    color:rgba(255,255,255,0.75);letter-spacing:0.3px;
+  }
+  .kpi-card.hero .kpi-label{color:rgba(255,255,255,0.85);}
+  .kpi-card.hero .kpi-value{color:#fff;font-size:27px;}
+  .kpi-card.hero .delta.up{color:#cdf7bd;}
+  .kpi-card.hero .delta.down{color:#ffd3c4;}
+
+  /* ---------- Cards / generic ---------- */
+  .card{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:20px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:800px){.grid-2{grid-template-columns:1fr;}}
+
+  .split-card h3{margin:0 0 12px;font-size:14px;color:var(--brand-deep);font-weight:800;}
+  .split-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap;gap:10px;}
+  .split-row:last-child{border-bottom:none;}
+  .split-name{font-size:13px;font-weight:700;color:var(--ink);}
+  .split-bar-wrap{flex:1;margin:0 4px;height:8px;background:var(--tan-soft);border-radius:6px;overflow:hidden;min-width:40px;}
+  .split-bar{height:100%;background:linear-gradient(90deg,var(--brand-gold),var(--brand));border-radius:6px;}
+  .split-metrics{display:flex;gap:14px;font-size:12px;color:var(--ink-soft);margin-top:2px;flex-wrap:wrap;}
+  .split-metrics b{color:var(--ink);font-weight:800;}
+
+  /* ROAS hero pill — ROAS is the headline metric, so it always gets the loudest treatment */
+  .roas-hero{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--brand-gold),#7d5f22);
+    color:#fff;border-radius:10px;padding:7px 16px;min-width:78px;flex:0 0 auto;
+    box-shadow:0 3px 8px rgba(169,130,46,0.35);
+  }
+  .roas-hero .roas-label{font-size:9.5px;font-weight:800;letter-spacing:0.6px;text-transform:uppercase;opacity:0.88;}
+  .roas-hero .roas-num{font-size:21px;font-weight:800;line-height:1.15;letter-spacing:-0.3px;}
+  .roas-hero .roas-delta{font-size:10.5px;font-weight:700;margin-top:2px;}
+  .roas-hero .roas-delta.up{color:#cdf7bd;}
+  .roas-hero .roas-delta.down{color:#ffd3c4;}
+  .roas-hero .roas-delta.flat{color:rgba(255,255,255,0.7);}
+  .roas-hero.sm{padding:4px 12px;min-width:60px;}
+  .roas-hero.sm .roas-num{font-size:16px;}
+
+  /* ---------- Creative thumbnails ---------- */
+  .thumb{width:34px;height:60px;object-fit:cover;border-radius:5px;border:1px solid var(--line);flex:0 0 auto;}
+  .thumb-card{width:120px;height:auto;border-radius:8px;border:1px solid var(--line);flex:0 0 auto;display:block;}
+  .thumb-missing{
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    background:repeating-linear-gradient(45deg,#f2ece0,#f2ece0 6px,#e9e1d1 6px,#e9e1d1 12px);
+    color:var(--ink-faint);font-size:9px;font-weight:700;line-height:1.3;border:1px dashed #cdbf9c;
+  }
+  .thumb.thumb-missing{width:34px;height:60px;border-radius:5px;}
+  .thumb-card.thumb-missing{width:120px;height:210px;border-radius:8px;}
+  .thumb-slot{display:contents;}
+  .gallery{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;}
+  .gallery-card{background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:var(--shadow);width:148px;}
+  .gallery-card .cap{margin-top:8px;font-size:11.5px;color:var(--ink-soft);}
+  .gallery-card .cap b{color:var(--ink);display:block;font-size:12px;margin-bottom:2px;}
+  img.js-zoom{cursor:zoom-in;transition:transform .12s;}
+  img.js-zoom:hover{transform:scale(1.06);box-shadow:0 2px 8px rgba(0,0,0,0.25);}
+
+  /* ---------- Lightbox ---------- */
+  #lightbox{
+    position:fixed;inset:0;background:rgba(20,16,10,0.82);display:none;
+    align-items:center;justify-content:center;z-index:100;cursor:zoom-out;padding:32px;
+  }
+  #lightbox.open{display:flex;}
+  #lightbox img{max-width:min(420px,90vw);max-height:85vh;border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,0.5);}
+  #lightbox .lb-cap{position:absolute;bottom:28px;left:0;right:0;text-align:center;color:#f6f1e6;font-size:13px;font-weight:700;}
+  #lightbox .lb-close{position:absolute;top:20px;right:26px;color:#f6f1e6;font-size:28px;font-weight:300;cursor:pointer;line-height:1;}
+
+  /* ---------- Insight callout ---------- */
+  .callout{
+    background:linear-gradient(135deg,#3d3220,#5b4a2f);
+    color:#f6f1e6;border-radius:12px;padding:18px 22px;margin-top:16px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .callout .row{display:flex;align-items:baseline;gap:10px;font-size:14px;}
+  .callout .row::before{content:'•';color:#e8cf8a;flex:0 0 auto;font-weight:700;}
+  .callout .row .figure{font-size:17px;font-weight:800;color:#e8cf8a;}
+  .callout.note{background:#fff8ea;color:var(--ink);border:1px solid #e9d9ac;}
+  .callout.note .row{font-size:13.5px;color:var(--ink-soft);}
+  .callout.note .row.strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- Tables ---------- */
+  .table-scroll{overflow-x:auto;border-radius:12px;border:1px solid var(--line);}
+  .table-scroll-v{overflow-y:auto;max-height:700px;}
+  .table-scroll-v thead th{position:sticky;top:0;background:var(--bg-card);z-index:2;box-shadow:0 1px 0 var(--line);}
+  th.sortable{cursor:pointer;user-select:none;}
+  th.sortable:hover{color:var(--brand-gold);}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--bg-card);}
+  thead th{
+    background:var(--tan-soft);color:var(--brand-deep);text-align:right;font-weight:800;
+    padding:10px 12px;white-space:nowrap;position:sticky;top:0;font-size:12px;border-bottom:1px solid var(--line);
+    cursor:default;
+  }
+  thead th.sortable{cursor:pointer;user-select:none;}
+  thead th.sortable:hover{background:#e9dcb9;}
+  thead th:first-child, td:first-child{text-align:left;}
+  tbody td{padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.highlight{background:#fdf3ea;}
+  tbody tr.cat-row, tbody tr.month-row{cursor:pointer;}
+  tbody tr.cat-row:hover, tbody tr.month-row:hover{background:#f7f0de;}
+  tbody tr.cat-row.expanded, tbody tr.month-row.expanded{background:#f2e6c8;}
+  .cat-chevron{display:inline-block;width:14px;color:var(--brand-gold);font-weight:800;transition:transform .15s ease;}
+  tbody tr.cat-row.expanded .cat-chevron, tbody tr.month-row.expanded .cat-chevron{transform:rotate(90deg);}
+  tbody tr.cat-detail-row td{padding:10px 12px 16px;background:#fbf8f1;}
+  tbody tr.cat-detail-row .table-scroll table td:first-child{text-align:left;font-weight:600;}
+  tbody tr.pending{background:#f7f5f1;}
+  tbody tr.pending td{color:var(--ink-faint);}
+  .pending-badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:#eee6d6;color:#9a6a1c;border:1px dashed #cdb98a;}
+  tbody tr.grand td{background:var(--tan-soft);font-weight:800;color:var(--brand-deep);border-top:2px solid var(--brand-gold);}
+  .name-cell{font-weight:700;color:var(--ink);}
+  .tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;margin-left:6px;}
+  .tag.kol{background:#eadfc4;color:#7a5c1e;}
+  .tag.origin{background:#e2e6df;color:#4c5a44;}
+  .tag.null{background:#eee;color:#999;border:1px solid #ddd;}
+  .heat-val{border-radius:6px;padding:4px 8px;display:inline-block;min-width:52px;}
+  .stack-cell{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
+  .stack-cell .dsub{margin-left:0;}
+  .lic-note{margin-top:4px;font-size:10.5px;font-weight:600;color:#a9822e;white-space:nowrap;}
+  .lic-note.muted{color:var(--ink-faint);font-weight:500;font-style:italic;}
+  .dsub{font-size:10.5px;font-weight:700;margin-left:6px;}
+  .dsub.up{color:var(--good);} .dsub.down{color:var(--bad);} .dsub.flat{color:var(--ink-faint);}
+  .muted{color:var(--ink-faint);}
+
+  footer{margin-top:56px;padding:24px 0;border-top:1px solid var(--line);color:var(--ink-faint);font-size:12px;text-align:center;}
+  footer a{color:var(--brand);}
+
+  .hint{font-size:12px;color:var(--ink-faint);margin-top:8px;}
+
+  /* ---- KOL license-fee calculator ---- */
+  .calc-card{margin-bottom:18px;}
+  .calc-step-title{margin:0 0 4px;font-size:15px;color:var(--brand-deep);display:flex;align-items:center;gap:8px;}
+  .calc-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--brand-gold);color:#fff;font-size:11px;font-weight:700;flex-shrink:0;}
+  .calc-desc{font-size:12.5px;color:var(--ink-faint);margin:0 0 16px;}
+  .calc-field-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;}
+  .calc-field{flex:1 1 200px;min-width:160px;}
+  .calc-field label{display:block;font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:6px;letter-spacing:.2px;}
+  .calc-field input{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;color:var(--ink);background:#fdfbf7;transition:border-color .15s;}
+  .calc-field input:focus{outline:none;border-color:var(--brand-gold);}
+  .calc-hint{font-size:11px;color:var(--ink-faint);margin-top:5px;}
+  .calc-btn{padding:11px 22px;border-radius:10px;border:none;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .1s, box-shadow .15s;}
+  .calc-btn-primary{background:linear-gradient(135deg, var(--brand-gold), #c79b3f);color:#fff;box-shadow:0 3px 10px rgba(169,130,46,0.35);}
+  .calc-btn-primary:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(169,130,46,0.42);}
+  .calc-lookup-status{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:12.5px;line-height:1.7;display:none;}
+  .calc-lookup-status.ok{background:#eef7f0;color:#1e6b47;border:1px solid #cfe9d6;display:block;}
+  .calc-lookup-status.err{background:#fbebe9;color:#a2352a;border:1px solid #f2c9c4;display:block;}
+  .calc-lookup-status b{color:inherit;}
+  .calc-badge{display:inline-block;padding:1px 8px;border-radius:20px;font-size:10.5px;font-weight:700;margin-left:6px;}
+  .calc-badge-recent{background:#dff1e4;color:#1e6b47;}
+  .calc-badge-alltime{background:#fbe9d3;color:#9a6a1c;}
+  .calc-divider{height:1px;background:var(--line);margin:20px 0;}
+  .calc-result-wrap{display:none;}
+  .calc-result-wrap.show{display:block;}
+  .calc-result-hero{background:linear-gradient(135deg, var(--brand-gold), #c79b3f);border-radius:14px;padding:22px 26px;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;box-shadow:0 6px 18px rgba(169,130,46,0.3);}
+  .calc-result-hero.warn{background:linear-gradient(135deg, #b5442f, #c6402e);box-shadow:0 6px 18px rgba(198,64,46,0.3);}
+  .calc-result-label{font-size:13px;opacity:.92;font-weight:600;letter-spacing:.3px;}
+  .calc-result-value{font-size:36px;font-weight:800;margin-top:2px;}
+  .calc-result-value small{font-size:16px;font-weight:600;opacity:.85;margin-left:4px;}
+  .calc-result-sub{font-size:12px;opacity:.85;margin-top:4px;}
+  .calc-steps{margin-top:18px;}
+  .calc-step{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line);font-size:13.5px;}
+  .calc-step:last-child{border-bottom:none;}
+  .calc-step-num{width:20px;height:20px;border-radius:50%;background:var(--tan-soft);color:var(--brand-deep);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .calc-step-label{color:var(--ink-soft);flex:1;}
+  .calc-step-formula{color:var(--ink-faint);font-size:12px;font-family:ui-monospace,Menlo,monospace;}
+  .calc-step-value{font-weight:700;color:var(--brand-deep);white-space:nowrap;}
+  .calc-verify-row{margin-top:14px;padding:12px 14px;background:var(--tan-soft);border-radius:10px;font-size:12.5px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .calc-verify-row .calc-ok-dot{width:8px;height:8px;border-radius:50%;background:var(--good);flex-shrink:0;}
+  .calc-compare-row{margin-top:12px;padding:14px 16px;background:#fff;border:1.5px solid var(--line);border-radius:10px;font-size:12.5px;color:var(--ink-soft);display:none;}
+  .calc-compare-row.show{display:block;}
+  .calc-compare-title{font-size:12px;font-weight:700;color:var(--brand-deep);margin-bottom:8px;}
+  .calc-compare-grid{display:flex;gap:20px;flex-wrap:wrap;align-items:baseline;}
+  .calc-compare-item .calc-compare-label{font-size:11px;color:var(--ink-faint);}
+  .calc-compare-item .calc-compare-value{font-size:17px;font-weight:800;color:var(--brand-deep);}
+  .calc-diff-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;margin-left:6px;}
+  .calc-diff-easy{background:#dff1e4;color:#1e6b47;}
+  .calc-diff-medium{background:#fbe9d3;color:#9a6a1c;}
+  .calc-diff-hard{background:#fbebe9;color:#a2352a;}
+  .calc-formula-box{background:var(--brand-deep);color:var(--tan-soft);border-radius:10px;padding:14px 18px;font-size:13px;font-family:ui-monospace,Menlo,monospace;line-height:1.8;margin-top:16px;}
+  .calc-comment{color:#b8a888;font-size:11.5px;}
+  @media (max-width:640px){.calc-result-hero{flex-direction:column;align-items:flex-start;}}
+  .kol-header-btn{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;padding:10px 18px;border-radius:10px;background:linear-gradient(135deg, var(--brand-gold), #c79b3f);color:#fff;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 3px 10px rgba(169,130,46,0.3);transition:transform .1s, box-shadow .15s;align-self:center;}
+  .kol-header-btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(169,130,46,0.38);}
+  @media (max-width:640px){.kol-header-btn{align-self:flex-start;}}
+
+  /* ---------- Cursor spotlight ----------
+     一個金黃色光暈跟著滑鼠在頁面背景移動的裝飾效果。純視覺，不影響任何資料或版面。
+     實作重點：#cursorGlow 放在 <body> 最前面、position:fixed、z-index:60（蓋過一般卡片
+     z-index:30、sticky 表頭等，但低於 lightbox 的 100，所以打開圖片燈箱時不會被光暈蓋住），
+     並用 mix-blend-mode:multiply 讓它用「相乘」而非直接覆蓋的方式跟底下內容混色——效果像
+     螢光筆畫在紙上：淺色背景會被染黃變明顯，深色文字/深色徽章仍保持深色可讀，不會被完全
+     遮住。觸控裝置（沒有真正的滑鼠游標）用 @media (hover:none) 直接隱藏。 */
+  #cursorGlow{
+    position:fixed;top:0;left:0;width:72px;height:72px;
+    border-radius:50%;pointer-events:none;
+    z-index:60;
+    mix-blend-mode:multiply;
+    background:radial-gradient(circle, rgba(255,213,0,0.62) 0%, rgba(255,213,0,0.42) 35%, rgba(255,213,0,0.16) 60%, rgba(255,213,0,0) 78%);
+    transform:translate(-50%,-50%);
+    opacity:0;transition:opacity .25s ease;
+    will-change:transform;
+  }
+  @media (hover:none){ #cursorGlow{display:none;} }
+
+  /* ---------- Shopify weekly section (W39+) ---------- */
+  .shop-chart-card{padding:16px 16px 10px;}
+  .shop-chart-title{font-size:13.5px;font-weight:800;color:var(--brand-deep);margin-bottom:6px;}
+  .shop-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-soft);margin-bottom:6px;}
+  .shop-legend span{display:inline-flex;align-items:center;gap:6px;}
+  .shop-legend .sw{display:inline-block;flex:0 0 auto;}
+  .shop-legend .sw.bar{width:10px;height:10px;border-radius:2px;}
+  .shop-legend .sw.line{width:16px;height:2px;border-radius:1px;}
+  .shop-legend .sw.line.dash{height:0;background:none !important;border-top:2px dashed;}
+  .shop-chart{position:relative;width:100%;}
+  .shop-chart svg{display:block;width:100%;height:auto;overflow:visible;}
+  .shop-chart .axis text{font-size:10px;fill:var(--ink-faint);}
+  .shop-chart .grid line{stroke:var(--line);stroke-width:1;}
+  .shop-tip{position:absolute;pointer-events:none;background:var(--brand-deep);color:#fff;font-size:11.5px;line-height:1.5;
+    padding:7px 10px;border-radius:8px;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.18);opacity:0;transition:opacity .1s;z-index:5;}
+  .shop-tip b{font-weight:800;}
+  .shop-tip .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle;}
+
+  /* ---------- Shopify 本週增量 card (2026-10-14) ---------- */
+  .shop-delta{margin-top:12px;padding:16px 20px;}
+  .shop-delta .sd-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .shop-delta .sd-head h4{margin:0;font-size:14px;font-weight:800;color:var(--brand-deep);}
+  .shop-delta .sd-badge{font-size:12px;font-weight:800;padding:2px 10px;border-radius:999px;}
+  .shop-delta .sd-badge.good{background:#e3f3ea;color:var(--good);} .shop-delta .sd-badge.bad{background:#fbe7e3;color:var(--bad);}
+  .shop-delta .sd-row{display:grid;grid-template-columns:200px 1fr 150px;align-items:center;gap:12px;margin:6px 0;font-size:13px;}
+  .shop-delta .sd-label{font-weight:700;color:var(--ink-soft);}
+  .shop-delta .sd-track{position:relative;height:14px;background:var(--tan-soft);border-radius:7px;}
+  .shop-delta .sd-zero{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--ink-faint);}
+  .shop-delta .sd-bar{position:absolute;top:0;height:100%;border-radius:7px;}
+  .shop-delta .sd-val{font-size:16px;font-weight:800;text-align:right;}
+  .shop-delta .sd-foot{font-size:12.5px;color:var(--ink-soft);margin-top:8px;}
+  @media (max-width:640px){.shop-delta .sd-row{grid-template-columns:1fr;}.shop-delta .sd-val{text-align:left;}}
+
+  /* ---------- Insight & Suggestion (W41+) ---------- */
+  .ins-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .ins-table th{background:var(--tan-soft);color:var(--brand-deep);font-weight:800;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);}
+  .ins-table td{vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--line);line-height:1.7;text-align:left;white-space:normal;}
+  .ins-table td:first-child{width:58%;}
+  .ins-table tr:last-child td{border-bottom:none;}
+  .ins-ch{display:inline-block;font-size:11px;font-weight:800;color:var(--brand-deep);background:var(--tan-soft);border:1px solid var(--tan);padding:1px 8px;border-radius:6px;margin-bottom:4px;}
+  .ins-empty{color:var(--ink-faint);text-align:center!important;padding:22px!important;}
+  .ins-actions{margin:0;padding-left:22px;line-height:1.9;font-size:13.5px;}
+  .ins-sub{font-size:14px;font-weight:800;color:var(--brand-deep);margin:22px 0 10px;}
+  .ins-bar{display:flex;align-items:center;gap:10px;margin:-4px 0 14px;flex-wrap:wrap;min-height:4px;}
+  .ins-btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;}
+  .ins-btn:hover{border-color:var(--brand-gold);color:var(--brand-deep);}
+  .ins-btn.primary{background:linear-gradient(135deg,var(--brand-gold),#c79b3f);border-color:transparent;color:#fff;}
+  .ins-btn.primary.on{background:#fff;color:var(--brand-deep);border-color:var(--brand-gold);}
+  .ins-btn.danger{color:var(--bad);}
+  .ins-btn.sm{padding:2px 7px;font-size:12px;margin:0 1px 3px;}
+  .ins-status{font-size:12px;color:var(--ink-soft);}
+  .ins-status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e0a100;margin-right:6px;}
+  .ins-status .dot.ok{background:var(--good);} .ins-status .dot.err{background:var(--bad);}
+  .ins-in,.ins-ta{width:100%;font:inherit;font-size:13.5px;color:var(--ink);border:1px solid var(--tan);border-radius:8px;padding:7px 9px;background:#fffdf8;}
+  .ins-in:focus,.ins-ta:focus{outline:2px solid #e8cf8a;border-color:var(--brand-gold);}
+  .ins-ta{min-height:78px;resize:vertical;line-height:1.6;margin-top:6px;}
+  .ins-line{display:flex;gap:6px;} .ins-line .ins-ch-in{max-width:120px;} .ins-line .ins-title{font-weight:700;}
+  .ins-ops{text-align:center!important;white-space:nowrap;width:44px;}
+  .ins-act-ed{margin:0;padding-left:22px;} .ins-act-ed li{display:flex;gap:4px;align-items:center;margin:5px 0;}
+  body.ins-editing #insight .card{box-shadow:0 0 0 2px #e8cf8a;}
+  .ins-block{margin:22px 0 8px;}
+  .ins-block-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .ins-block-head h3{margin:0;font-size:15px;font-weight:800;color:var(--brand-deep);}
+  .ins-block-head .ins-tag{font-size:12px;color:var(--ink-faint);font-weight:600;}
+  body.ins-editing .ins-block .card{box-shadow:0 0 0 2px #e8cf8a;}
+</style>
+</head>
+<body>
+
+<div id="cursorGlow"></div>
+
+<header class="top">
+  <div class="header-inner">
+    <div class="logo-row">
+      <div class="logo-block">HULKEN<sup>®</sup></div>
+      <div class="logo-jp">JP</div>
+    </div>
+    <div class="week-picker" id="weekPicker">
+      <div class="meta-chip" id="weekPickerToggle">Week 42 · 2026/10/15 – 2026/10/21 <span class="caret">▼</span></div>
+      <div class="week-menu" id="weekMenu"></div>
+    </div>
+  </div>
+  <div class="header-inner" style="margin-top:6px;">
+    <div class="title-block">
+      <h1>廣告成效週報</h1>
+      <div class="sub">整理人：Leo · 更新日期 2026/10/21 · 資料來源：Hulken JP_Mastersheet（Meta / Google / Amazon / Rakuten / KOL）</div>
+    </div>
+    <a class="kol-header-btn" href="https://hulkenjp.pages.dev/all" target="_blank" rel="noopener">完整成效 & KOL 授權計算機 ↗</a>
+  </div>
+</header>
+
+<nav class="secnav">
+  <div class="inner">
+    <a href="#overview">Overview 總覽</a>
+    <a href="#channels">全渠道成效</a>
+    <a href="#insight">Insight &amp; Suggestion</a>
+    <a href="#meta-test">Meta 測試素材</a>
+    <a href="#meta-creative">Meta 常態素材</a>
+    <a href="#kol">本週 KOL 表現 (含授權金)</a>
+    <a href="#shopify">Shopify 官網成效</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ================= OVERVIEW ================= -->
+  <section id="overview">
+    <div class="sec-head"><h2>廣告成效討論 — Overview</h2><span class="sec-tag">全渠道整體表現（WoW）</span></div>
+
+    <div class="kpi-grid" id="kpiGrid"></div>
+    <div class="hint">花費金額（不含 Amazon／Rakuten）已排除 KOL 授權金攤提與非 CPA 目標（如 CPC）廣告，僅呈現以 ROAS/CPA 為目標之媒體單獨成效；下方品牌字／測試廣告拆解亦採同一口徑。僅「KOL 表現＋授權金」表格納入授權金，兩者口徑不同，請留意對照。上週對比數字亦以同一口徑重新計算，兩週間可直接比較。</div>
+
+    <div class="grid-2" style="margin-top:20px;">
+      <div class="card split-card" id="brandSplitCard">
+        <h3>是否包含品牌字</h3>
+      </div>
+      <div class="card split-card" id="testSplitCard">
+        <h3>是否為測試廣告（General / TEST）</h3>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CHANNELS ================= -->
+  <section id="channels">
+    <div class="sec-head"><h2>廣告成效討論 — Overview · 全渠道</h2><span class="sec-tag">依渠道 / 廣告類型拆解 · Week: Oct 15, 2026</span></div>
+    <div class="table-scroll">
+      <table id="channelTable"></table>
+    </div>
+    <div class="hint">%Δ 為對比上週（Week_1st_day 2026-10-08）之週增減。</div>
+    <div class="hint" id="channelNote">本週未提供 樂天 資料，未列入上表；Grand total 與 %Δ 皆為不含這些渠道的同口徑比較。</div>
+      <!-- 同渠道整合比較 (added 2026-10-07, W40): Weekly Report Manual summed per Channel -->
+    <div class="sec-head" style="margin-top:28px;"><h2 style="font-size:18px;">同渠道整合比較</h2><span class="sec-tag">品牌＋非品牌 / RPP＋TDA 合併後依渠道比較（點欄位標題可排序）</span></div>
+    <div class="table-scroll">
+      <table id="channelMergedTable"></table>
+    </div>
+    <div class="hint">各渠道先加總 Cost／曝光／點擊／購買／銷售額再計算比率（非各廣告類型比率平均）；%Δ 同樣對比上週。</div>
+  </section>
+  <!-- ================= INSIGHT & SUGGESTION · overall (v2, editable) ================= -->
+  <section id="insight" data-ins-v="2">
+    <div class="sec-head"><h2>Insight &amp; Suggestion</h2><span class="sec-tag">媒體與整體狀況</span></div>
+    <div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span><button class="ins-btn danger" id="insRevertBtn" style="display:none" title="刪除本週所有線上修改，回到建置時的原始版本">還原原始版本</button></div>
+    <datalist id="insChOpts"><option>整體</option><option>Meta</option><option>Google</option><option>Amazon</option><option>樂天</option><option>TEST</option><option>常態</option><option>KOL</option><option>授權金</option><option>素材</option><option>Shopify</option><option>庫存</option><option>追蹤</option></datalist>
+    <div class="ins-block" data-ins-block="overall" style="margin-top:0"><div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="overall"></table></div></div></div>
+    <div class="ins-sub">下週 Action Plan</div>
+    <div class="card" id="insActions"></div>
+  </section>
+
+  <!-- ================= META TEST ================= -->
+  <section id="meta-test">
+    <div class="sec-head"><h2>Meta — 測試（未升級常態）素材概況</h2><span class="sec-tag">General vs. TEST</span></div>
+    <div class="table-scroll">
+      <table id="metaTestTable"></table>
+    </div>
+    <div class="hint">本區塊與下方「常態素材概況」的 ROAS／CPM 皆為排除 KOL 授權金之媒體單獨成效，與 Overview 口徑一致。只要過去 14 天內有花費即列出（點欄位標題可排序，預設顯示 10 列，可往下捲動看更多）：</div>
+    <div class="table-scroll table-scroll-v" style="margin-top:10px;">
+      <table id="metaTestKolTable"></table>
+    </div>
+  </section>
+  <div class="ins-block" data-ins-block="metaTest">
+    <div class="ins-block-head"><h3>Insight &amp; Suggestion · Meta TEST</h3><span class="ins-tag">測試素材分析</span></div>
+    <div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span></div>
+    <div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="metaTest"></table></div></div>
+  </div>
+
+  <!-- ================= META CREATIVE ================= -->
+  <section id="meta-creative">
+    <div class="sec-head"><h2>Meta — 常態素材概況</h2><span class="sec-tag">已升級常態投放素材・過去 14 天內有花費者皆列出（點欄位標題可排序）</span></div>
+    <div class="table-scroll table-scroll-v">
+      <table id="metaCreativeTable"></table>
+    </div>
+  </section>
+  <div class="ins-block" data-ins-block="metaCreative">
+    <div class="ins-block-head"><h3>Insight &amp; Suggestion · Meta 常態素材</h3><span class="ins-tag">常態素材分析</span></div>
+    <div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span></div>
+    <div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="metaCreative"></table></div></div>
+  </div>
+
+  <!-- ================= KOL ================= -->
+  <section id="kol">
+    <div class="sec-head"><h2>本週 KOL 表現 (含授權金)</h2><span class="sec-tag">已攤提授權金成本後的 ROAS（點欄位標題可排序）</span></div>
+    <div class="table-scroll table-scroll-v">
+      <table id="kolTable"></table>
+    </div>
+    <div class="hint">花費金額已包含該 KOL 素材當週攤提之授權金（金黃色小字標註實際金額），故 ROAS 略低於「常態素材概況」中未計入授權金的數字。花費金額 = 廣告投放費 + 攤提授權金。只要過去 14 天內有花費（含授權金）即列出，預設顯示 10 列，可往下捲動看更多。</div>
+  </section>
+  <div class="ins-block" data-ins-block="kol">
+    <div class="ins-block-head"><h3>Insight &amp; Suggestion · KOL</h3><span class="ins-tag">KOL 表現（含授權金）分析</span></div>
+    <div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span></div>
+    <div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="kol"></table></div></div>
+  </div>
+
+  <!-- ================= SHOPIFY (weekly) =================
+       W39 起取代原本的「近期 KOL 表現討論」手動區塊（使用者 2026-09-30 要求）。
+       由 scripts/build_shopify_section.py 產生／更新，可重複執行。 -->
+  <section id="shopify">
+    <div class="sec-head"><h2>Shopify 官網成效（週）</h2><span class="sec-tag">Shopify 總銷售額 ÷ 廣告花費（Meta＋Google）· W1–W42（週四～週三）</span></div>
+    <div class="kpi-grid" id="shopKpiGrid"></div>
+    <div class="card shop-delta" id="shopDeltaCard"></div>
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="card shop-chart-card">
+        <div class="shop-chart-title">每週 Shopify 總銷售額、廣告花費（Meta＋Google）與 CVR</div>
+        <div class="shop-legend"><span><i class="sw bar" style="background:#a9822e"></i>Shopify 總銷售額（左軸）</span><span><i class="sw bar" style="background:#2a78b8"></i>廣告花費 Meta＋Google（左軸）</span><span><i class="sw line" style="background:#b8467a"></i>Shopify CVR = 訂單數 ÷ 工作階段數（右軸）</span></div>
+        <div class="shop-chart" id="shopChartSales"></div>
+      </div>
+      <div class="card shop-chart-card">
+        <div class="shop-chart-title">每週 ROAS：Shopify 實際 vs. 廣告後台回報</div>
+        <div class="shop-legend"><span><i class="sw line" style="background:#a9822e"></i>Shopify ROAS（銷售額 ÷ Meta＋Google 花費）</span><span><i class="sw line dash" style="border-color:#2a78b8"></i>Meta＋Google 後台回報 ROAS</span></div>
+        <div class="shop-chart" id="shopChartRoas"></div>
+      </div>
+    </div>
+    <div class="table-scroll table-scroll-v" style="margin-top:16px;">
+      <table id="shopTable"></table>
+    </div>
+    <div class="hint">Shopify 後台匯出為每日數據，已依廣告週報相同的週期（週四～週三）彙整成週次；導向 Shopify 的廣告是 Meta 與 Google（Amazon／樂天廣告導向各自商城），故 <b>Shopify ROAS = Shopify 總銷售額 ÷ 廣告花費（Meta＋Google）</b>，花費口徑同全渠道表的 Meta、Google 列（Meta 含 CPC、不含 KOL 授權金；Google 含品牌與非品牌）；ROAS 下方金黃色小字為把 Meta KOL 攤提授權金也算進成本後的 ROAS。「後台回報 ROAS」為 Meta＋Google 各自歸因的購買轉換值 ÷ 同一筆花費，僅供對照歸因落差。Google 數據自 2026/5/30 起才納入，之前週次的廣告花費只有 Meta。「本週增量」為與上週相比的絕對差額。CVR = 訂單數 ÷ 工作階段數；%Δ 為對比前一週；點欄位標題可排序。W1 廣告花費僅數百円，ROAS 不具參考性故不列。</div>
+  </section>
+  <div class="ins-block" data-ins-block="shopify">
+    <div class="ins-block-head"><h3>Insight &amp; Suggestion · Shopify</h3><span class="ins-tag">官網趨勢分析</span></div>
+    <div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span></div>
+    <div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="shopify"></table></div></div>
+  </div>
+
+</div>
+
+<footer>
+  Hulken JP 廣告成效週報 · 資料整理自 Hulken JP_Mastersheet（Datastudio 同步資料源）· 本頁為 Week 42（2026/10/15–10/21）週報。
+</footer>
+
+<script>
+/* ---------------- Cursor spotlight ----------------
+   讓 #cursorGlow 跟著滑鼠移動；用 requestAnimationFrame 節流，避免每個
+   mousemove 都直接操作樣式造成掉幀。滑鼠離開視窗時淡出。 */
+(function(){
+  const glow = document.getElementById('cursorGlow');
+  if(!glow) return;
+  let raf = null, mx = window.innerWidth/2, my = window.innerHeight/2;
+  function render(){
+    glow.style.transform = `translate(${mx}px, ${my}px) translate(-50%,-50%)`;
+    raf = null;
+  }
+  window.addEventListener('mousemove', e=>{
+    mx = e.clientX; my = e.clientY;
+    glow.style.opacity = '1';
+    if(!raf) raf = requestAnimationFrame(render);
+  }, {passive:true});
+  document.addEventListener('mouseleave', ()=>{ glow.style.opacity = '0'; });
+})();
+
+/* ---------------- Week picker ----------------
+   每週產出新報告時，把新的一週加進這個陣列最前面（isCurrent 改到最新一週），
+   href 用相對路徑指向「../<WeekFolder>/<檔名>.html」（與此 HTML 同層的上一層資料夾）。 */
+/* ---------------- Week picker ----------------
+   每週產出新報告時，只要更新專案根目錄的 weeks.json（新增一筆到最前面），
+   不需要再逐一回頭修改舊週報的 HTML —— 所有週報頁面都在載入時動態抓
+   weeks.json 來組出下拉選單，並用自己的 THIS_REPORT_FILE 跟清單比對，
+   自動判斷哪一筆是「目前檢視中」。 */
+const THIS_REPORT_FILE = '2026W42/hulken_week42_report.html';
+(function initWeekPicker(){
+  const picker = document.getElementById('weekPicker');
+  const toggle = document.getElementById('weekPickerToggle');
+  const menu = document.getElementById('weekMenu');
+  if(!picker || !toggle || !menu) return;
+  fetch('../weeks.json').then(r => r.json()).then(WEEKS => {
+    menu.innerHTML = WEEKS.map(w => {
+      const isCurrent = w.file === THIS_REPORT_FILE;
+      const href = '../' + w.file;
+      const betaTag = w.isBeta ? '<span class="beta-badge">BETA</span>' : '';
+      return isCurrent
+        ? `<a class="current">${w.label}${betaTag}<span class="wm-date">目前檢視中</span></a>`
+        : `<a href="${href}">${w.label}${betaTag}</a>`;
+    }).join('');
+  }).catch(()=>{
+    menu.innerHTML = '<a class="current">週次清單載入失敗</a>';
+  });
+  toggle.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    picker.classList.toggle('open');
+  });
+  document.addEventListener('click', (e)=>{
+    if(!picker.contains(e.target)) picker.classList.remove('open');
+  });
+})();
+
+const fmtInt = n => n==null ? '–' : Math.round(n).toLocaleString('en-US');
+const fmt2 = n => n==null ? '–' : Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtPct1 = n => n==null ? '–' : Number(n).toFixed(2)+'%';
+const money = n => n==null ? '–' : '¥'+fmtInt(n);
+
+// 圖片改用相對路徑指向本機 AD Images 資料夾（與此 HTML 同層的上一層），
+// 不再把圖片以 base64 內嵌進檔案。新增/更新圖片後，直接重新整理瀏覽器即可看到，
+// 不需要重新產生這份報告——但檔案要維持「.../Hulken Weekly Report/AD Images/<Row>.jpg」
+// 這個相對位置（含放到 GitHub 上時，AD Images 資料夾也要一起 push 並維持同樣的相對層級）。
+const AD_IMG_DIR = '../AD Images/';
+function rowNumFromName(name){ const m = name.match(/-(\d+)$/); return m ? m[1] : null; }
+function thumbHtml(name, size){
+  const rn = rowNumFromName(name);
+  const cls = size==='card' ? 'thumb-card' : 'thumb';
+  if(!rn) return `<div class="${cls} thumb-missing">缺圖</div>`;
+  const src = AD_IMG_DIR + rn + '.jpg';
+  return `<span class="thumb-slot">
+    <img src="${src}" class="${cls} js-zoom" data-row="${rn}" data-name="${name}" title="點擊放大"
+      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="${cls} thumb-missing" style="display:none;">缺圖<br>#${rn}</div>
+  </span>`;
+}
+function nameCellWithThumb(name){
+  return `<div style="display:flex;align-items:center;gap:8px;">${thumbHtml(name,'thumb')}<span>${name}</span></div>`;
+}
+function openLightbox(row, name){
+  document.getElementById('lightboxImg').src = AD_IMG_DIR + row + '.jpg';
+  document.getElementById('lightboxCap').textContent = name || ('#'+row);
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+document.addEventListener('click', e=>{
+  const t = e.target.closest('.js-zoom');
+  if(t){ openLightbox(t.dataset.row, t.dataset.name); return; }
+  if(e.target.id==='lightbox' || e.target.closest('.lb-close')){ closeLightbox(); }
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeLightbox(); });
+
+function deltaChip(d, {size='normal'}={}){
+  if(d===null || d===undefined) return `<span class="delta flat">–</span>`;
+  const up = d>0, cls = d===0?'flat':(up?'up':'down');
+  const arrow = d===0? '·' : (up?'▲':'▼');
+  const cssClass = size==='sub' ? 'dsub' : 'delta';
+  return `<span class="${cssClass} ${cls}">${arrow} ${Math.abs(d).toFixed(1)}%</span>`;
+}
+
+/* ---------------- KPI tiles ---------------- */
+const kpis = [{"label": "花費金額 (JPY)", "value": "¥1,760,413", "delta": 4.8}, {"label": "CPA", "value": "¥4,293.69", "delta": -3.4}, {"label": "ROAS", "value": "4.17", "delta": 9.0, "hero": true}, {"label": "CTR", "value": "2.37%", "delta": 7.4}, {"label": "CVR", "value": "2.13%", "delta": 12.7}, {"label": "CPM", "value": "¥2,170.68", "delta": 16.9}];
+document.getElementById('kpiGrid').innerHTML = kpis.map(k=>`
+  <div class="kpi-card ${k.hero?'hero':''}">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value">${k.value}</div>
+    ${deltaChip(k.delta)}
+  </div>`).join('');
+
+/* ---------------- Overview splits ---------------- */
+function heroDelta(d){
+  if(d===null || d===undefined) return `<div class="roas-delta flat">–</div>`;
+  const up = d>0, cls = d===0?'flat':(up?'up':'down');
+  const arrow = d===0?'·':(up?'▲':'▼');
+  return `<div class="roas-delta ${cls}">${arrow} ${Math.abs(d).toFixed(1)}%</div>`;
+}
+function renderSplit(containerId, rows, grand){
+  const max = Math.max(...rows.map(r=>r.cost));
+  const html = rows.map(r=>`
+    <div class="split-row">
+      <div style="flex:0 0 140px;">
+        <div class="split-name">${r.label}</div>
+        <div class="split-metrics"><span>花費 <b>${money(r.cost)}</b></span>${deltaChip(r.costD,{size:'sub'})}</div>
+      </div>
+      <div class="split-bar-wrap"><div class="split-bar" style="width:${(r.cost/max*100).toFixed(1)}%"></div></div>
+      <div style="flex:0 0 190px;text-align:right;">
+        <div class="split-metrics" style="justify-content:flex-end;">
+          <span>佔比 <b>${r.share}%</b></span>
+        </div>
+        <div class="split-metrics" style="justify-content:flex-end;margin-top:4px;">
+          <span>CPA <b>${fmt2(r.cpa)}</b></span>
+          <span>CTR <b>${r.ctr}%</b></span>
+          <span>CVR <b>${r.cvr}%</b></span>
+        </div>
+      </div>
+      <div class="roas-hero">
+        <div class="roas-label">ROAS</div>
+        <div class="roas-num">${r.roas}</div>
+        ${heroDelta(r.roasD)}
+      </div>
+    </div>`).join('');
+  document.getElementById(containerId).insertAdjacentHTML('beforeend', html + `
+    <div class="split-row" style="border-top:2px solid var(--brand-gold);margin-top:4px;padding-top:12px;">
+      <div style="flex:0 0 140px;"><div class="split-name">Grand total</div></div>
+      <div class="split-bar-wrap"></div>
+      <div style="flex:0 0 190px;text-align:right;font-weight:700;">
+        花費 ${money(grand.cost)}
+      </div>
+      <div class="roas-hero sm">
+        <div class="roas-label">ROAS</div>
+        <div class="roas-num">${grand.roas}</div>
+      </div>
+    </div>`);
+}
+renderSplit('brandSplitCard', [{"label": "否", "cost": 1618714.5, "costD": 5.2, "share": 91.95, "cpa": 4497.13, "roas": 3.97, "roasD": 6.7, "ctr": 2.42, "cvr": 2.11}, {"label": "是", "cost": 141698.6, "costD": 0.5, "share": 8.05, "cpa": 2830.81, "roas": 6.41, "roasD": 29.8, "ctr": 2.05, "cvr": 2.28}], {cost:1760413.0, roas:4.17});
+
+renderSplit('testSplitCard', [{"label": "General", "cost": 1283849.0, "costD": -0.4, "share": 72.93, "cpa": 3776.03, "roas": 4.71, "roasD": 13.7, "ctr": 2.48, "cvr": 2.16}, {"label": "TEST", "cost": 476564.0, "costD": 21.9, "share": 27.07, "cpa": 6808.06, "roas": 2.7, "roasD": -2.8, "ctr": 2.0, "cvr": 1.99}], {cost:1760413.0, roas:4.17});
+
+/* ---------------- Channel table ---------------- */
+// WoW deltas computed from Weekly Report Manual (Week_1st_day 2026-10-08 vs 2026-10-15).
+const channelRows = [{"channel": "Meta", "type": "非品牌", "cost": 1525438.0, "costD": 7.8, "share": 83.17, "ctr": 2.9, "ctrD": 6.8, "cvr": 1.94, "cvrD": -1.7, "cpm": 2718.87, "cpmD": 10.4, "roas": 3.68, "roasD": -0.6}, {"channel": "Google", "type": "非品牌", "cost": 110940.5, "costD": -21.3, "share": 6.05, "ctr": 2.52, "ctrD": 11.6, "cvr": 0.98, "cvrD": 79.3, "cpm": 623.0, "cpmD": 11.9, "roas": 7.33, "roasD": 110.9}, {"channel": "Google", "type": "品牌", "cost": 141698.6, "costD": 0.5, "share": 7.73, "ctr": 2.05, "ctrD": -2.8, "cvr": 2.28, "cvrD": 45.4, "cpm": 1323.26, "cpmD": 9.9, "roas": 6.41, "roasD": 29.8}, {"channel": "Amazon", "type": "非品牌", "cost": 29726.7, "costD": -50.0, "share": 1.62, "ctr": 2.13, "ctrD": 3.1, "cvr": 1.44, "cvrD": 892.8, "cpm": 1821.49, "cpmD": 2.4, "roas": 2.84, "roasD": 933.2}, {"channel": "Amazon", "type": "品牌", "cost": 26385.2, "costD": 39.6, "share": 1.44, "ctr": 12.91, "ctrD": 40.7, "cvr": 2.38, "cvrD": 8.1, "cpm": 5067.25, "cpmD": 125.5, "roas": 10.03, "roasD": -32.5}];
+const channelGrand = {"cost": 1834189.0, "costD": 3.3, "ctr": 2.76, "ctrD": 8.0, "cvr": 1.8, "cvrD": 14.6, "cpm": 2113.75, "cpmD": 17.5, "roas": 4.19, "roasD": 10.7};
+function stack(valueHtml, delta){
+  return `<div class="stack-cell"><span>${valueHtml}</span>${deltaChip(delta,{size:'sub'})}</div>`;
+}
+let channelSort = {key:'roas', dir:'desc'};
+function renderChannelTable(){
+  const sorted = sortRows(channelRows, channelSort);
+  const cols = [
+    {key:'channel', label:'Channel'},{key:'type', label:'AD Type'},
+    {key:'cost', label:'Cost'},{key:'share', label:'Cost Share'},
+    {key:'ctr', label:'CTR'},{key:'cvr', label:'CVR'},{key:'cpm', label:'CPM'},{key:'roas', label:'ROAS'},
+  ];
+  document.getElementById('channelTable').innerHTML = sortableHead(cols, channelSort) + `
+  <tbody>
+  ${sorted.map(r=>`
+    <tr>
+      <td class="name-cell">${r.channel}</td>
+      <td>${r.type}</td>
+      <td>${stack(fmtInt(r.cost), r.costD)}</td>
+      <td>${r.share}%</td>
+      <td>${stack(r.ctr==null?'–':r.ctr+'%', r.ctrD)}</td>
+      <td>${stack(r.cvr==null?'–':r.cvr+'%', r.cvrD)}</td>
+      <td>${stack(fmt2(r.cpm), r.cpmD)}</td>
+      <td>${stack(`<span class="heat-val" style="${heatBg(r.roas,0,25,'123,150,110')}"><b>${r.roas==null?'–':r.roas}</b></span>`, r.roasD)}</td>
+    </tr>`).join('')}
+    <tr class="grand">
+      <td>Grand total</td><td></td>
+      <td>${stack(fmtInt(channelGrand.cost), channelGrand.costD)}</td>
+      <td>100%</td>
+      <td>${stack(channelGrand.ctr+'%', channelGrand.ctrD)}</td>
+      <td>${stack(channelGrand.cvr+'%', channelGrand.cvrD)}</td>
+      <td>${stack(fmt2(channelGrand.cpm), channelGrand.cpmD)}</td>
+      <td>${stack(channelGrand.roas, channelGrand.roasD)}</td>
+    </tr>
+  </tbody>`;
+  bindSortHandlers('channelTable', channelSort, renderChannelTable);
+}
+renderChannelTable();
+
+/* ---------------- Channel merged table (同渠道整合比較, W40+) ---------------- */
+const channelMergedRows = [{"channel": "Meta", "types": "非品牌", "nTypes": 1, "cost": 1525438.0, "costD": 7.8, "share": 83.17, "rev": 5611151.0, "revD": 7.2, "purch": 316.0, "purchD": 2.6, "ctr": 2.9, "ctrD": 6.8, "cvr": 1.94, "cvrD": -1.7, "cpa": 4827.34, "cpaD": 5.1, "cpm": 2718.87, "cpmD": 10.4, "roas": 3.68, "roasD": -0.6}, {"channel": "Google", "types": "非品牌 + 品牌", "nTypes": 2, "cost": 252639.0, "costD": -10.4, "share": 13.77, "rev": 1721089.0, "revD": 45.1, "purch": 94.0, "purchD": 34.3, "ctr": 2.34, "ctrD": 6.0, "cvr": 1.41, "cvrD": 64.6, "cpa": 2687.65, "cpaD": -33.3, "cpm": 885.96, "cpmD": 16.4, "roas": 6.81, "roasD": 62.0}, {"channel": "Amazon", "types": "非品牌 + 品牌", "nTypes": 2, "cost": 56111.9, "costD": -28.4, "share": 3.06, "rev": 349077.0, "revD": 17.4, "purch": 21.0, "purchD": 16.7, "ctr": 4.73, "ctrD": 35.5, "cvr": 2.06, "cvrD": 67.3, "cpa": 2671.99, "cpaD": -38.6, "cpm": 2606.58, "cpmD": 39.2, "roas": 6.22, "roasD": 64.0}];
+const channelMergedGrand = {"cost": 1834189.0, "costD": 3.3, "rev": 7681317.0, "revD": 14.3, "purch": 431.0, "purchD": 8.8, "ctr": 2.76, "ctrD": 8.0, "cvr": 1.8, "cvrD": 14.6, "cpa": 4255.66, "cpaD": -5.1, "cpm": 2113.75, "cpmD": 17.5, "roas": 4.19, "roasD": 10.7};
+let channelMergedSort = {key:'cost', dir:'desc'};
+function renderChannelMergedTable(){
+  const sorted = sortRows(channelMergedRows, channelMergedSort);
+  const cols = [
+    {key:'channel', label:'Channel'},{key:'cost', label:'Cost'},{key:'share', label:'Cost Share'},
+    {key:'rev', label:'銷售額'},{key:'purch', label:'購買數'},
+    {key:'ctr', label:'CTR'},{key:'cvr', label:'CVR'},{key:'cpa', label:'CPA'},{key:'cpm', label:'CPM'},{key:'roas', label:'ROAS'},
+  ];
+  const nz = v => v==null ? '–' : v;
+  const g = channelMergedGrand;
+  document.getElementById('channelMergedTable').innerHTML = sortableHead(cols, channelMergedSort) + `
+  <tbody>
+  ${sorted.map(r=>`
+    <tr>
+      <td class="name-cell">${r.channel}<div style="font-size:11px;color:var(--ink-faint);font-weight:400;margin-top:2px;">${r.types}</div></td>
+      <td>${stack(fmtInt(r.cost), r.costD)}</td>
+      <td>${r.share==null?'–':r.share+'%'}</td>
+      <td>${stack(fmtInt(r.rev), r.revD)}</td>
+      <td>${stack(r.purch==null?'–':fmt2(r.purch).replace(/\.00$/,''), r.purchD)}</td>
+      <td>${stack(r.ctr==null?'–':r.ctr+'%', r.ctrD)}</td>
+      <td>${stack(r.cvr==null?'–':r.cvr+'%', r.cvrD)}</td>
+      <td>${stack(r.cpa==null?'–':fmt2(r.cpa), r.cpaD)}</td>
+      <td>${stack(r.cpm==null?'–':fmt2(r.cpm), r.cpmD)}</td>
+      <td>${stack(`<span class="heat-val" style="${heatBg(r.roas,0,25,'123,150,110')}"><b>${nz(r.roas)}</b></span>`, r.roasD)}</td>
+    </tr>`).join('')}
+    <tr class="grand">
+      <td>Grand total</td>
+      <td>${stack(fmtInt(g.cost), g.costD)}</td>
+      <td>100%</td>
+      <td>${stack(fmtInt(g.rev), g.revD)}</td>
+      <td>${stack(fmt2(g.purch).replace(/\.00$/,''), g.purchD)}</td>
+      <td>${stack(nz(g.ctr)+'%', g.ctrD)}</td>
+      <td>${stack(nz(g.cvr)+'%', g.cvrD)}</td>
+      <td>${stack(fmt2(g.cpa), g.cpaD)}</td>
+      <td>${stack(fmt2(g.cpm), g.cpmD)}</td>
+      <td>${stack(nz(g.roas), g.roasD)}</td>
+    </tr>
+  </tbody>`;
+  bindSortHandlers('channelMergedTable', channelMergedSort, renderChannelMergedTable);
+}
+renderChannelMergedTable();
+
+/* ---------------- Meta Test tables ---------------- */
+const metaTestRows = [{"label": "General", "cost": 1031210.0, "costD": 2.4, "share": 68.39, "cpa": 4191.91, "cpaD": 2.0, "roas": 4.19, "roasD": 1.7, "ctr": 2.59, "ctrD": 11.1, "cvr": 2.72, "cvrD": 0.4, "cpm": 2946.09, "cpmD": 13.8}, {"label": "TEST", "cost": 476564.0, "costD": 21.9, "share": 31.61, "cpa": 6808.06, "cpaD": 9.7, "roas": 2.7, "roasD": -2.8, "ctr": 2.0, "ctrD": 5.5, "cvr": 1.99, "cvrD": -12.7, "cpm": 2710.68, "cpmD": 1.0}];
+let metaTestRowsSort = {key:'roas', dir:'desc'};
+function renderMetaTestRows(){
+  const roasVals = metaTestRows.map(r=>r.roas), roasMin=Math.min(...roasVals), roasMax=Math.max(...roasVals);
+  const rows = sortRows(metaTestRows, metaTestRowsSort);
+  const cols = [
+    {key:'label', label:'是否為測試廣告'},
+    {key:'cost', label:'花費金額 (JPY)'},{key:'costD', label:'%Δ'},
+    {key:'share', label:'花費佔比'},
+    {key:'cpa', label:'CPA'},{key:'cpaD', label:'%Δ'},
+    {key:'roas', label:'ROAS'},{key:'roasD', label:'%Δ'},
+    {key:'ctr', label:'CTR'},{key:'ctrD', label:'%Δ'},
+    {key:'cvr', label:'CVR'},{key:'cvrD', label:'%Δ'},
+    {key:'cpm', label:'CPM'},{key:'cpmD', label:'%Δ'},
+  ];
+  document.getElementById('metaTestTable').innerHTML = sortableHead(cols, metaTestRowsSort) + `
+  <tbody>
+  ${rows.map(r=>`
+    <tr>
+      <td class="name-cell">${r.label}</td>
+      <td>${fmtInt(r.cost)}</td><td>${deltaChip(r.costD,{size:'sub'})}</td>
+      <td>${r.share}%</td>
+      <td>${fmt2(r.cpa)}</td><td>${deltaChip(r.cpaD,{size:'sub'})}</td>
+      <td><span class="heat-val" style="${heatBg(r.roas,roasMin,roasMax,'169,130,46')}"><b>${r.roas}</b></span></td><td>${deltaChip(r.roasD,{size:'sub'})}</td>
+      <td>${r.ctr}%</td><td>${deltaChip(r.ctrD,{size:'sub'})}</td>
+      <td>${r.cvr}%</td><td>${deltaChip(r.cvrD,{size:'sub'})}</td>
+      <td>${fmt2(r.cpm)}</td><td>${deltaChip(r.cpmD,{size:'sub'})}</td>
+    </tr>`).join('')}
+  </tbody>`;
+  bindSortHandlers('metaTestTable', metaTestRowsSort, renderMetaTestRows);
+}
+renderMetaTestRows();
+
+const metaTestKol = [{"name": "A:KOL-Kato-189", "cost": 30422.0, "costD": null, "roas": 1.63, "roasD": null, "ctr": 1.82, "ctrD": null, "cvr": 1.65, "cvrD": null, "cpm": 3039.46, "cpmD": null}, {"name": "A:KOL-amisa-188", "cost": 29059.0, "costD": null, "roas": 2.34, "roasD": null, "ctr": 1.65, "ctrD": null, "cvr": 1.57, "cvrD": null, "cpm": 2504.01, "cpmD": null}, {"name": "A:KOL-hadamegu-97", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-haruka-183", "cost": 42538.0, "costD": 20.7, "roas": 2.37, "roasD": -57.8, "ctr": 1.75, "ctrD": 2.9, "cvr": 1.71, "cvrD": -59.2, "cpm": 2534.14, "cpmD": 21.6}, {"name": "A:KOL-iry-181", "cost": 35092.0, "costD": 7.7, "roas": 3.34, "roasD": 28.7, "ctr": 3.08, "ctrD": 14.0, "cvr": 2.08, "cvrD": 18.0, "cpm": 3205.33, "cpmD": 3.5}, {"name": "A:KOL-isuka-180", "cost": 35042.0, "costD": -6.2, "roas": 3.72, "roasD": 6.6, "ctr": 2.38, "ctrD": 15.3, "cvr": 2.72, "cvrD": -3.4, "cpm": 2838.79, "cpmD": 4.5}, {"name": "A:KOL-miho-184", "cost": 21768.0, "costD": -16.0, "roas": 3.02, "roasD": 60.9, "ctr": 2.0, "ctrD": 41.8, "cvr": 2.76, "cvrD": 30.6, "cpm": 3006.63, "cpmD": 16.7}, {"name": "A:KOL-mirai-174", "cost": 21050.0, "costD": -44.4, "roas": 2.31, "roasD": 7.9, "ctr": 2.41, "ctrD": 41.3, "cvr": 1.25, "cvrD": -3.7, "cpm": 2117.92, "cpmD": 0.8}, {"name": "A:KOL-mone-186", "cost": 36052.0, "costD": 2922.0, "roas": 1.9, "roasD": null, "ctr": 1.53, "ctrD": 2.0, "cvr": 1.67, "cvrD": null, "cpm": 2314.44, "cpmD": 3.2}, {"name": "A:KOL-otona-179", "cost": 89352.0, "costD": 15.2, "roas": 2.96, "roasD": -14.6, "ctr": 2.28, "ctrD": 16.1, "cvr": 2.14, "cvrD": -5.3, "cpm": 2902.36, "cpmD": 26.6}, {"name": "A:KOL-riri-172", "cost": 42873.0, "costD": 38.5, "roas": 2.29, "roasD": -52.3, "ctr": 1.31, "ctrD": 3.0, "cvr": 2.17, "cvrD": -56.0, "cpm": 2447.65, "cpmD": 12.9}, {"name": "A:KOL-saki-175", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-tabio-177", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-toco-185", "cost": 57681.0, "costD": 41.1, "roas": 1.7, "roasD": -58.7, "ctr": 2.12, "ctrD": 30.9, "cvr": 1.32, "cvrD": -62.6, "cpm": 2698.91, "cpmD": 15.0}, {"name": "A:KOL-uta-176", "cost": 21361.0, "costD": 0.7, "roas": 4.09, "roasD": 75.6, "ctr": 1.96, "ctrD": 10.7, "cvr": 3.79, "cvrD": 78.0, "cpm": 3165.53, "cpmD": 19.1}, {"name": "A:KOL-yukachinmaru-171", "cost": 13921.0, "costD": -75.6, "roas": 1.36, "roasD": -61.9, "ctr": 1.47, "ctrD": -2.9, "cvr": 1.41, "cvrD": -63.0, "cpm": 2891.17, "cpmD": -3.5}, {"name": "A:原廠-178", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:原廠-182", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:原廠-92", "cost": 353.0, "costD": -99.4, "roas": 203.95, "roasD": 7663.3, "ctr": 4.0, "ctrD": 82.8, "cvr": 20.0, "cvrD": 864.0, "cpm": 2824.0, "cpmD": -2.4}];
+let metaTestSort = {key:'roas', dir:'desc'};
+function sortRows(rows, sortState){
+  return [...rows].sort((a,b)=>{
+    const key = sortState.key;
+    let av=a[key], bv=b[key];
+    if(key==='name'){
+      // Name-Row 排序依 Row Number（名稱尾端的 -123 或「（R123）」），無編號者排最後
+      const rn = s => { const m = String(s==null?'':s).match(/-(\d+)$|R(\d+)）$/); return m ? parseInt(m[1]||m[2],10) : null; };
+      const ar = rn(av), br = rn(bv);
+      if(ar!=null || br!=null){
+        if(ar==null) return 1;
+        if(br==null) return -1;
+        if(ar!==br) return sortState.dir==='desc' ? br-ar : ar-br;
+      }
+    }
+    if(typeof av==='string' || typeof bv==='string'){
+      av = av==null ? '' : String(av); bv = bv==null ? '' : String(bv);
+      return sortState.dir==='desc' ? bv.localeCompare(av) : av.localeCompare(bv);
+    }
+    if(av==null && bv==null) return 0;
+    if(av==null) return 1;
+    if(bv==null) return -1;
+    return sortState.dir==='desc' ? bv-av : av-bv;
+  });
+}
+function sortableHead(cols, sortState){
+  return `<thead><tr>${cols.map(c=>{
+    const active = sortState.key===c.key ? (sortState.dir==='desc'?' ▼':' ▲') : '';
+    return `<th class="sortable" data-key="${c.key}">${c.label}${active}</th>`;
+  }).join('')}</tr></thead>`;
+}
+function bindSortHandlers(tableId, sortStateRef, renderFn){
+  document.querySelectorAll(`#${tableId} th.sortable`).forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const key = th.dataset.key;
+      if(sortStateRef.key===key){ sortStateRef.dir = sortStateRef.dir==='desc'?'asc':'desc'; }
+      else { sortStateRef.key = key; sortStateRef.dir = key==='name' ? 'asc' : 'desc'; }
+      renderFn();
+    });
+  });
+}
+function renderMetaTestKol(){
+  const rows = sortRows(metaTestKol, metaTestSort);
+  const roasVals = metaTestKol.map(r=>r.roas), roasMin=Math.min(...roasVals), roasMax=Math.max(...roasVals);
+  const costVals = metaTestKol.map(r=>r.cost).filter(v=>v!=null);
+  const costMin=Math.min(...costVals), costMax=Math.max(...costVals);
+  const cols = [
+    {key:'name', label:'Name-Row'},
+    {key:'cost', label:'花費金額 (JPY)'},{key:'costD', label:'%Δ'},
+    {key:'roas', label:'ROAS'},{key:'roasD', label:'%Δ'},
+    {key:'ctr', label:'CTR'},{key:'ctrD', label:'%Δ'},
+    {key:'cvr', label:'CVR'},{key:'cvrD', label:'%Δ'},
+    {key:'cpm', label:'CPM'},{key:'cpmD', label:'%Δ'},
+  ];
+  document.getElementById('metaTestKolTable').innerHTML = sortableHead(cols, metaTestSort) + `
+  <tbody>
+  ${rows.map(r=>`
+    <tr>
+      <td class="name-cell">${nameCellWithThumb(r.name)}</td>
+      <td><span class="heat-val" style="${heatBg(r.cost,costMin,costMax,'169,130,46')}">${fmtInt(r.cost)}</span></td><td>${deltaChip(r.costD,{size:'sub'})}</td>
+      <td><span class="heat-val" style="${heatBg(r.roas,roasMin,roasMax,'169,130,46')}"><b>${r.roas}</b></span></td><td>${deltaChip(r.roasD,{size:'sub'})}</td>
+      <td>${r.ctr==null?'–':r.ctr+'%'}</td><td>${deltaChip(r.ctrD,{size:'sub'})}</td>
+      <td>${r.cvr==null?'–':r.cvr+'%'}</td><td>${deltaChip(r.cvrD,{size:'sub'})}</td>
+      <td>${r.cpm==null?'–':fmt2(r.cpm)}</td><td>${deltaChip(r.cpmD,{size:'sub'})}</td>
+    </tr>`).join('')}
+  </tbody>`;
+  bindSortHandlers('metaTestKolTable', metaTestSort, renderMetaTestKol);
+}
+renderMetaTestKol();
+
+/* ---------------- Meta creative (常態) table ---------------- */
+function tagBadge(tag){
+  if(tag==='KOL') return '<span class="tag kol">KOL</span>';
+  if(tag==='原廠') return '<span class="tag origin">原廠</span>';
+  return '<span class="tag null">NULL</span>';
+}
+function heatBg(value, min, max, rgb){
+  if(value==null || max===min) return '';
+  const t = Math.max(0, Math.min(1, (value-min)/(max-min)));
+  const alpha = 0.10 + t*0.55;
+  return `background:rgba(${rgb},${alpha.toFixed(2)});`;
+}
+const metaCreative = [{"name": "A:KOL-amisa-150", "tag": "KOL", "cost": 118785.0, "costD": 6.1, "roas": 3.35, "roasD": -25.2, "ctr": 2.66, "ctrD": 11.8, "cvr": 2.82, "cvrD": -21.8, "cpm": 3882.62, "cpmD": 17.0}, {"name": "A:KOL-haruka-183", "tag": "KOL", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-hira-114", "tag": "KOL", "cost": 71235.0, "costD": 1.7, "roas": 4.45, "roasD": 5.0, "ctr": 2.89, "ctrD": -4.6, "cvr": 3.44, "cvrD": 29.1, "cpm": 3723.93, "cpmD": 12.1}, {"name": "A:KOL-hira-20", "tag": "KOL", "cost": 114790.0, "costD": -9.3, "roas": 4.46, "roasD": 36.9, "ctr": 2.66, "ctrD": 2.3, "cvr": 2.59, "cvrD": 34.6, "cpm": 2820.53, "cpmD": 11.4}, {"name": "A:KOL-koara-187", "tag": "KOL", "cost": 36009.0, "costD": 4866.8, "roas": 4.3, "roasD": null, "ctr": 1.9, "ctrD": 60.9, "cvr": 3.45, "cvrD": null, "cpm": 2626.48, "cpmD": 22.4}, {"name": "A:KOL-mone-186", "tag": "KOL", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-oto-191", "tag": "KOL", "cost": 9273.0, "costD": null, "roas": 0.0, "roasD": null, "ctr": 1.31, "ctrD": null, "cvr": 0.0, "cvrD": null, "cpm": 3669.57, "cpmD": null}, {"name": "A:KOL-otona-179", "tag": "KOL", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-pamu-169", "tag": "KOL", "cost": 19539.0, "costD": -40.9, "roas": 5.25, "roasD": 30.3, "ctr": 1.85, "ctrD": 6.9, "cvr": 4.41, "cvrD": 69.9, "cpm": 2658.73, "cpmD": 7.4}, {"name": "A:KOL-risa-90", "tag": "KOL", "cost": 146676.0, "costD": 54.0, "roas": 4.31, "roasD": 4.5, "ctr": 3.71, "ctrD": 10.1, "cvr": 2.22, "cvrD": -9.9, "cpm": 3362.66, "cpmD": 1.8}, {"name": "A:KOL-tabio-177", "tag": "KOL", "cost": 29518.0, "costD": -0.1, "roas": 4.58, "roasD": 31.8, "ctr": 1.49, "ctrD": -5.0, "cvr": 4.42, "cvrD": 68.7, "cpm": 2425.67, "cpmD": 20.1}, {"name": "A:KOL-toco-185", "tag": "KOL", "cost": 0.0, "costD": -100.0, "roas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-yukko-116", "tag": "KOL", "cost": 313397.0, "costD": 20.9, "roas": 4.75, "roasD": 11.1, "ctr": 2.88, "ctrD": 2.8, "cvr": 2.49, "cvrD": 12.4, "cpm": 2669.37, "cpmD": 11.4}, {"name": "A:KOL-yunyu-193", "tag": "KOL", "cost": 1081.0, "costD": null, "roas": 0.0, "roasD": null, "ctr": 1.52, "ctrD": null, "cvr": 0.0, "cvrD": null, "cpm": 2055.13, "cpmD": null}, {"name": "A:原廠-119", "tag": "wakazo-kol", "cost": 105243.0, "costD": 42.4, "roas": 3.32, "roasD": -30.4, "ctr": 1.0, "ctrD": 3.2, "cvr": 5.61, "cvrD": -20.9, "cpm": 2806.85, "cpmD": 16.4}, {"name": "A:原廠-190", "tag": "日廠-Wack", "cost": 8694.0, "costD": null, "roas": 5.69, "roasD": null, "ctr": 3.93, "ctrD": null, "cvr": 1.47, "cvrD": null, "cpm": 2513.44, "cpmD": null}, {"name": "A:原廠-192", "tag": "日廠-Wack", "cost": 1059.0, "costD": null, "roas": 0.0, "roasD": null, "ctr": 1.43, "ctrD": null, "cvr": 0.0, "cvrD": null, "cpm": 2527.45, "cpmD": null}, {"name": "A:原廠-89", "tag": null, "cost": 55911.0, "costD": -31.1, "roas": 3.27, "roasD": -15.9, "ctr": 2.28, "ctrD": 42.3, "cvr": 2.09, "cvrD": -40.0, "cpm": 2671.59, "cpmD": 11.7}];
+const metaCreativeTotal = {"cost": 1031210.0, "costD": 2.4, "roas": 4.19, "roasD": 1.7};
+
+let metaCreativeSort = {key:'roas', dir:'desc'};
+function renderMetaCreative(){
+  const rows = sortRows(metaCreative, metaCreativeSort);
+  const roasVals = metaCreative.map(r=>r.roas), roasMin=Math.min(...roasVals), roasMax=Math.max(...roasVals);
+  const cpmVals = metaCreative.map(r=>r.cpm), cpmMin=Math.min(...cpmVals), cpmMax=Math.max(...cpmVals);
+  const costVals = metaCreative.map(r=>r.cost).filter(v=>v!=null);
+  const costMin=Math.min(...costVals), costMax=Math.max(...costVals);
+  const cols = [
+    {key:'name', label:'Name-Row'},{key:'tag', label:'原廠標記'},
+    {key:'cost', label:'花費金額 (JPY)'},{key:'costD', label:'%Δ'},
+    {key:'roas', label:'ROAS'},{key:'roasD', label:'%Δ'},
+    {key:'ctr', label:'CTR'},{key:'ctrD', label:'%Δ'},
+    {key:'cvr', label:'CVR'},{key:'cvrD', label:'%Δ'},
+    {key:'cpm', label:'CPM'},{key:'cpmD', label:'%Δ'},
+  ];
+  document.getElementById('metaCreativeTable').innerHTML = sortableHead(cols, metaCreativeSort) + `
+  <tbody>
+  ${rows.map(r=>`
+    <tr>
+      <td class="name-cell">${nameCellWithThumb(r.name)}</td>
+      <td>${tagBadge(r.tag)}</td>
+      <td><span class="heat-val" style="${heatBg(r.cost,costMin,costMax,'169,130,46')}">${fmtInt(r.cost)}</span></td>
+      <td>${deltaChip(r.costD,{size:'sub'})}</td>
+      <td><span class="heat-val" style="${heatBg(r.roas,roasMin,roasMax,'169,130,46')}"><b>${r.roas}</b></span></td>
+      <td>${deltaChip(r.roasD,{size:'sub'})}</td>
+      <td>${r.ctr}%</td><td>${deltaChip(r.ctrD,{size:'sub'})}</td>
+      <td>${r.cvr}%</td><td>${deltaChip(r.cvrD,{size:'sub'})}</td>
+      <td><span class="heat-val" style="${heatBg(r.cpm,cpmMax,cpmMin,'99,120,90')}">${fmt2(r.cpm)}</span></td>
+      <td>${deltaChip(r.cpmD,{size:'sub'})}</td>
+    </tr>`).join('')}
+  </tbody>
+  <tfoot><tr style="font-weight:600;border-top:2px solid #d8cdb8;">
+    <td class="name-cell">總計（Meta 全素材，General＋TEST）</td><td></td>
+    <td><b>${fmtInt(metaCreativeTotal.cost)}</b></td><td>${deltaChip(metaCreativeTotal.costD,{size:'sub'})}</td>
+    <td><b>${metaCreativeTotal.roas}</b></td><td>${deltaChip(metaCreativeTotal.roasD,{size:'sub'})}</td>
+    <td colspan="6"></td>
+  </tr></tfoot>`;
+  bindSortHandlers('metaCreativeTable', metaCreativeSort, renderMetaCreative);
+}
+renderMetaCreative();
+
+/* ---------------- KOL + license fee table ---------------- */
+const kolRows = [{"name": "A:KOL-Kato-189", "cost": 30422.0, "lic": 0.0, "costD": null, "cpa": 10140.67, "cpaD": null, "roas": 1.63, "mediaRoas": 1.63, "roasD": null, "ctr": 1.82, "ctrD": null, "cvr": 1.65, "cvrD": null, "cpm": 3039.46, "cpmD": null}, {"name": "A:KOL-airi-161", "cost": 0.0, "lic": 0.0, "costD": null, "cpa": null, "cpaD": null, "roas": null, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-amisa-150", "cost": 118785.0, "lic": 0.0, "costD": 6.1, "cpa": 5164.57, "cpaD": 33.7, "roas": 3.35, "mediaRoas": 3.35, "roasD": -25.2, "ctr": 2.66, "ctrD": 11.8, "cvr": 2.82, "cvrD": -21.8, "cpm": 3882.62, "cpmD": 17.0}, {"name": "A:KOL-amisa-188", "cost": 29059.0, "lic": 0.0, "costD": null, "cpa": 9686.33, "cpaD": null, "roas": 2.34, "mediaRoas": 2.34, "roasD": null, "ctr": 1.65, "ctrD": null, "cvr": 1.57, "cvrD": null, "cpm": 2504.01, "cpmD": null}, {"name": "A:KOL-beniko-173", "cost": 7700.0, "lic": 7700.0, "costD": null, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-hadamegu-97", "cost": 4666.9, "lic": 4666.9, "costD": -4.8, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-haruka-183", "cost": 73338.0, "lic": 30800.0, "costD": 11.0, "cpa": 14667.6, "cpaD": 166.5, "roas": 1.37, "mediaRoas": 2.37, "roasD": -54.2, "ctr": 1.75, "ctrD": 2.9, "cvr": 1.71, "cvrD": -59.2, "cpm": 2534.14, "cpmD": 21.6}, {"name": "A:KOL-harutaco-170", "cost": 25000.0, "lic": 25000.0, "costD": null, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-hira-114", "cost": 75512.0, "lic": 4277.0, "costD": 1.6, "cpa": 3974.32, "cpaD": -9.1, "roas": 4.2, "mediaRoas": 4.45, "roasD": 5.1, "ctr": 2.89, "ctrD": -4.6, "cvr": 3.44, "cvrD": 29.1, "cpm": 3723.93, "cpmD": 12.1}, {"name": "A:KOL-hira-20", "cost": 114790.0, "lic": 0.0, "costD": -9.3, "cpa": 4099.64, "cpaD": -19.0, "roas": 4.46, "mediaRoas": 4.46, "roasD": 36.9, "ctr": 2.66, "ctrD": 2.3, "cvr": 2.59, "cvrD": 34.6, "cpm": 2820.53, "cpmD": 11.4}, {"name": "A:KOL-iry-181", "cost": 35092.0, "lic": 0.0, "costD": 7.7, "cpa": 5013.14, "cpaD": -23.1, "roas": 3.34, "mediaRoas": 3.34, "roasD": 28.7, "ctr": 3.08, "ctrD": 14.0, "cvr": 2.08, "cvrD": 18.0, "cpm": 3205.33, "cpmD": 3.5}, {"name": "A:KOL-isuka-180", "cost": 60711.0, "lic": 25669.0, "costD": -3.7, "cpa": 7588.88, "cpaD": -3.7, "roas": 2.15, "mediaRoas": 3.72, "roasD": 3.8, "ctr": 2.38, "ctrD": 15.3, "cvr": 2.72, "cvrD": -3.4, "cpm": 2838.79, "cpmD": 4.5}, {"name": "A:KOL-koara-187", "cost": 47678.0, "lic": 11669.0, "costD": 732.7, "cpa": 5297.56, "cpaD": null, "roas": 3.25, "mediaRoas": 4.3, "roasD": null, "ctr": 1.9, "ctrD": 60.9, "cvr": 3.45, "cvrD": null, "cpm": 2626.48, "cpmD": 22.4}, {"name": "A:KOL-mari-162", "cost": 0.0, "lic": 0.0, "costD": null, "cpa": null, "cpaD": null, "roas": null, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-meme-164", "cost": 0.0, "lic": 0.0, "costD": null, "cpa": null, "cpaD": null, "roas": null, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-miho-184", "cost": 29468.0, "lic": 7700.0, "costD": -12.3, "cpa": 7367.0, "cpaD": -34.3, "roas": 2.23, "mediaRoas": 3.02, "roasD": 54.2, "ctr": 2.0, "ctrD": 41.8, "cvr": 2.76, "cvrD": 30.6, "cpm": 3006.63, "cpmD": 16.7}, {"name": "A:KOL-mirai-174", "cost": 39019.0, "lic": 17969.0, "costD": -30.1, "cpa": 13006.33, "cpaD": -6.8, "roas": 1.25, "mediaRoas": 2.31, "roasD": -14.1, "ctr": 2.41, "ctrD": 41.3, "cvr": 1.25, "cvrD": -3.7, "cpm": 2117.92, "cpmD": 0.8}, {"name": "A:KOL-mone-186", "cost": 51452.0, "lic": 15400.0, "costD": 414.9, "cpa": 12863.0, "cpaD": null, "roas": 1.33, "mediaRoas": 1.9, "roasD": null, "ctr": 1.53, "ctrD": 2.0, "cvr": 1.67, "cvrD": null, "cpm": 2314.44, "cpmD": 3.2}, {"name": "A:KOL-oto-191", "cost": 19272.0, "lic": 9999.0, "costD": null, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": 0.0, "roasD": null, "ctr": 1.31, "ctrD": null, "cvr": 0.0, "cvrD": null, "cpm": 3669.57, "cpmD": null}, {"name": "A:KOL-otona-179", "cost": 135552.0, "lic": 46200.0, "costD": 9.5, "cpa": 9036.8, "cpaD": 9.5, "roas": 1.95, "mediaRoas": 2.96, "roasD": -10.2, "ctr": 2.28, "ctrD": 16.1, "cvr": 2.14, "cvrD": -5.3, "cpm": 2902.36, "cpmD": 26.6}, {"name": "A:KOL-pamu-169", "cost": 28339.0, "lic": 8800.0, "costD": -41.5, "cpa": 4723.17, "cpaD": -41.5, "roas": 3.62, "mediaRoas": 5.25, "roasD": 31.7, "ctr": 1.85, "ctrD": 6.9, "cvr": 4.41, "cvrD": 69.9, "cpm": 2658.73, "cpmD": 7.4}, {"name": "A:KOL-rei-167", "cost": 16720.0, "lic": 16720.0, "costD": null, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-riri-172", "cost": 59204.0, "lic": 16331.0, "costD": 25.2, "cpa": 11840.8, "cpaD": 125.4, "roas": 1.66, "mediaRoas": 2.29, "roasD": -47.2, "ctr": 1.31, "ctrD": 3.0, "cvr": 2.17, "cvrD": -56.0, "cpm": 2447.65, "cpmD": 12.9}, {"name": "A:KOL-risa-90", "cost": 146676.0, "lic": 0.0, "costD": 54.0, "cpa": 4074.33, "cpaD": 2.7, "roas": 4.31, "mediaRoas": 4.31, "roasD": 4.5, "ctr": 3.71, "ctrD": 10.1, "cvr": 2.22, "cvrD": -9.9, "cpm": 3362.66, "cpmD": 1.8}, {"name": "A:KOL-saki-175", "cost": 5831.0, "lic": 5831.0, "costD": -1.9, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": null, "roasD": null, "ctr": null, "ctrD": null, "cvr": null, "cvrD": null, "cpm": null, "cpmD": null}, {"name": "A:KOL-tabio-177", "cost": 53899.0, "lic": 24381.0, "costD": -0.1, "cpa": 6737.38, "cpaD": -25.0, "roas": 2.51, "mediaRoas": 4.58, "roasD": 31.8, "ctr": 1.49, "ctrD": -5.0, "cvr": 4.42, "cvrD": 68.7, "cpm": 2425.67, "cpmD": 20.1}, {"name": "A:KOL-toco-185", "cost": 67012.0, "lic": 9331.0, "costD": 37.1, "cpa": 11168.67, "cpaD": 128.5, "roas": 1.46, "mediaRoas": 1.7, "roasD": -57.5, "ctr": 2.12, "ctrD": 30.9, "cvr": 1.32, "cvrD": -62.6, "cpm": 2698.91, "cpmD": 15.0}, {"name": "A:KOL-uta-176", "cost": 21361.0, "lic": 0.0, "costD": 0.7, "cpa": 4272.2, "cpaD": -39.6, "roas": 4.09, "mediaRoas": 4.09, "roasD": 75.6, "ctr": 1.96, "ctrD": 10.7, "cvr": 3.79, "cvrD": 78.0, "cpm": 3165.53, "cpmD": 19.1}, {"name": "A:KOL-yukachinmaru-171", "cost": 13921.0, "lic": 0.0, "costD": -75.6, "cpa": 13921.0, "cpaD": 168.4, "roas": 1.36, "mediaRoas": 1.36, "roasD": -61.9, "ctr": 1.47, "ctrD": -2.9, "cvr": 1.41, "cvrD": -63.0, "cpm": 2891.17, "cpmD": -3.5}, {"name": "A:KOL-yukko-116", "cost": 313397.0, "lic": 0.0, "costD": 20.9, "cpa": 3730.92, "cpaD": -3.6, "roas": 4.75, "mediaRoas": 4.75, "roasD": 11.1, "ctr": 2.88, "ctrD": 2.8, "cvr": 2.49, "cvrD": 12.4, "cpm": 2669.37, "cpmD": 11.4}, {"name": "A:KOL-yunyu-193", "cost": 3281.0, "lic": 2200.0, "costD": null, "cpa": null, "cpaD": null, "roas": 0.0, "mediaRoas": 0.0, "roasD": null, "ctr": 1.52, "ctrD": null, "cvr": 0.0, "cvrD": null, "cpm": 2055.13, "cpmD": null}];
+const kolGrand = {"cost": 1627157.9, "lic": 290643.9, "costD": 10.2, "cpa": 5770.06, "cpaD": -0.8, "roas": 3.05, "mediaRoas": 3.71, "roasD": 3.9, "ctr": 2.5, "ctrD": 7.2, "cvr": 2.44, "cvrD": -3.3, "cpm": 2884.08, "cpmD": 11.0};
+
+let kolSort = {key:'roas', dir:'desc'};
+function renderKolTable(){
+  const rows = sortRows(kolRows, kolSort);
+  const roasVals = kolRows.map(r=>r.roas).filter(v=>v!=null);
+  const roasMin=Math.min(...roasVals), roasMax=Math.max(...roasVals);
+  const costVals = kolRows.map(r=>r.cost).filter(v=>v!=null);
+  const costMin=Math.min(...costVals), costMax=Math.max(...costVals);
+
+  const cols = [
+    {key:'name', label:'Name-Row'},
+    {key:'cost', label:'花費金額 (JPY)'},{key:'costD', label:'%Δ'},
+    {key:'cpa', label:'CPA'},{key:'cpaD', label:'%Δ'},
+    {key:'roas', label:'ROAS'},{key:'roasD', label:'%Δ'},
+    {key:'ctr', label:'CTR'},{key:'ctrD', label:'%Δ'},
+    {key:'cvr', label:'CVR'},{key:'cvrD', label:'%Δ'},
+    {key:'cpm', label:'CPM'},{key:'cpmD', label:'%Δ'},
+  ];
+  const thead = sortableHead(cols, kolSort);
+
+  const body = rows.map(r=>`
+    <tr>
+      <td class="name-cell">${nameCellWithThumb(r.name)}</td>
+      <td>
+        <span class="heat-val" style="${heatBg(r.cost,costMin,costMax,'169,130,46')}">${fmtInt(r.cost)}</span>
+        ${r.lic ? `<div class="lic-note">攤提授權金：¥${fmtInt(r.lic)}</div>` : `<div class="lic-note muted">無授權金攤提</div>`}
+      </td>
+      <td>${deltaChip(r.costD,{size:'sub'})}</td>
+      <td>${fmt2(r.cpa)}</td><td>${deltaChip(r.cpaD,{size:'sub'})}</td>
+      <td>
+        <span class="heat-val" style="${heatBg(r.roas,roasMin,roasMax,'123,150,110')}"><b>${r.roas}</b></span>
+        ${r.mediaRoas!=null ? `<div class="lic-note">扣除授權金：${r.mediaRoas}</div>` : `<div class="lic-note muted">–</div>`}
+      </td>
+      <td>${deltaChip(r.roasD,{size:'sub'})}</td>
+      <td>${r.ctr==null?'–':r.ctr+'%'}</td><td>${deltaChip(r.ctrD,{size:'sub'})}</td>
+      <td>${r.cvr==null?'–':r.cvr+'%'}</td><td>${deltaChip(r.cvrD,{size:'sub'})}</td>
+      <td>${fmt2(r.cpm)}</td><td>${deltaChip(r.cpmD,{size:'sub'})}</td>
+    </tr>`).join('');
+
+  const grandRow = `<tr class="grand">
+      <td>Grand total</td>
+      <td>
+        ${fmtInt(kolGrand.cost)}
+        <div class="lic-note">攤提授權金：¥${fmtInt(kolGrand.lic)}</div>
+      </td>
+      <td>${deltaChip(kolGrand.costD,{size:'sub'})}</td>
+      <td>${fmt2(kolGrand.cpa)}</td><td>${deltaChip(kolGrand.cpaD,{size:'sub'})}</td>
+      <td>
+        ${kolGrand.roas}
+        <div class="lic-note">扣除授權金：${kolGrand.mediaRoas}</div>
+      </td>
+      <td>${deltaChip(kolGrand.roasD,{size:'sub'})}</td>
+      <td>${kolGrand.ctr}%</td><td>${deltaChip(kolGrand.ctrD,{size:'sub'})}</td>
+      <td>${kolGrand.cvr}%</td><td>${deltaChip(kolGrand.cvrD,{size:'sub'})}</td>
+      <td>${fmt2(kolGrand.cpm)}</td><td>${deltaChip(kolGrand.cpmD,{size:'sub'})}</td>
+    </tr>`;
+
+  document.getElementById('kolTable').innerHTML = thead + `<tbody>${body}${grandRow}</tbody>`;
+
+  bindSortHandlers('kolTable', kolSort, renderKolTable);
+}
+renderKolTable();
+
+/* ---- KOL license-fee negotiation calculator ---- */
+
+
+
+
+
+
+
+
+
+
+/* ---------------- Insight & Suggestion v2 (5 blocks, editable via Cloudflare D1) ---------------- */
+const INSIGHT_WEEK = '2026-10-15';
+const INSIGHTS_BUILTIN = {"blocks": {"overall": {"rows": [{"channel": "整體", "title": "全渠道花費 +3.3%、ROAS 回升到 4.19（+10.7%），Google 與 Amazon 帶動", "insight": "全渠道（不含樂天）花費 ¥1,834,189（+3.3%），ROAS 4.19（+10.7%），CVR 1.80%（+14.6%）。Meta 持平（ROAS 3.68，-0.6%），回升主要來自 Google（ROAS 4.20→6.81）與 Amazon（3.79→6.22）。貨量問題仍在，但轉換率已較上週改善。", "suggestion": "效率回升的渠道（Google、Amazon）先維持現在的預算水準，觀察一週確認不是單週波動再加碼。"}, {"channel": "Meta", "title": "Meta 花費 +7.8%，ROAS 持平 3.68，CPM 上升 10%", "insight": "Meta 花費 ¥1,525,438（+7.8%），ROAS 3.68（-0.6%）；CTR 2.90%（+6.8%）、CVR 1.94%（-1.7%），CPM ¥2,719（+10.4%）。每日花費 ¥19.4–25.8 萬，10/18（六）最高。常態素材 ROAS 4.19、TEST 2.70（細節見下方 Meta 區塊）。", "suggestion": "整體效率穩定，可維持目前預算；CPM 上升時優先把預算留給常態素材。"}, {"channel": "Google", "title": "Pmax 預算調回後 ROAS 回到 7 以上；上週數字經轉換回填已上修", "insight": "Pmax-260530（非品牌）日花費從約 ¥2 萬調回 ¥1.5–1.7 萬，購買 31→44、ROAS 3.47→7.33，CVR 0.55%→0.98%；每日點擊仍有 450–890 次，高於 10/9 前的約 300 次。品牌 Pmax-260622 ROAS 4.04→7.12，Shopping 穩定在 5.70。另外上週報告的 Google ROAS 3.32 經轉換回填後為 4.20（非品牌 2.92→3.48），確認 Google 轉換有延遲。", "suggestion": "Pmax-260530 先維持 ¥1.5 萬／日；ROAS 連續兩週在 5 以上再以每次 10–20% 逐步加預算。點擊仍偏高，版位報表持續追蹤。"}, {"channel": "Amazon", "title": "非品牌訂單 1→5，連續 5 週下滑後首次回升", "insight": "非品牌花費再減半到 ¥29,727（-50.0%），訂單 1→5，ROAS 0.28→2.84。非品牌 ASIN ¥10,835、3 單（ROAS 4.78）；非品牌字 ¥18,892、2 單（ROAS 1.73），最大花費 キャスター付きバッグ ¥4,475、0 訂單。0 訂單字詞佔花費 76.9%（上週 85%）。", "suggestion": "收斂後效率回來了，先維持目前的非品牌規模；キャスター付きバッグ 繼續降出價。"}, {"channel": "Amazon", "title": "品牌訂單連續 5 週下滑（76→16），品牌 CPM 翻倍", "insight": "品牌花費 ¥26,385（+39.6%），訂單 17→16，ROAS 14.86→10.03；品牌 CPM ¥5,067（+125.5%）。品牌字「はるけんキャスター付きトートバッグ」兩種配對共花 ¥8,386、只有 1 單。品牌訂單 76→68→49→29→17→16，已連續 5 週下滑，與目前的貨量問題同步。", "suggestion": "品牌字「はるけんキャスター付きトートバッグ」降出價；貨量恢復前品牌預算不必再加。"}, {"channel": "Amazon", "title": "排除追蹤：6 個競品 ASIN 有 5 個已生效，b0h4t1r4h2 仍在花費", "insight": "上週建議排除的 6 個 ASIN 中，b0dztts6dh、b088thltcl、b0d8q4794h、b06wp2r1h6、b0fsrvctj7 本週花費為 0（排除已生效）；b0h4t1r4h2 本週又花 ¥728、0 訂單，累計 ¥7,278。本週沒有新的達門檻項目。", "suggestion": "第 2 次提醒：請確認 b0h4t1r4h2 已加入「排除產品」。"}, {"channel": "追蹤", "title": "資料完整度說明", "insight": "本週樂天無投放資料，全渠道表與 Grand total 均不含樂天（同口徑對比上週）。Amazon 本週搜尋字詞報表 239 列（未達 300 列上限）。", "suggestion": "若樂天恢復投放，請把樂天報表一起放進資料夾。"}], "actions": ["Amazon：確認 b0h4t1r4h2 已加入排除產品（第 2 次提醒）", "Amazon：品牌字「はるけんキャスター付きトートバッグ」、非品牌字 キャスター付きバッグ 降出價", "Google：Pmax-260530 維持 ¥1.5 萬／日，ROAS 連兩週 >5 再逐步加預算", "Meta TEST：yukachinmaru-171、Kato-189 停投；toco-185、mone-186 再觀察一週", "Meta 常態：原廠-119、amisa-150 放量後效率下滑，先不再加預算", "KOL：oto-191 首週 0 轉換，確認素材與到達頁"]}, "metaTest": {"rows": [{"channel": "TEST", "title": "TEST 花費 +21.9%、ROAS 2.70，三支新 KOL 移入 TEST 後效率下滑", "insight": "TEST 花費 ¥476,564（+21.9%，佔 Meta 31.6%），ROAS 2.70（-2.8%），CPA ¥6,808（+9.7%），CVR 1.99%（-12.7%）。本週新移入 TEST 的 otona-179、toco-185、haruka-183 ROAS 分別為 2.96、1.70、2.37，都明顯低於上週（3.47、4.12、5.62）。原廠-92 本週幾乎停投（¥353）。", "suggestion": "TEST 池佔比已到 3 成以上，先不再加碼；預算往下一列的高效素材移動。"}, {"channel": "TEST", "title": "升級候選：uta-176、isuka-180；上週的候選 riri-172 回落", "insight": "uta-176 ROAS 4.09（+75.6%）、CVR 3.79%；isuka-180 ROAS 3.72、CVR 2.72%（連兩週 ≥3.49）；iry-181 3.34（+28.7%）；miho-184 3.02（+60.9%）。上週 ROAS 4.80 的 riri-172，本週花費 +38.5% 後掉到 2.29（-52.3%）。", "suggestion": "isuka-180 連兩週穩定，可升級常態；uta-176 再觀察一週。riri-172 先不升級。"}, {"channel": "TEST", "title": "建議停止：yukachinmaru-171、Kato-189；toco-185、mone-186 再看一週", "insight": "yukachinmaru-171 ROAS 1.36（-61.9%）、花費已降 75.6%；新上線的 Kato-189 首週 ¥30,422、ROAS 1.63；amisa-188 首週 ROAS 2.34；toco-185 ROAS 1.70、CVR 1.32%；mone-186 第一個完整週 ROAS 1.90。", "suggestion": "yukachinmaru-171、Kato-189 停投；toco-185、mone-186、amisa-188 再給一週，仍低於 2 就關閉。"}]}, "metaCreative": {"rows": [{"channel": "常態", "title": "常態 ROAS 4.19（+1.7%），yukko-116、risa-90 放量後效率仍提升", "insight": "常態（General）花費 ¥1,031,210（+2.4%），ROAS 4.19（+1.7%），CPA ¥4,192。yukko-116 花費 ¥313,397（+20.9%）、ROAS 4.75（+11.1%）；risa-90 改回常態後花費 ¥146,676（+54.0%）、ROAS 4.31（+4.5%）。", "suggestion": "yukko-116、risa-90 是目前最穩的兩支，可以繼續承接預算。"}, {"channel": "常態", "title": "hira-20 回穩；amisa-150、原廠-119 放量後效率下滑", "insight": "上週疲乏的 hira-20 花費 -9.3% 後 ROAS 回到 4.46（+36.9%）、CVR 2.59%；hira-114 ROAS 4.45。amisa-150 ROAS 4.47→3.35（-25.2%），CPM ¥3,883 是常態中最貴；原廠-119 花費 +42.4% 後 ROAS 4.77→3.32（-30.4%）；原廠-89 ROAS 3.27（-15.9%）。", "suggestion": "hira-20 維持目前花費；amisa-150、原廠-119 先不再加預算，下週若仍低於 3.5 就回調。"}, {"channel": "常態", "title": "新進常態：koara-187 首個完整週 ROAS 4.30；oto-191 首週 0 轉換", "insight": "koara-187 花費 ¥36,009、ROAS 4.30、CVR 3.45%；tabio-177 ROAS 4.58（+31.8%）、CVR 4.42%；pamu-169 ROAS 5.25（+30.3%）。新上線的 oto-191 花費 ¥9,273、0 轉換；原廠-190 小量測試 ROAS 5.69。", "suggestion": "koara-187、tabio-177 可小幅加預算；oto-191 再觀察 3–4 天，仍 0 轉換就關閉。"}]}, "kol": {"rows": [{"channel": "KOL", "title": "KOL 合計（含授權金）ROAS 3.05（+3.9%），授權金佔比降到 18%", "insight": "KOL 總成本 ¥1,627,158（+10.2%），其中授權金 ¥290,644（17.9%，上週 23.9%）；含授權金 ROAS 3.05（+3.9%），媒體 ROAS 3.71。", "suggestion": "授權金佔比下降是好現象，持續把預算集中在含授權金 ROAS 高的 KOL。"}, {"channel": "授權金", "title": "只付授權金沒投放：¥13.2 萬降到 ¥6.0 萬", "insight": "本週只攤提授權金、沒有媒體花費的 KOL：harutaco-170 ¥25,000（授權到 10/19）、rei-167 ¥16,720（到 10/16）、beniko-173 ¥7,700（到 10/23）、saki-175 ¥5,831、hadamegu-97 ¥4,667，合計 ¥59,918（上週 ¥131,554）。rei、harutaco 授權期已結束，沒有補投放。", "suggestion": "beniko-173 授權到 10/23，若要用請這兩天重開；之後新簽約讓授權起始日對齊上線日。"}, {"channel": "KOL", "title": "新 KOL 計入授權金後多數不划算：haruka-183 1.37、toco-185 1.46、mone-186 1.33", "insight": "含授權金 ROAS：haruka-183 1.37（媒體 2.37）、toco-185 1.46（媒體 1.70）、mone-186 1.33（媒體 1.90）、riri-172 1.66、otona-179 1.95、mirai-174 1.25。表現好的是 yukko-116 4.75、hira-20 4.46、risa-90 4.31、hira-114 4.20、pamu-169 3.62、koara-187 3.25（媒體 4.30）。", "suggestion": "haruka-183 首週亮眼後第二週回落，先降回測試預算；koara-187 首週表現好可加碼。下一波授權優先談 yukko、hira、risa、pamu。"}]}, "shopify": {"rows": [{"channel": "Shopify", "title": "銷售額連續 2 週回升（+1.8%），CVR 小幅回到 1.47%", "insight": "官網銷售額 ¥6,798,062（+1.8%）、訂單 400（+1.0%），連續第 2 週回升；工作階段 27,209（-3.9%），CVR 1.47%（+5.1%，上週 1.40% 是近 10 週最低），客單價 ¥16,995（+0.8%）。", "suggestion": "流量略減但轉換回升，缺貨商品的「再入荷通知」若已上線，可追蹤登記數。"}, {"channel": "Shopify", "title": "本週增量：廣告花費 +¥8.1 萬，銷售額 +¥12.3 萬", "insight": "廣告花費（Meta＋Google）¥1,778,077，比上週多 ¥80,740（Meta +¥110,101、Google −¥29,361）；Shopify 銷售額多 ¥123,360。每多花 ¥1 廣告費，銷售額多 ¥1.5（上週 ¥2.9），增量開始變小。Shopify ROAS 3.82（-2.8%），含授權金 3.29，兩平台後台回報 4.12。", "suggestion": "加碼仍有正報酬但邊際效益在下降，下週先維持目前的花費水準，不再擴大。"}]}}};
+(function(){
+  const API='/api/insights', KEYS=['overall','metaTest','metaCreative','kol','shopify'];
+  const $i=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const md=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
+  const nrow=r=>({channel:r.channel||'',title:r.title||'',insight:r.insight||'',suggestion:r.suggestion||''});
+  function norm(o){o=o||{};let b=o.blocks;if(!b)b={overall:{rows:o.rows||[],actions:o.actions||[]}};
+    const out={blocks:{}};KEYS.forEach(k=>{const x=b[k]||{};out.blocks[k]={rows:(x.rows||[]).map(nrow)};if(k==='overall')out.blocks[k].actions=(x.actions||[]).slice()});return out}
+  let remote=null,work=null,apiOK=false,canEdit=false,editing=false,state='',timer=null;
+  const cur=()=>work||remote||norm(INSIGHTS_BUILTIN);
+  const ed=()=>{if(!work)work=JSON.parse(JSON.stringify(norm(cur())));return work};
+  const clean=d=>{const o={blocks:{}};KEYS.forEach(k=>{const x=d.blocks[k];o.blocks[k]={rows:x.rows.filter(r=>(r.title+r.insight+r.suggestion).trim())};if(x.actions)o.blocks[k].actions=x.actions.filter(a=>a&&a.trim())});return o};
+  const grow=el=>{el.style.height='auto';el.style.height=(el.scrollHeight+2)+'px'};
+  function queue(){state='pending';bar();clearTimeout(timer);timer=setTimeout(save,900)}
+  async function save(){
+    clearTimeout(timer);if(!work)return;state='saving';bar();
+    try{const r=await fetch(API,{method:'PUT',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify({week:INSIGHT_WEEK,data:clean(work)})});
+      const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||('HTTP '+r.status));remote=Object.assign(norm(j.item),{_by:j.item._by,_at:j.item._at});state='saved'}
+    catch(e){state='error:'+e.message}
+    bar();
+  }
+  const fmtAt=t=>{if(!t)return '';const d=new Date(t);if(isNaN(d))return t;const z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}/${z(d.getMonth()+1)}/${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`};
+  function bar(){
+    let m='';
+    if(state==='pending'||state==='saving')m='<span class="dot"></span>儲存中…';
+    else if(state.startsWith('error:'))m=`<span class="dot err"></span>儲存失敗：${esc(state.slice(6))}（內容仍在畫面上，再改一下即可重試）`;
+    else if(state==='saved')m='<span class="dot ok"></span>已儲存，其他人重新整理即可看到';
+    else if(remote&&remote._by)m=`最後編輯：${esc(remote._by)} · ${fmtAt(remote._at)}`;
+    else if(editing)m='修改會自動儲存';
+    document.querySelectorAll('.ins-status').forEach(s=>s.innerHTML=m);
+    document.querySelectorAll('.ins-edit').forEach(b=>{b.style.display=(apiOK&&canEdit)?'':'none';b.textContent=editing?'✓ 完成編輯':'✎ 編輯';b.classList.toggle('on',editing)});
+    const rv=$i('insRevertBtn');if(rv)rv.style.display=(apiOK&&canEdit&&remote)?'':'none';
+    document.body.classList.toggle('ins-editing',editing);
+  }
+  const move=(X,i,op)=>{if(op==='del'){const v=X[i];if((typeof v==='string'?v:(v.title+v.insight+v.suggestion)).trim()&&!confirm('確定刪除這一列？'))return false;X.splice(i,1)}
+    if(op==='up'&&i>0)[X[i-1],X[i]]=[X[i],X[i-1]];if(op==='down'&&i<X.length-1)[X[i+1],X[i]]=[X[i],X[i+1]];return true};
+  function renderBlock(k){
+    const t=document.querySelector(`[data-ins-table="${k}"]`);if(!t)return;
+    const rows=(editing?ed():cur()).blocks[k].rows;
+    let s='<thead><tr><th>核心洞察 (Insight)</th><th>執行建議 (Suggestion)</th>'+(editing?'<th></th>':'')+'</tr></thead><tbody>';
+    if(editing){
+      rows.forEach((r,i)=>s+=`<tr data-i="${i}"><td><div class="ins-line"><input list="insChOpts" class="ins-in ins-ch-in" data-f="channel" value="${esc(r.channel)}" placeholder="分類"><input class="ins-in ins-title" data-f="title" value="${esc(r.title)}" placeholder="洞察標題（粗體）"></div><textarea class="ins-ta" data-f="insight" placeholder="洞察內容（**文字** = 粗體）">${esc(r.insight)}</textarea></td><td><textarea class="ins-ta" data-f="suggestion" placeholder="執行建議">${esc(r.suggestion)}</textarea></td><td class="ins-ops"><button class="ins-btn sm" data-op="up">↑</button><button class="ins-btn sm" data-op="down">↓</button><button class="ins-btn sm danger" data-op="del">✕</button></td></tr>`);
+      s+='<tr><td colspan="3"><button class="ins-btn ins-add">＋ 新增一列</button></td></tr>';
+    }else if(rows.length)rows.forEach(r=>s+=`<tr><td>${r.channel?`<span class="ins-ch">${esc(r.channel)}</span><br>`:''}${r.title?`<b>${esc(r.title)}</b>：`:''}${md(r.insight)}</td><td>${md(r.suggestion)}</td></tr>`);
+    else s+='<tr><td colspan="2" class="ins-empty">本週尚未填寫</td></tr>';
+    t.innerHTML=s+'</tbody>';
+    if(!editing)return;
+    t.querySelectorAll('textarea').forEach(grow);
+    t.querySelectorAll('[data-f]').forEach(el=>el.addEventListener('input',()=>{ed().blocks[k].rows[+el.closest('tr').dataset.i][el.dataset.f]=el.value;if(el.tagName==='TEXTAREA')grow(el);queue()}));
+    t.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>{if(move(ed().blocks[k].rows,+b.closest('tr').dataset.i,b.dataset.op)){queue();renderBlock(k)}});
+    t.querySelector('.ins-add').onclick=()=>{ed().blocks[k].rows.push(nrow({}));queue();renderBlock(k);const l=[...t.querySelectorAll('.ins-title')].pop();l&&l.focus()};
+  }
+  function renderActions(){
+    const box=$i('insActions');if(!box)return;const acts=(editing?ed():cur()).blocks.overall.actions||[];
+    if(editing){
+      box.innerHTML=`<ol class="ins-act-ed">${acts.map((a,i)=>`<li data-i="${i}"><input class="ins-in" value="${esc(a)}" placeholder="下週執行重點"><button class="ins-btn sm" data-op="up">↑</button><button class="ins-btn sm" data-op="down">↓</button><button class="ins-btn sm danger" data-op="del">✕</button></li>`).join('')}</ol><button class="ins-btn" id="insAddAct" style="margin-top:8px">＋ 新增一項</button>`;
+      box.querySelectorAll('li input').forEach(el=>el.addEventListener('input',()=>{ed().blocks.overall.actions[+el.closest('li').dataset.i]=el.value;queue()}));
+      box.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>{if(move(ed().blocks.overall.actions,+b.closest('li').dataset.i,b.dataset.op)){queue();renderActions()}});
+      $i('insAddAct').onclick=()=>{ed().blocks.overall.actions.push('');queue();renderActions();const l=[...box.querySelectorAll('li input')].pop();l&&l.focus()};
+    }else box.innerHTML=acts.length?`<ol class="ins-actions">${acts.map(a=>`<li>${md(a)}</li>`).join('')}</ol>`:'<div class="ins-empty">本週尚未填寫 Action Plan</div>';
+  }
+  function render(){KEYS.forEach(renderBlock);renderActions();bar()}
+  document.querySelectorAll('.ins-edit').forEach(b=>b.onclick=async()=>{if(editing){if(state==='pending')await save();editing=false;if(!state.startsWith('error:')){work=null;state=''}}else editing=true;render()});
+  const rv=$i('insRevertBtn');if(rv)rv.onclick=async()=>{
+    if(!confirm('把本週全部五個 Insight & Suggestion 區塊還原成建置時的原始版本？（所有人都會看到還原後的內容）'))return;
+    try{const r=await fetch(API+'?week='+encodeURIComponent(INSIGHT_WEEK),{method:'DELETE',credentials:'same-origin'});if(!r.ok)throw new Error('HTTP '+r.status);
+      remote=null;work=null;state='';editing=false;render()}catch(e){alert('還原失敗：'+e.message)}};
+  addEventListener('beforeunload',e=>{if(state==='pending'||state==='saving'){e.preventDefault();e.returnValue=''}});
+  render();
+  if(location.protocol.startsWith('http'))fetch(API,{cache:'no-store',credentials:'same-origin'}).then(r=>r.ok?r.json():Promise.reject(r.status)).then(j=>{
+    apiOK=true;canEdit=!!j.canEdit;const o=(j.insights||{})[INSIGHT_WEEK];if(o){const n=norm(o);if(!o.blocks){const bi=norm(INSIGHTS_BUILTIN);KEYS.forEach(k=>{if(k!=='overall')n.blocks[k]=bi.blocks[k]})}remote=Object.assign(n,{_by:o._by,_at:o._at})}else remote=null;render()}).catch(()=>{apiOK=false;bar()});
+})();
+
+
+/* ===== SHOPIFY START (scripts/build_shopify_section.py) ===== */
+const shopWeeks = [{"wk": 1, "range": "01/01–01/07", "days": 7, "sessions": 1326, "orders": 22, "sales": 475975.0, "aov": 21635.0, "cvr": 1.66, "adCost": 289.0, "metaCost": 289.0, "googleCost": 0.0, "metaLic": 0.0, "roas": null, "roasLic": null, "adRoas": null, "sessionsD": null, "ordersD": null, "salesD": null, "aovD": null, "cvrD": null, "adCostD": null, "roasD": null, "adRoasD": null, "adCostAbsD": null, "salesAbsD": null}, {"wk": 2, "range": "01/08–01/14", "days": 7, "sessions": 1313, "orders": 22, "sales": 582570.0, "aov": 26480.0, "cvr": 1.68, "adCost": 57516.0, "metaCost": 57516.0, "googleCost": 0.0, "metaLic": 0.0, "roas": 10.13, "roasLic": 10.13, "adRoas": 5.96, "sessionsD": -1.0, "ordersD": 0.0, "salesD": 22.4, "aovD": 22.4, "cvrD": 1.0, "adCostD": 19801.7, "roasD": null, "adRoasD": null, "adCostAbsD": 57227.0, "salesAbsD": 106595.0}, {"wk": 3, "range": "01/15–01/21", "days": 7, "sessions": 2780, "orders": 49, "sales": 1023151.0, "aov": 20881.0, "cvr": 1.76, "adCost": 161116.0, "metaCost": 161116.0, "googleCost": 0.0, "metaLic": 18490.0, "roas": 6.35, "roasLic": 5.7, "adRoas": 4.46, "sessionsD": 111.7, "ordersD": 122.7, "salesD": 75.6, "aovD": -21.1, "cvrD": 5.2, "adCostD": 180.1, "roasD": -37.3, "adRoasD": -25.1, "adCostAbsD": 103600.0, "salesAbsD": 440581.0}, {"wk": 4, "range": "01/22–01/28", "days": 7, "sessions": 11961, "orders": 157, "sales": 3117389.0, "aov": 19856.0, "cvr": 1.31, "adCost": 386165.0, "metaCost": 386165.0, "googleCost": 0.0, "metaLic": 192739.0, "roas": 8.07, "roasLic": 5.38, "adRoas": 6.67, "sessionsD": 330.3, "ordersD": 220.4, "salesD": 204.7, "aovD": -4.9, "cvrD": -25.5, "adCostD": 139.7, "roasD": 27.1, "adRoasD": 49.4, "adCostAbsD": 225049.0, "salesAbsD": 2094238.0}, {"wk": 5, "range": "01/29–02/04", "days": 7, "sessions": 14124, "orders": 245, "sales": 4774341.0, "aov": 19487.0, "cvr": 1.73, "adCost": 673633.0, "metaCost": 673633.0, "googleCost": 0.0, "metaLic": 438891.0, "roas": 7.09, "roasLic": 4.29, "adRoas": 6.26, "sessionsD": 18.1, "ordersD": 56.1, "salesD": 53.2, "aovD": -1.9, "cvrD": 32.2, "adCostD": 74.4, "roasD": -12.2, "adRoasD": -6.1, "adCostAbsD": 287468.0, "salesAbsD": 1656952.0}, {"wk": 6, "range": "02/05–02/11", "days": 7, "sessions": 19504, "orders": 330, "sales": 6105032.0, "aov": 18500.0, "cvr": 1.69, "adCost": 933255.0, "metaCost": 933255.0, "googleCost": 0.0, "metaLic": 478397.0, "roas": 6.54, "roasLic": 4.32, "adRoas": 5.8, "sessionsD": 38.1, "ordersD": 34.7, "salesD": 27.9, "aovD": -5.1, "cvrD": -2.5, "adCostD": 38.5, "roasD": -7.7, "adRoasD": -7.3, "adCostAbsD": 259622.0, "salesAbsD": 1330691.0}, {"wk": 7, "range": "02/12–02/18", "days": 7, "sessions": 13065, "orders": 267, "sales": 4916439.0, "aov": 18414.0, "cvr": 2.04, "adCost": 841011.0, "metaCost": 841011.0, "googleCost": 0.0, "metaLic": 471861.0, "roas": 5.85, "roasLic": 3.74, "adRoas": 5.06, "sessionsD": -33.0, "ordersD": -19.1, "salesD": -19.5, "aovD": -0.5, "cvrD": 20.8, "adCostD": -9.9, "roasD": -10.6, "adRoasD": -12.9, "adCostAbsD": -92244.0, "salesAbsD": -1188593.0}, {"wk": 8, "range": "02/19–02/25", "days": 7, "sessions": 11138, "orders": 312, "sales": 5571454.0, "aov": 17857.0, "cvr": 2.8, "adCost": 1007466.0, "metaCost": 1007466.0, "googleCost": 0.0, "metaLic": 355983.0, "roas": 5.53, "roasLic": 4.09, "adRoas": 4.96, "sessionsD": -14.7, "ordersD": 16.9, "salesD": 13.3, "aovD": -3.0, "cvrD": 37.1, "adCostD": 19.8, "roasD": -5.4, "adRoasD": -1.9, "adCostAbsD": 166455.0, "salesAbsD": 655015.0}, {"wk": 9, "range": "02/26–03/04", "days": 7, "sessions": 10903, "orders": 271, "sales": 4899107.0, "aov": 18078.0, "cvr": 2.49, "adCost": 820813.0, "metaCost": 820813.0, "googleCost": 0.0, "metaLic": 267940.0, "roas": 5.97, "roasLic": 4.5, "adRoas": 4.55, "sessionsD": -2.1, "ordersD": -13.1, "salesD": -12.1, "aovD": 1.2, "cvrD": -11.3, "adCostD": -18.5, "roasD": 7.9, "adRoasD": -8.3, "adCostAbsD": -186653.0, "salesAbsD": -672347.0}, {"wk": 10, "range": "03/05–03/11", "days": 7, "sessions": 9778, "orders": 221, "sales": 4044944.0, "aov": 18303.0, "cvr": 2.26, "adCost": 769825.0, "metaCost": 769825.0, "googleCost": 0.0, "metaLic": 267940.0, "roas": 5.25, "roasLic": 3.9, "adRoas": 4.3, "sessionsD": -10.3, "ordersD": -18.5, "salesD": -17.4, "aovD": 1.2, "cvrD": -9.1, "adCostD": -6.2, "roasD": -12.0, "adRoasD": -5.4, "adCostAbsD": -50988.0, "salesAbsD": -854163.0}, {"wk": 11, "range": "03/12–03/18", "days": 7, "sessions": 7534, "orders": 163, "sales": 2969183.0, "aov": 18216.0, "cvr": 2.16, "adCost": 552979.0, "metaCost": 552979.0, "googleCost": 0.0, "metaLic": 165183.0, "roas": 5.37, "roasLic": 4.13, "adRoas": 3.33, "sessionsD": -22.9, "ordersD": -26.2, "salesD": -26.6, "aovD": -0.5, "cvrD": -4.3, "adCostD": -28.2, "roasD": 2.2, "adRoasD": -22.6, "adCostAbsD": -216846.0, "salesAbsD": -1075761.0}, {"wk": 12, "range": "03/19–03/25", "days": 7, "sessions": 8316, "orders": 200, "sales": 3673321.0, "aov": 18367.0, "cvr": 2.41, "adCost": 533384.0, "metaCost": 533384.0, "googleCost": 0.0, "metaLic": 16858.0, "roas": 6.89, "roasLic": 6.68, "adRoas": 4.87, "sessionsD": 10.4, "ordersD": 22.7, "salesD": 23.7, "aovD": 0.8, "cvrD": 11.2, "adCostD": -3.5, "roasD": 28.3, "adRoasD": 46.4, "adCostAbsD": -19595.0, "salesAbsD": 704138.0}, {"wk": 13, "range": "03/26–04/01", "days": 7, "sessions": 7251, "orders": 158, "sales": 2813127.0, "aov": 17805.0, "cvr": 2.18, "adCost": 612008.0, "metaCost": 612008.0, "googleCost": 0.0, "metaLic": 16858.0, "roas": 4.6, "roasLic": 4.47, "adRoas": 3.78, "sessionsD": -12.8, "ordersD": -21.0, "salesD": -23.4, "aovD": -3.1, "cvrD": -9.4, "adCostD": 14.7, "roasD": -33.3, "adRoasD": -22.3, "adCostAbsD": 78624.0, "salesAbsD": -860194.0}, {"wk": 14, "range": "04/02–04/08", "days": 7, "sessions": 8182, "orders": 186, "sales": 3400016.0, "aov": 18280.0, "cvr": 2.27, "adCost": 464018.0, "metaCost": 464018.0, "googleCost": 0.0, "metaLic": 14489.0, "roas": 7.33, "roasLic": 7.11, "adRoas": 5.61, "sessionsD": 12.8, "ordersD": 17.7, "salesD": 20.9, "aovD": 2.7, "cvrD": 4.3, "adCostD": -24.2, "roasD": 59.4, "adRoasD": 48.2, "adCostAbsD": -147990.0, "salesAbsD": 586889.0}, {"wk": 15, "range": "04/09–04/15", "days": 7, "sessions": 10690, "orders": 215, "sales": 3822658.0, "aov": 17780.0, "cvr": 2.01, "adCost": 710082.0, "metaCost": 710082.0, "googleCost": 0.0, "metaLic": 9512.0, "roas": 5.38, "roasLic": 5.31, "adRoas": 4.46, "sessionsD": 30.7, "ordersD": 15.6, "salesD": 12.4, "aovD": -2.7, "cvrD": -11.5, "adCostD": 53.0, "roasD": -26.5, "adRoasD": -20.5, "adCostAbsD": 246064.0, "salesAbsD": 422642.0}, {"wk": 16, "range": "04/16–04/22", "days": 7, "sessions": 22039, "orders": 360, "sales": 6607602.0, "aov": 18354.0, "cvr": 1.63, "adCost": 630294.0, "metaCost": 630294.0, "googleCost": 0.0, "metaLic": 0.0, "roas": 10.48, "roasLic": 10.48, "adRoas": 5.36, "sessionsD": 106.2, "ordersD": 67.4, "salesD": 72.9, "aovD": 3.2, "cvrD": -18.8, "adCostD": -11.2, "roasD": 94.7, "adRoasD": 20.1, "adCostAbsD": -79788.0, "salesAbsD": 2784944.0}, {"wk": 17, "range": "04/23–04/29", "days": 7, "sessions": 20491, "orders": 383, "sales": 6821935.0, "aov": 17812.0, "cvr": 1.87, "adCost": 825316.0, "metaCost": 825316.0, "googleCost": 0.0, "metaLic": 61173.0, "roas": 8.27, "roasLic": 7.7, "adRoas": 6.37, "sessionsD": -7.0, "ordersD": 6.4, "salesD": 3.2, "aovD": -3.0, "cvrD": 14.4, "adCostD": 30.9, "roasD": -21.2, "adRoasD": 18.9, "adCostAbsD": 195022.0, "salesAbsD": 214333.0}, {"wk": 18, "range": "04/30–05/06", "days": 7, "sessions": 22970, "orders": 377, "sales": 6716664.0, "aov": 17816.0, "cvr": 1.64, "adCost": 960491.0, "metaCost": 960491.0, "googleCost": 0.0, "metaLic": 129185.0, "roas": 6.99, "roasLic": 6.16, "adRoas": 5.7, "sessionsD": 12.1, "ordersD": -1.6, "salesD": -1.5, "aovD": 0.0, "cvrD": -12.2, "adCostD": 16.4, "roasD": -15.4, "adRoasD": -10.4, "adCostAbsD": 135175.0, "salesAbsD": -105271.0}, {"wk": 19, "range": "05/07–05/13", "days": 7, "sessions": 20315, "orders": 334, "sales": 5784614.0, "aov": 17319.0, "cvr": 1.64, "adCost": 952226.0, "metaCost": 952226.0, "googleCost": 0.0, "metaLic": 129185.0, "roas": 6.07, "roasLic": 5.35, "adRoas": 5.27, "sessionsD": -11.6, "ordersD": -11.4, "salesD": -13.9, "aovD": -2.8, "cvrD": 0.2, "adCostD": -0.9, "roasD": -13.1, "adRoasD": -7.6, "adCostAbsD": -8265.0, "salesAbsD": -932050.0}, {"wk": 20, "range": "05/14–05/20", "days": 7, "sessions": 15311, "orders": 206, "sales": 3585223.0, "aov": 17404.0, "cvr": 1.35, "adCost": 709932.0, "metaCost": 709932.0, "googleCost": 0.0, "metaLic": 129185.0, "roas": 5.05, "roasLic": 4.27, "adRoas": 3.9, "sessionsD": -24.6, "ordersD": -38.3, "salesD": -38.0, "aovD": 0.5, "cvrD": -18.2, "adCostD": -25.4, "roasD": -16.9, "adRoasD": -26.1, "adCostAbsD": -242294.0, "salesAbsD": -2199391.0}, {"wk": 21, "range": "05/21–05/27", "days": 7, "sessions": 8427, "orders": 141, "sales": 2673223.0, "aov": 18959.0, "cvr": 1.67, "adCost": 476956.0, "metaCost": 476956.0, "googleCost": 0.0, "metaLic": 110478.0, "roas": 5.6, "roasLic": 4.55, "adRoas": 4.39, "sessionsD": -45.0, "ordersD": -31.6, "salesD": -25.4, "aovD": 8.9, "cvrD": 24.4, "adCostD": -32.8, "roasD": 11.0, "adRoasD": 12.6, "adCostAbsD": -232976.0, "salesAbsD": -912000.0}, {"wk": 22, "range": "05/28–06/03", "days": 7, "sessions": 13554, "orders": 216, "sales": 3799795.0, "aov": 17592.0, "cvr": 1.59, "adCost": 819795.0, "metaCost": 807413.0, "googleCost": 12382.0, "metaLic": 12964.0, "roas": 4.64, "roasLic": 4.56, "adRoas": 3.44, "sessionsD": 60.8, "ordersD": 53.2, "salesD": 42.1, "aovD": -7.2, "cvrD": -4.8, "adCostD": 71.9, "roasD": -17.3, "adRoasD": -21.6, "adCostAbsD": 342839.0, "salesAbsD": 1126572.0}, {"wk": 23, "range": "06/04–06/10", "days": 7, "sessions": 15183, "orders": 271, "sales": 4744742.0, "aov": 17508.0, "cvr": 1.78, "adCost": 909216.0, "metaCost": 831653.0, "googleCost": 77563.0, "metaLic": 18485.0, "roas": 5.22, "roasLic": 5.11, "adRoas": 4.17, "sessionsD": 12.0, "ordersD": 25.5, "salesD": 24.9, "aovD": -0.5, "cvrD": 12.0, "adCostD": 10.9, "roasD": 12.6, "adRoasD": 21.4, "adCostAbsD": 89422.0, "salesAbsD": 944947.0}, {"wk": 24, "range": "06/11–06/17", "days": 7, "sessions": 11830, "orders": 194, "sales": 3571294.0, "aov": 18409.0, "cvr": 1.64, "adCost": 660785.0, "metaCost": 602869.0, "googleCost": 57916.0, "metaLic": 62297.0, "roas": 5.4, "roasLic": 4.94, "adRoas": 4.01, "sessionsD": -22.1, "ordersD": -28.4, "salesD": -24.7, "aovD": 5.1, "cvrD": -8.1, "adCostD": -27.3, "roasD": 3.6, "adRoasD": -3.9, "adCostAbsD": -248431.0, "salesAbsD": -1173448.0}, {"wk": 25, "range": "06/18–06/24", "days": 7, "sessions": 14898, "orders": 212, "sales": 3877836.0, "aov": 18292.0, "cvr": 1.42, "adCost": 857887.0, "metaCost": 745698.0, "googleCost": 112189.0, "metaLic": 111054.0, "roas": 4.52, "roasLic": 4.0, "adRoas": 4.41, "sessionsD": 25.9, "ordersD": 9.3, "salesD": 8.6, "aovD": -0.6, "cvrD": -13.2, "adCostD": 29.8, "roasD": -16.4, "adRoasD": 10.0, "adCostAbsD": 197102.0, "salesAbsD": 306542.0}, {"wk": 26, "range": "06/25–07/01", "days": 7, "sessions": 37572, "orders": 489, "sales": 8831805.0, "aov": 18061.0, "cvr": 1.3, "adCost": 1709568.0, "metaCost": 1473988.0, "googleCost": 235580.0, "metaLic": 271534.0, "roas": 5.17, "roasLic": 4.46, "adRoas": 5.32, "sessionsD": 152.2, "ordersD": 130.7, "salesD": 127.8, "aovD": -1.3, "cvrD": -8.5, "adCostD": 99.3, "roasD": 14.3, "adRoasD": 20.5, "adCostAbsD": 851680.0, "salesAbsD": 4953969.0}, {"wk": 27, "range": "07/02–07/08", "days": 7, "sessions": 51886, "orders": 669, "sales": 12060096.0, "aov": 18027.0, "cvr": 1.29, "adCost": 2298047.0, "metaCost": 2076410.0, "googleCost": 221637.0, "metaLic": 326626.0, "roas": 5.25, "roasLic": 4.59, "adRoas": 5.58, "sessionsD": 38.1, "ordersD": 36.8, "salesD": 36.6, "aovD": -0.2, "cvrD": -0.9, "adCostD": 34.4, "roasD": 1.6, "adRoasD": 4.9, "adCostAbsD": 588480.0, "salesAbsD": 3228291.0}, {"wk": 28, "range": "07/09–07/15", "days": 7, "sessions": 27878, "orders": 434, "sales": 8039289.0, "aov": 18524.0, "cvr": 1.56, "adCost": 1617577.0, "metaCost": 1350181.0, "googleCost": 267396.0, "metaLic": 260157.0, "roas": 4.97, "roasLic": 4.28, "adRoas": 5.63, "sessionsD": -46.3, "ordersD": -35.1, "salesD": -33.3, "aovD": 2.8, "cvrD": 20.7, "adCostD": -29.6, "roasD": -5.3, "adRoasD": 1.0, "adCostAbsD": -680470.0, "salesAbsD": -4020807.0}, {"wk": 29, "range": "07/16–07/22", "days": 7, "sessions": 34138, "orders": 555, "sales": 9793691.0, "aov": 17646.0, "cvr": 1.63, "adCost": 1866729.0, "metaCost": 1647660.0, "googleCost": 219069.0, "metaLic": 289902.0, "roas": 5.25, "roasLic": 4.54, "adRoas": 5.49, "sessionsD": 22.5, "ordersD": 27.9, "salesD": 21.8, "aovD": -4.7, "cvrD": 4.4, "adCostD": 15.4, "roasD": 5.6, "adRoasD": -2.6, "adCostAbsD": 249151.0, "salesAbsD": 1754402.0}, {"wk": 30, "range": "07/23–07/29", "days": 7, "sessions": 43026, "orders": 801, "sales": 14111974.0, "aov": 17618.0, "cvr": 1.86, "adCost": 1943214.0, "metaCost": 1758166.0, "googleCost": 185048.0, "metaLic": 301446.0, "roas": 7.26, "roasLic": 6.29, "adRoas": 6.92, "sessionsD": 26.0, "ordersD": 44.3, "salesD": 44.1, "aovD": -0.2, "cvrD": 14.5, "adCostD": 4.1, "roasD": 38.4, "adRoasD": 26.2, "adCostAbsD": 76485.0, "salesAbsD": 4318283.0}, {"wk": 31, "range": "07/30–08/05", "days": 7, "sessions": 58787, "orders": 1183, "sales": 20863016.0, "aov": 17636.0, "cvr": 2.01, "adCost": 2871914.0, "metaCost": 2696305.0, "googleCost": 175609.0, "metaLic": 388044.0, "roas": 7.26, "roasLic": 6.4, "adRoas": 7.86, "sessionsD": 36.6, "ordersD": 47.7, "salesD": 47.8, "aovD": 0.1, "cvrD": 8.1, "adCostD": 47.8, "roasD": 0.0, "adRoasD": 13.5, "adCostAbsD": 928700.0, "salesAbsD": 6751042.0}, {"wk": 32, "range": "08/06–08/12", "days": 7, "sessions": 56998, "orders": 864, "sales": 15241989.0, "aov": 17641.0, "cvr": 1.52, "adCost": 3227401.0, "metaCost": 3040085.0, "googleCost": 187316.0, "metaLic": 488855.0, "roas": 4.72, "roasLic": 4.1, "adRoas": 5.03, "sessionsD": -3.0, "ordersD": -27.0, "salesD": -26.9, "aovD": 0.0, "cvrD": -24.7, "adCostD": 12.4, "roasD": -35.0, "adRoasD": -35.9, "adCostAbsD": 355487.0, "salesAbsD": -5621027.0}, {"wk": 33, "range": "08/13–08/19", "days": 7, "sessions": 57213, "orders": 945, "sales": 16440005.0, "aov": 17397.0, "cvr": 1.65, "adCost": 3138621.0, "metaCost": 2901549.0, "googleCost": 237072.0, "metaLic": 490535.0, "roas": 5.24, "roasLic": 4.53, "adRoas": 5.54, "sessionsD": 0.4, "ordersD": 9.4, "salesD": 7.9, "aovD": -1.4, "cvrD": 9.0, "adCostD": -2.8, "roasD": 10.9, "adRoasD": 10.1, "adCostAbsD": -88779.0, "salesAbsD": 1198016.0}, {"wk": 34, "range": "08/20–08/26", "days": 7, "sessions": 48020, "orders": 805, "sales": 13785128.0, "aov": 17124.0, "cvr": 1.68, "adCost": 3284825.0, "metaCost": 3068313.0, "googleCost": 216512.0, "metaLic": 524084.0, "roas": 4.2, "roasLic": 3.62, "adRoas": 4.48, "sessionsD": -16.1, "ordersD": -14.8, "salesD": -16.1, "aovD": -1.6, "cvrD": 1.5, "adCostD": 4.7, "roasD": -19.9, "adRoasD": -19.2, "adCostAbsD": 146204.0, "salesAbsD": -2654877.0}, {"wk": 35, "range": "08/27–09/02", "days": 7, "sessions": 46134, "orders": 740, "sales": 12566354.0, "aov": 16982.0, "cvr": 1.6, "adCost": 3098278.0, "metaCost": 2890183.0, "googleCost": 208095.0, "metaLic": 433693.0, "roas": 4.06, "roasLic": 3.56, "adRoas": 4.15, "sessionsD": -3.9, "ordersD": -8.1, "salesD": -8.8, "aovD": -0.8, "cvrD": -4.3, "adCostD": -5.7, "roasD": -3.4, "adRoasD": -7.4, "adCostAbsD": -186547.0, "salesAbsD": -1218774.0}, {"wk": 36, "range": "09/03–09/09", "days": 7, "sessions": 35815, "orders": 615, "sales": 10443880.0, "aov": 16982.0, "cvr": 1.72, "adCost": 2500605.0, "metaCost": 2237416.0, "googleCost": 263189.0, "metaLic": 342586.0, "roas": 4.18, "roasLic": 3.67, "adRoas": 4.27, "sessionsD": -22.4, "ordersD": -16.9, "salesD": -16.9, "aovD": 0.0, "cvrD": 7.1, "adCostD": -19.3, "roasD": 3.0, "adRoasD": 2.9, "adCostAbsD": -597673.0, "salesAbsD": -2122474.0}, {"wk": 37, "range": "09/10–09/16", "days": 7, "sessions": 41717, "orders": 632, "sales": 10845362.0, "aov": 17160.0, "cvr": 1.51, "adCost": 2821934.0, "metaCost": 2584157.0, "googleCost": 237777.0, "metaLic": 329821.0, "roas": 3.84, "roasLic": 3.44, "adRoas": 3.82, "sessionsD": 16.5, "ordersD": 2.8, "salesD": 3.8, "aovD": 1.1, "cvrD": -11.8, "adCostD": 12.9, "roasD": -8.0, "adRoasD": -10.6, "adCostAbsD": 321329.0, "salesAbsD": 401482.0}, {"wk": 38, "range": "09/17–09/23", "days": 7, "sessions": 31834, "orders": 481, "sales": 8350678.0, "aov": 17361.0, "cvr": 1.51, "adCost": 2201411.0, "metaCost": 1951101.0, "googleCost": 250310.0, "metaLic": 357601.0, "roas": 3.79, "roasLic": 3.26, "adRoas": 3.85, "sessionsD": -23.7, "ordersD": -23.9, "salesD": -23.0, "aovD": 1.2, "cvrD": -0.3, "adCostD": -22.0, "roasD": -1.3, "adRoasD": 0.8, "adCostAbsD": -620523.0, "salesAbsD": -2494684.0}, {"wk": 39, "range": "09/24–09/30", "days": 7, "sessions": 24809, "orders": 408, "sales": 6535035.0, "aov": 16017.0, "cvr": 1.64, "adCost": 1967444.0, "metaCost": 1739157.0, "googleCost": 228287.0, "metaLic": 352445.0, "roas": 3.32, "roasLic": 2.82, "adRoas": 3.45, "sessionsD": -22.1, "ordersD": -15.2, "salesD": -21.7, "aovD": -7.7, "cvrD": 8.8, "adCostD": -10.6, "roasD": -12.4, "adRoasD": -10.2, "adCostAbsD": -233967.0, "salesAbsD": -1815643.0}, {"wk": 40, "range": "10/01–10/07", "days": 7, "sessions": 21911, "orders": 361, "sales": 5934191.0, "aov": 16438.0, "cvr": 1.65, "adCost": 1444933.0, "metaCost": 1192813.0, "googleCost": 252120.0, "metaLic": 390536.0, "roas": 4.11, "roasLic": 3.23, "adRoas": 4.07, "sessionsD": -11.7, "ordersD": -11.5, "salesD": -9.2, "aovD": 2.6, "cvrD": 0.2, "adCostD": -26.6, "roasD": 23.6, "adRoasD": 17.7, "adCostAbsD": -522512.0, "salesAbsD": -600844.0}, {"wk": 41, "range": "10/08–10/14", "days": 7, "sessions": 28301, "orders": 396, "sales": 6674702.0, "aov": 16855.0, "cvr": 1.4, "adCost": 1697337.0, "metaCost": 1415337.0, "googleCost": 282000.0, "metaLic": 352578.0, "roas": 3.93, "roasLic": 3.26, "adRoas": 3.78, "sessionsD": 29.2, "ordersD": 9.7, "salesD": 12.5, "aovD": 2.5, "cvrD": -15.1, "adCostD": 17.5, "roasD": -4.2, "adRoasD": -6.9, "adCostAbsD": 252404.0, "salesAbsD": 740511.0}, {"wk": 42, "range": "10/15–10/21", "days": 7, "sessions": 27209, "orders": 400, "sales": 6798062.0, "aov": 16995.0, "cvr": 1.47, "adCost": 1778077.0, "metaCost": 1525438.0, "googleCost": 252639.0, "metaLic": 290644.0, "roas": 3.82, "roasLic": 3.29, "adRoas": 4.12, "sessionsD": -3.9, "ordersD": 1.0, "salesD": 1.8, "aovD": 0.8, "cvrD": 5.1, "adCostD": 4.8, "roasD": -2.8, "adRoasD": 9.0, "adCostAbsD": 80740.0, "salesAbsD": 123360.0}];
+(function renderShopify(){
+  const GOLD = '#a9822e', BLUE = '#2a78b8', PINK = '#b8467a';
+  const cur = shopWeeks[shopWeeks.length-1];
+  const tiles = [
+    {label:'Shopify 總銷售額', value:money(cur.sales), delta:cur.salesD},
+    {label:'訂單數', value:fmtInt(cur.orders), delta:cur.ordersD},
+    {label:'工作階段數', value:fmtInt(cur.sessions), delta:cur.sessionsD},
+    {label:'CVR', value:fmtPct1(cur.cvr), delta:cur.cvrD},
+    {label:'客單價', value:money(cur.aov), delta:cur.aovD},
+    {label:'Shopify ROAS', value:fmt2(cur.roas), delta:cur.roasD, hero:true},
+  ];
+  document.getElementById('shopKpiGrid').innerHTML = tiles.map(k=>`
+    <div class="kpi-card ${k.hero?'hero':''}">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value">${k.value}</div>
+      ${deltaChip(k.delta)}
+    </div>`).join('');
+
+  // 本週增量：廣告花費 vs Shopify 總銷售額（WoW 絕對差額）
+  (function(){
+    const el = document.getElementById('shopDeltaCard'); if(!el) return;
+    const dc = cur.adCostAbsD, ds = cur.salesAbsD;
+    if(dc==null || ds==null){ el.style.display='none'; return; }
+    const sgn = v => (v>0?'+':v<0?'−':'±') + money(Math.abs(v));
+    const mx = Math.max(Math.abs(dc), Math.abs(ds)) || 1;
+    const bar = (v,color) => { const w = Math.abs(v)/mx*50; return `<div class="sd-track"><div class="sd-zero"></div><div class="sd-bar" style="background:${color};width:${w}%;${v>=0?'left:50%':'right:50%'}"></div></div>`; };
+    const good = ds > dc;
+    const ratio = dc > 0 ? `每多花 ¥1 廣告費，Shopify 銷售額多 ¥${(ds/dc).toFixed(1)}` : (dc < 0 && ds >= 0 ? '廣告花費減少，銷售額仍增加' : '');
+    el.innerHTML = `<div class="sd-head"><h4>本週增量（vs 上週）</h4><span class="sd-badge ${good?'good':'bad'}">${good?'銷售增量 ＞ 花費增量':'銷售增量 ＜ 花費增量'}</span></div>
+      <div class="sd-row"><span class="sd-label">廣告花費（Meta＋Google）</span>${bar(dc,'#2a78b8')}<span class="sd-val" style="color:#2a78b8">${sgn(dc)}</span></div>
+      <div class="sd-row"><span class="sd-label">Shopify 總銷售額</span>${bar(ds,'#a9822e')}<span class="sd-val" style="color:#a9822e">${sgn(ds)}</span></div>
+      <div class="sd-foot">${ratio ? ratio + '；' : ''}淨增 ${sgn(ds-dc)}（銷售額增量 − 廣告花費增量，未扣商品成本）</div>`;
+  })();
+
+  const compactYen = v => v>=1e6 ? '¥'+(v/1e6).toFixed(1)+'M' : v>=1e3 ? '¥'+Math.round(v/1e3)+'K' : '¥'+Math.round(v);
+  function niceMax(v){ if(v<=0) return 1; const p=Math.pow(10,Math.floor(Math.log10(v))); const n=v/p; return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p; }
+
+  function chart(elId, {series, yFmt, yFmtR, tipFn}){
+    const el = document.getElementById(elId);
+    const hasR = series.some(s=>s.axis==='right');
+    const W=560, H=250, m={t:14,r:hasR?50:14,b:26,l:46};
+    const iw=W-m.l-m.r, ih=H-m.t-m.b, n=shopWeeks.length, step=iw/n;
+    const maxOf = ss => niceMax(Math.max(...ss.flatMap(s=>shopWeeks.map(w=>w[s.key]||0))));
+    const yMax = maxOf(series.filter(s=>s.axis!=='right'));
+    // right axis (e.g. CVR %) uses a tight max instead of niceMax, so a narrow 1.5–2.8% band isn't squashed flat
+    const rawR = hasR ? Math.max(...series.filter(s=>s.axis==='right').flatMap(s=>shopWeeks.map(w=>w[s.key]||0))) : 0;
+    const yMaxR = hasR ? Math.ceil(rawR*1.05/4*5)/5*4 : null;  // 4 ticks on a 0.2 grid → clean 1-decimal labels
+    const y = v => m.t + ih - (v/yMax)*ih;
+    const yR = v => m.t + ih - (v/yMaxR)*ih;
+    const yOf = s => s.axis==='right' ? yR : y;
+    const xc = i => m.l + step*i + step/2;
+    let g = '<g class="grid">';
+    for(let k=0;k<=4;k++){ const v=yMax*k/4; g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}"/>`; }
+    g += '</g><g class="axis">';
+    for(let k=0;k<=4;k++){ const v=yMax*k/4; g+=`<text x="${m.l-6}" y="${y(v)+3}" text-anchor="end">${yFmt(v)}</text>`;
+      if(hasR){ const vr=yMaxR*k/4; g+=`<text x="${W-m.r+6}" y="${y(v)+3}" text-anchor="start" style="fill:${series.find(s=>s.axis==='right').color}">${(yFmtR||yFmt)(vr)}</text>`; } }
+    shopWeeks.forEach((w,i)=>{ if(w.wk%4===1 || i===n-1) g+=`<text x="${xc(i)}" y="${H-8}" text-anchor="middle">W${w.wk}</text>`; });
+    g += '</g>';
+    let marks = '';
+    // bars: every bar series is grouped side by side inside each week's slot (same left axis)
+    const bars = series.filter(s=>s.type==='bar'), nb = bars.length;
+    const gw = Math.max(2, step-3), bw = nb ? Math.max(1.5, (gw - (nb-1))/nb) : 0;
+    series.forEach(s=>{
+      if(s.type==='bar'){
+        const bi = bars.indexOf(s);
+        shopWeeks.forEach((w,i)=>{ const v=w[s.key]||0; if(!v) return; const top=y(v), h=m.t+ih-top;
+          const x0 = xc(i) - gw/2 + bi*(bw+1);
+          marks += `<rect x="${x0}" y="${top}" width="${bw}" height="${h}" rx="${Math.min(1.5,bw/2)}" fill="${s.color}" opacity="${i===n-1?1:0.8}"/>`; });
+      } else {
+        const pts = shopWeeks.map((w,i)=> w[s.key]==null ? null : [xc(i), yOf(s)(w[s.key])]);
+        let d='', pen=false;
+        pts.forEach(p=>{ if(!p){pen=false;return;} d += (pen?'L':'M')+p[0].toFixed(1)+','+p[1].toFixed(1); pen=true; });
+        marks += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" ${s.dash?'stroke-dasharray="5 4"':''}/>`;
+        const last = pts[n-1];
+        if(last) marks += `<circle cx="${last[0]}" cy="${last[1]}" r="4" fill="${s.color}" stroke="#fff" stroke-width="2"/>`;
+      }
+    });
+    const hits = shopWeeks.map((w,i)=>`<rect class="hit" data-i="${i}" x="${m.l+step*i}" y="${m.t}" width="${step}" height="${ih}" fill="transparent"/>`).join('');
+    el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img">${g}<line class="xh" x1="0" x2="0" y1="${m.t}" y2="${m.t+ih}" stroke="var(--ink-faint)" stroke-width="1" opacity="0"/>${marks}${hits}</svg><div class="shop-tip"></div>`;
+    const svg = el.querySelector('svg'), tip = el.querySelector('.shop-tip'), xh = el.querySelector('.xh');
+    svg.addEventListener('mousemove', e=>{
+      const h = e.target.closest('.hit'); if(!h){ tip.style.opacity=0; xh.setAttribute('opacity',0); return; }
+      const i = +h.dataset.i, w = shopWeeks[i];
+      tip.innerHTML = tipFn(w); tip.style.opacity = 1;
+      xh.setAttribute('x1', xc(i)); xh.setAttribute('x2', xc(i)); xh.setAttribute('opacity', 0.5);
+      const box = el.getBoundingClientRect(), px = e.clientX-box.left, py = e.clientY-box.top;
+      const tw = tip.offsetWidth;
+      tip.style.left = (px+14+tw > box.width ? px-14-tw : px+14) + 'px';
+      tip.style.top = Math.max(0, py-40) + 'px';
+    });
+    svg.addEventListener('mouseleave', ()=>{ tip.style.opacity=0; xh.setAttribute('opacity',0); });
+  }
+
+  chart('shopChartSales', {
+    series:[{key:'sales', type:'bar', color:GOLD}, {key:'adCost', type:'bar', color:BLUE}, {key:'cvr', type:'line', color:PINK, axis:'right'}],
+    yFmt: compactYen, yFmtR: v=>v.toFixed(1)+'%',
+    tipFn: w=>`<b>W${w.wk}</b>（${w.range}）<br><span class="sw" style="background:${GOLD}"></span>銷售額 ${money(w.sales)}<br><span class="sw" style="background:${BLUE}"></span>廣告花費 ${money(w.adCost)}（Meta ${money(w.metaCost)}／Google ${money(w.googleCost)}）<br><span class="sw" style="background:${PINK}"></span>CVR ${fmtPct1(w.cvr)}`
+  });
+  chart('shopChartRoas', {
+    series:[{key:'roas', type:'line', color:GOLD}, {key:'adRoas', type:'line', color:BLUE, dash:true}],
+    yFmt: v=>v.toFixed(1),
+    tipFn: w=>`<b>W${w.wk}</b>（${w.range}）<br><span class="sw" style="background:${GOLD}"></span>Shopify ROAS ${fmt2(w.roas)}<br><span class="sw" style="background:${BLUE}"></span>後台回報 ROAS ${fmt2(w.adRoas)}`
+  });
+
+  // 可排序週表 —— 沿用頁面共用的 sortRows / sortableHead / bindSortHandlers
+  const cols = [
+    {key:'wk', label:'週次'}, {key:'range', label:'期間'}, {key:'sessions', label:'工作階段數'},
+    {key:'orders', label:'訂單數'}, {key:'sales', label:'Shopify 總銷售額'}, {key:'aov', label:'客單價'},
+    {key:'cvr', label:'CVR'}, {key:'adCost', label:'廣告花費（Meta＋Google）'}, {key:'roas', label:'Shopify ROAS'},
+    {key:'adRoas', label:'後台回報 ROAS'},
+  ];
+  const cell = (v, d) => `<div class="stack-cell"><span>${v}</span>${deltaChip(d,{size:'sub'})}</div>`;
+  const shopSort = {key:'wk', dir:'desc'};
+  function renderShopTable(){
+    const rows = sortRows(shopWeeks, shopSort);
+    document.getElementById('shopTable').innerHTML = sortableHead(cols, shopSort) + `
+    <tbody>${rows.map(w=>`
+      <tr class="${w.wk===cur.wk?'highlight':''}">
+        <td class="name-cell">W${w.wk}${w.days<7?` <span class="muted" style="font-weight:500;">(${w.days} 天)</span>`:''}</td>
+        <td>${w.range}</td>
+        <td>${cell(fmtInt(w.sessions), w.sessionsD)}</td>
+        <td>${cell(fmtInt(w.orders), w.ordersD)}</td>
+        <td>${cell(money(w.sales), w.salesD)}</td>
+        <td>${cell(money(w.aov), w.aovD)}</td>
+        <td>${cell(fmtPct1(w.cvr), w.cvrD)}</td>
+        <td><div class="stack-cell"><span>${money(w.adCost)}</span>${deltaChip(w.adCostD,{size:'sub'})}<span class="lic-note" style="color:var(--ink-faint)">Meta ${money(w.metaCost)}・Google ${money(w.googleCost)}</span></div></td>
+        <td><div class="stack-cell"><b>${fmt2(w.roas)}</b>${deltaChip(w.roasD,{size:'sub'})}${w.metaLic>0?`<span class="lic-note">含授權金 ${fmt2(w.roasLic)}</span>`:''}</div></td>
+        <td>${cell(fmt2(w.adRoas), w.adRoasD)}</td>
+      </tr>`).join('')}</tbody>`;
+    bindSortHandlers('shopTable', shopSort, renderShopTable);
+  }
+  renderShopTable();
+})();
+/* ===== SHOPIFY END ===== */
+</script>
+
+<div id="lightbox">
+  <span class="lb-close">&times;</span>
+  <img id="lightboxImg" src="" alt="">
+  <div class="lb-cap" id="lightboxCap"></div>
+</div>
+
+</body>
+</html>
