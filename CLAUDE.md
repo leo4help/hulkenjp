@@ -62,6 +62,8 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 
 **每週 push 指令要包含：** 當週報告 HTML、`all.html`、`manifest.json`、`weeks.json`、`insights.json`、`AD Images`、CLAUDE.md（有改時）、`scripts`（有改時）、`_worker.js`（有改時）、`.gitignore`（有改時）。原始資料（xlsx、csv、`amazon_data/`）不 push。
 
+**硬性規則（使用者 2026-10-21 要求）：任何一次 push 指令——包括週報做完後的修正、補推、只改 insights 或 scripts 的小修——都一律要包含 `git add "AD Images"`。** 使用者常在週報 push 之後才補放新素材縮圖，只給部分檔案的 git add 會讓新圖片一直留在本機沒上線（W42 的 189–193 就是這樣漏掉）。沒有新圖時 `git add "AD Images"` 也不會出錯，所以不需要判斷，固定加上即可。
+
 ---
 
 ## Weekly workflow (every week)

@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hulken UTM 產生器</title>
+<style>
+  :root{
+    --bg:#f3f4f6; --card:#fff; --text:#111827; --muted:#6b7280; --border:#e5e7eb;
+    --accent:#e5533d; --accent-soft:#f3a99e; --chip:#fff; --chip-on:#111827;
+    --header:#0f141a; --field:#f8fafc; --ok:#16a34a;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0b0f14; --card:#151b23; --text:#e5e7eb; --muted:#9ca3af; --border:#283241;
+      --chip:#151b23; --chip-on:#e5e7eb; --header:#05080b; --field:#0f141a;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    font-size:15px;line-height:1.5}
+  header{background:var(--header);color:#fff;padding:14px 16px}
+  header .in{max-width:780px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  header h1{margin:0;font-size:20px;font-weight:800;letter-spacing:.2px}
+  header h1 span{color:var(--accent)}
+  header a{color:#fff;text-decoration:none;font-size:14px;opacity:.9;white-space:nowrap}
+  header a:hover{opacity:1;text-decoration:underline}
+  main{max-width:780px;margin:0 auto;padding:20px 16px 48px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 20px;margin-bottom:16px}
+  .card h2{margin:0 0 4px;font-size:18px}
+  .desc{margin:0 0 18px;color:var(--muted);font-size:13.5px}
+  label.t{display:block;font-weight:700;font-size:14px;margin:0 0 8px}
+  label.t small{font-weight:400;color:var(--muted);font-size:12px;margin-left:4px}
+  input[type=text],input[type=url]{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;
+    font-size:15px;background:var(--card);color:var(--text);outline:none}
+  input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grp{margin-bottom:16px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .chip{border:1px solid var(--border);background:var(--chip);color:var(--text);border-radius:999px;
+    padding:4px 11px;font-size:13px;cursor:pointer}
+  .chip:hover{border-color:var(--muted)}
+  .chip.on{background:var(--chip-on);color:var(--card);border-color:var(--chip-on)}
+  details{margin:4px 0 16px}
+  summary{cursor:pointer;color:var(--muted);font-size:13.5px}
+  details .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+  .out{display:flex;gap:8px;align-items:stretch}
+  .result{flex:1;min-height:46px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--field);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;word-break:break-all;color:var(--text)}
+  .result.empty{color:var(--muted)}
+  .btn{border:0;border-radius:10px;padding:0 18px;font-weight:700;font-size:14px;cursor:pointer;background:var(--accent);color:#fff;white-space:nowrap}
+  .btn:disabled{background:var(--accent-soft);cursor:not-allowed}
+  .btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--border);font-weight:500;padding:6px 12px;font-size:13px}
+  .btn.ghost:hover{border-color:var(--muted)}
+  .hint{font-size:12.5px;color:var(--muted);margin-top:8px}
+  .head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th{text-align:left;font-size:13px;color:var(--muted);font-weight:600;padding:8px 6px;border-bottom:1px solid var(--border)}
+  td{padding:12px 6px;border-bottom:1px solid var(--border);vertical-align:top}
+  td.u{word-break:break-all;font-size:13px}
+  td.u .dest{color:var(--muted);font-size:12px;margin-top:2px}
+  .tag{display:inline-block;background:var(--field);border:1px solid var(--border);border-radius:999px;padding:1px 8px;font-size:12px;margin:0 4px 4px 0}
+  .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .emptyrow{color:var(--muted);text-align:center;padding:24px 0}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;
+    padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.2s;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media (max-width:640px){
+    .row,details .row3{grid-template-columns:1fr}
+    .out{flex-direction:column}
+    .btn{padding:12px 18px}
+    thead{display:none}
+    table,tbody,tr,td{display:block;width:100%}
+    tr{border-bottom:1px solid var(--border);padding:10px 0}
+    td{border:0;padding:4px 0}
+    .acts{justify-content:flex-start}
+  }
+</style>
+</head>
+<body>
+<header><div class="in">
+  <h1>Hulken <span>UTM 產生器</span></h1>
+  <a href="/">← 回廣告成效週報</a>
+</div></header>
+
+<main>
+  <section class="card">
+    <h2>1. 產生 UTM 網址</h2>
+    <p class="desc">只需要填 Source（流量來源）與 Campaign（活動名稱）。空白會自動換成「_」。</p>
+
+    <div class="grp">
+      <label class="t" for="target">目標網址</label>
+      <input type="url" id="target" placeholder="https://..." autocomplete="off">
+    </div>
+
+    <div class="row">
+      <div class="grp">
+        <label class="t" for="source">utm_source <small>流量來源 = 平台</small></label>
+        <input type="text" id="source" placeholder="例：line、ig、x" autocomplete="off">
+        <div class="chips" id="sourceChips"></div>
+      </div>
+      <div class="grp">
+        <label class="t" for="campaign">utm_campaign <small>活動名稱（KOL 合作也寫在這裡）</small></label>
+        <input type="text" id="campaign" placeholder="例：202610_blackfriday、kol_name" autocomplete="off">
+        <div class="chips" id="campaignChips"></div>
+      </div>
+    </div>
+
+    <details id="adv">
+      <summary>進階欄位（選填）：utm_medium / utm_content / utm_term</summary>
+      <div class="row3">
+        <div>
+          <label class="t" for="medium">utm_medium</label>
+          <input type="text" id="medium" placeholder="例：social、email" autocomplete="off">
+        </div>
+        <div>
+          <label class="t" for="content">utm_content</label>
+          <input type="text" id="content" placeholder="例：banner_a" autocomplete="off">
+        </div>
+        <div>
+          <label class="t" for="term">utm_term</label>
+          <input type="text" id="term" placeholder="例：keyword" autocomplete="off">
+        </div>
+      </div>
+    </details>
+
+    <label class="t">產生的網址</label>
+    <div class="out">
+      <div class="result empty" id="result">填入 Source 與 Campaign 後會出現在這裡</div>
+      <button class="btn" id="copyBtn" disabled>複製並記錄</button>
+    </div>
+    <div class="hint" id="err"></div>
+  </section>
+
+  <section class="card">
+    <div class="head-row">
+      <div>
+        <h2>最近建立的網址</h2>
+        <p class="desc">按「複製並記錄」後會存在這台電腦的瀏覽器裡。</p>
+      </div>
+      <button class="btn ghost" id="exportBtn">匯出 CSV</button>
+    </div>
+    <table>
+      <thead><tr><th>網址</th><th>Source / Campaign</th><th>建立</th><th></th></tr></thead>
+      <tbody id="list"></tbody>
+    </table>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var KEY = 'hulken_utm_history_v1', TARGET_KEY = 'hulken_utm_target_v1';
+  var SOURCES = ['line','x','ig','fb','youtube','tiktok','google','yahoo','amazon','rakuten','email','qrcode'];
+  var $ = function(id){ return document.getElementById(id); };
+  var els = {target:$('target'),source:$('source'),campaign:$('campaign'),medium:$('medium'),content:$('content'),term:$('term')};
+
+  function load(k, d){ try{ var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
+  function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  var history = load(KEY, []);
+  if(!Array.isArray(history)) history = [];
+
+  function clean(v){ return (v || '').trim().replace(/\s+/g, '_'); }
+  function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove('show');},1600); }
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function build(){
+    var raw = els.target.value.trim(), src = clean(els.source.value), cmp = clean(els.campaign.value);
+    $('err').textContent = '';
+    if(!raw || !src || !cmp) return null;
+    if(!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
+    var u;
+    try{ u = new URL(raw); }catch(e){ $('err').textContent = '目標網址格式不正確'; return null; }
+    u.searchParams.set('utm_source', src);
+    var med = clean(els.medium.value); if(med) u.searchParams.set('utm_medium', med); else u.searchParams.delete('utm_medium');
+    u.searchParams.set('utm_campaign', cmp);
+    var con = clean(els.content.value); if(con) u.searchParams.set('utm_content', con); else u.searchParams.delete('utm_content');
+    var trm = clean(els.term.value); if(trm) u.searchParams.set('utm_term', trm); else u.searchParams.delete('utm_term');
+    return {url:u.toString(), dest:u.origin + u.pathname, source:src, medium:med, campaign:cmp, content:con, term:trm};
+  }
+
+  function update(){
+    var r = build(), box = $('result');
+    if(r){ box.textContent = r.url; box.classList.remove('empty'); $('copyBtn').disabled = false; }
+    else{ box.textContent = '填入 Source 與 Campaign 後會出現在這裡'; box.classList.add('empty'); $('copyBtn').disabled = true; }
+    markChips();
+  }
+
+  function chip(text, input){
+    var b = document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=text;
+    b.onclick = function(){ input.value = text; update(); input.focus(); };
+    return b;
+  }
+  function renderChips(){
+    var sc = $('sourceChips'); sc.innerHTML='';
+    SOURCES.forEach(function(s){ sc.appendChild(chip(s, els.source)); });
+    var cc = $('campaignChips'); cc.innerHTML=''; var seen = {};
+    history.forEach(function(h){ if(!seen[h.campaign] && Object.keys(seen).length < 8){ seen[h.campaign]=1; cc.appendChild(chip(h.campaign, els.campaign)); } });
+    markChips();
+  }
+  function markChips(){
+    [['sourceChips',els.source],['campaignChips',els.campaign]].forEach(function(p){
+      var v = clean(p[1].value);
+      Array.prototype.forEach.call($(p[0]).children, function(c){ c.classList.toggle('on', c.textContent === v); });
+    });
+  }
+
+  function copy(text){
+    if(navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function(res){ var t=document.createElement('textarea'); t.value=text; document.body.appendChild(t); t.select(); try{document.execCommand('copy');}catch(e){} t.remove(); res(); });
+  }
+
+  function fmtDate(ts){ var d=new Date(ts); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+  function renderList(){
+    var tb = $('list');
+    if(!history.length){ tb.innerHTML = '<tr><td colspan="4" class="emptyrow">還沒有紀錄</td></tr>'; return; }
+    tb.innerHTML = history.map(function(h, i){
+      var tags = '<span class="tag">'+esc(h.source)+'</span>' + (h.medium?'<span class="tag">'+esc(h.medium)+'</span>':'') + '<span class="tag">'+esc(h.campaign)+'</span>' + (h.content?'<span class="tag">'+esc(h.content)+'</span>':'');
+      return '<tr><td class="u">'+esc(h.url)+'<div class="dest">→ '+esc(h.dest)+'</div></td>'+
+        '<td>'+tags+'</td><td style="white-space:nowrap">'+fmtDate(h.ts)+'</td>'+
+        '<td><div class="acts"><button class="btn ghost" data-a="copy" data-i="'+i+'">複製</button>'+
+        '<button class="btn ghost" data-a="load" data-i="'+i+'">帶入</button>'+
+        '<button class="btn ghost" data-a="del" data-i="'+i+'">刪除</button></div></td></tr>';
+    }).join('');
+  }
+
+  $('list').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    var i = +b.dataset.i, h = history[i]; if(!h) return;
+    if(b.dataset.a === 'copy'){ copy(h.url).then(function(){ toast('已複製'); }); }
+    else if(b.dataset.a === 'load'){
+      els.target.value = h.dest; els.source.value = h.source; els.campaign.value = h.campaign;
+      els.medium.value = h.medium||''; els.content.value = h.content||''; els.term.value = h.term||'';
+      if(h.medium || h.content || h.term) $('adv').open = true;
+      update(); window.scrollTo({top:0, behavior:'smooth'});
+    }
+    else if(b.dataset.a === 'del'){
+      if(!confirm('刪除這筆紀錄？')) return;
+      history.splice(i,1); save(KEY, history); renderList(); renderChips();
+    }
+  });
+
+  $('copyBtn').onclick = function(){
+    var r = build(); if(!r) return;
+    copy(r.url).then(function(){
+      history = history.filter(function(h){ return h.url !== r.url; });
+      r.ts = Date.now(); history.unshift(r);
+      if(history.length > 200) history.length = 200;
+      save(KEY, history); save(TARGET_KEY, els.target.value.trim());
+      renderList(); renderChips(); toast('已複製並記錄');
+    });
+  };
+
+  $('exportBtn').onclick = function(){
+    if(!history.length){ toast('沒有紀錄可匯出'); return; }
+    var cols = ['建立日期','網址','目標網址','utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
+    var q = function(v){ return '"' + String(v||'').replace(/"/g,'""') + '"'; };
+    var rows = history.map(function(h){ return [fmtDate(h.ts),h.url,h.dest,h.source,h.medium,h.campaign,h.content,h.term].map(q).join(','); });
+    var blob = new Blob(['\ufeff' + cols.join(',') + '\n' + rows.join('\n')], {type:'text/csv;charset=utf-8'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'hulken_utm_' + fmtDate(Date.now()) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+
+  Object.keys(els).forEach(function(k){ els[k].addEventListener('input', update); });
+  els.target.value = load(TARGET_KEY, '') || '';
+  renderChips(); renderList(); update();
+})();
+</script>
+</body>
+</html>
