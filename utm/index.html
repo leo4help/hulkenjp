@@ -6,29 +6,23 @@
 <title>Hulken UTM 產生器</title>
 <style>
   :root{
-    --bg:#f3f4f6; --card:#fff; --text:#111827; --muted:#6b7280; --border:#e5e7eb;
-    --accent:#e5533d; --accent-soft:#f3a99e; --chip:#fff; --chip-on:#111827;
-    --header:#0f141a; --field:#f8fafc; --ok:#16a34a;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#0b0f14; --card:#151b23; --text:#e5e7eb; --muted:#9ca3af; --border:#283241;
-      --chip:#151b23; --chip-on:#e5e7eb; --header:#05080b; --field:#0f141a;
-    }
+    --bg:#f6f1e6; --card:#fff; --text:#2b2620; --muted:#6b6255; --border:#e7ded0;
+    --accent:#a9822e; --accent-soft:#d9c69a; --chip:#fff; --chip-on:#3d3220;
+    --header:#e4d5b7; --field:#fbf8f2; --ok:#1e8e5a; --brand-deep:#3d3220;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
     font-size:15px;line-height:1.5}
-  header{background:var(--header);color:#fff;padding:14px 16px}
+  header{background:var(--header);color:var(--brand-deep);padding:16px;border-bottom:1px solid var(--border)}
   header .in{max-width:780px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
-  header h1{margin:0;font-size:20px;font-weight:800;letter-spacing:.2px}
+  header h1{margin:0;font-size:20px;font-weight:800;letter-spacing:.2px;color:var(--brand-deep)}
   header h1 span{color:var(--accent)}
-  header a{color:#fff;text-decoration:none;font-size:14px;opacity:.9;white-space:nowrap}
+  header a{color:var(--brand-deep);text-decoration:none;font-size:14px;font-weight:600;opacity:.9;white-space:nowrap}
   header a:hover{opacity:1;text-decoration:underline}
   main{max-width:780px;margin:0 auto;padding:20px 16px 48px}
   .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 20px;margin-bottom:16px}
-  .card h2{margin:0 0 4px;font-size:18px}
+  .card h2{margin:0 0 4px;font-size:18px;color:var(--brand-deep)}
   .desc{margin:0 0 18px;color:var(--muted);font-size:13.5px}
   label.t{display:block;font-weight:700;font-size:14px;margin:0 0 8px}
   label.t small{font-weight:400;color:var(--muted);font-size:12px;margin-left:4px}
@@ -42,15 +36,13 @@
     padding:4px 11px;font-size:13px;cursor:pointer}
   .chip:hover{border-color:var(--muted)}
   .chip.on{background:var(--chip-on);color:var(--card);border-color:var(--chip-on)}
-  details{margin:4px 0 16px}
-  summary{cursor:pointer;color:var(--muted);font-size:13.5px}
-  details .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
   .out{display:flex;gap:8px;align-items:stretch}
   .result{flex:1;min-height:46px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--field);
     font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13.5px;word-break:break-all;color:var(--text)}
   .result.empty{color:var(--muted)}
-  .btn{border:0;border-radius:10px;padding:0 18px;font-weight:700;font-size:14px;cursor:pointer;background:var(--accent);color:#fff;white-space:nowrap}
+  .btn{border:0;border-radius:10px;padding:0 18px;font-weight:700;font-size:14px;cursor:pointer;background:linear-gradient(135deg,#a9822e,#c79b3f);color:#fff;white-space:nowrap}
   .btn:disabled{background:var(--accent-soft);cursor:not-allowed}
+  .btn.ghost{background-image:none}
   .btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--border);font-weight:500;padding:6px 12px;font-size:13px}
   .btn.ghost:hover{border-color:var(--muted)}
   .hint{font-size:12.5px;color:var(--muted);margin-top:8px}
@@ -63,11 +55,11 @@
   .tag{display:inline-block;background:var(--field);border:1px solid var(--border);border-radius:999px;padding:1px 8px;font-size:12px;margin:0 4px 4px 0}
   .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
   .emptyrow{color:var(--muted);text-align:center;padding:24px 0}
-  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#3d3220;color:#fff;
     padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.2s;pointer-events:none}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   @media (max-width:640px){
-    .row,details .row3{grid-template-columns:1fr}
+    .row{grid-template-columns:1fr}
     .out{flex-direction:column}
     .btn{padding:12px 18px}
     thead{display:none}
@@ -107,23 +99,6 @@
       </div>
     </div>
 
-    <details id="adv">
-      <summary>進階欄位（選填）：utm_medium / utm_content / utm_term</summary>
-      <div class="row3">
-        <div>
-          <label class="t" for="medium">utm_medium</label>
-          <input type="text" id="medium" placeholder="例：social、email" autocomplete="off">
-        </div>
-        <div>
-          <label class="t" for="content">utm_content</label>
-          <input type="text" id="content" placeholder="例：banner_a" autocomplete="off">
-        </div>
-        <div>
-          <label class="t" for="term">utm_term</label>
-          <input type="text" id="term" placeholder="例：keyword" autocomplete="off">
-        </div>
-      </div>
-    </details>
 
     <label class="t">產生的網址</label>
     <div class="out">
@@ -154,7 +129,7 @@
   var KEY = 'hulken_utm_history_v1', TARGET_KEY = 'hulken_utm_target_v1';
   var SOURCES = ['line','x','ig','fb','youtube','tiktok','google','yahoo','amazon','rakuten','email','qrcode'];
   var $ = function(id){ return document.getElementById(id); };
-  var els = {target:$('target'),source:$('source'),campaign:$('campaign'),medium:$('medium'),content:$('content'),term:$('term')};
+  var els = {target:$('target'),source:$('source'),campaign:$('campaign')};
 
   function load(k, d){ try{ var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
   function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -173,10 +148,10 @@
     var u;
     try{ u = new URL(raw); }catch(e){ $('err').textContent = '目標網址格式不正確'; return null; }
     u.searchParams.set('utm_source', src);
-    var med = clean(els.medium.value); if(med) u.searchParams.set('utm_medium', med); else u.searchParams.delete('utm_medium');
+    var med = '', con = '', trm = '';
+    u.searchParams.delete('utm_medium');
     u.searchParams.set('utm_campaign', cmp);
-    var con = clean(els.content.value); if(con) u.searchParams.set('utm_content', con); else u.searchParams.delete('utm_content');
-    var trm = clean(els.term.value); if(trm) u.searchParams.set('utm_term', trm); else u.searchParams.delete('utm_term');
+    u.searchParams.delete('utm_content'); u.searchParams.delete('utm_term');
     return {url:u.toString(), dest:u.origin + u.pathname, source:src, medium:med, campaign:cmp, content:con, term:trm};
   }
 
@@ -232,8 +207,6 @@
     if(b.dataset.a === 'copy'){ copy(h.url).then(function(){ toast('已複製'); }); }
     else if(b.dataset.a === 'load'){
       els.target.value = h.dest; els.source.value = h.source; els.campaign.value = h.campaign;
-      els.medium.value = h.medium||''; els.content.value = h.content||''; els.term.value = h.term||'';
-      if(h.medium || h.content || h.term) $('adv').open = true;
       update(); window.scrollTo({top:0, behavior:'smooth'});
     }
     else if(b.dataset.a === 'del'){
