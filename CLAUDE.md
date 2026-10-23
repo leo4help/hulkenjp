@@ -341,3 +341,11 @@ Hulken Weekly Report/
 - **W35 (2026-09-02): 6 ad creative rows have no `AD Images/<Row>.jpg` yet** — Row 80, 152, 153, 154, 155, 157 (all referenced in this week's `Claude_Analysis_Data`, several also newly appearing in the `KOL授權金` tab). Page still works via the built-in 缺圖 placeholder, but flag to the user in case screenshots are still pending.
 - `_to_delete/` has three old files (`hulken_kol_license_calculator.html`, `hulken_week31_report_copy_for_edit.html`, `kol.html` — the last one moved here 2026-08-23 when it was superseded by `all.html`, never published) waiting for the user to manually delete from Finder (the device bridge cannot delete files on the user's machine).
 - After the next successful push, confirm `https://hulkenjp.pages.dev/all` resolves correctly and `https://hulkenjp.pages.dev/kol` is gone (should now 404 or fall through, since `kol.html` is no longer in the repo) — first time this rename is going live.
+
+## 短網址 go.hulken.co.jp（2026-10-22 建立）
+- 方案 A：自架在 Cloudflare Pages，獨立專案 **hulken-go**（同 repo leo4help/hulkenjp，Root directory = `golinks`，無 build），程式在 `golinks/_worker.js`。
+- 這個專案**公開、不掛 Cloudflare Access**（網紅粉絲要能點），只做「讀 D1 → 302 跳轉 + 記點擊」，不提供任何寫入 API。新增/修改短網址只能從 hulkenjp.pages.dev（有 Access）做。
+- D1：與週報共用 `hulken-report`，binding 名稱 `DB`。表：`links`（slug NOCASE 主鍵、url、note、active、clicks、created_by、created_at、last_click_at）、`link_clicks`（每次點擊；is_bot=1 為預覽爬蟲，不計入 clicks）。
+- 未知 slug、根目錄、非 http(s) 目標 → 一律導回 https://hulken.co.jp/。robots.txt 禁止爬取。
+- DNS：hulken.co.jp 在 **GoDaddy**（ns17/ns18.domaincontrol.com），主網域與 www 指向 Shopify，無 MX。需請 Caro 那邊在 GoDaddy 新增 `CNAME go → hulken-go.pages.dev`，再到 hulken-go 專案 Custom domains 加 `go.hulken.co.jp`。
+- push 時要記得 `git add golinks`。
