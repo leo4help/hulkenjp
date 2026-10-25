@@ -30,7 +30,9 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 
 **Amazon 投放的是 AUTO Campaign（使用者 2026-10-21 說明）：** 活動層級無法區分品牌／非品牌，也不能分開調整品牌、非品牌的預算或出價。報表中的品牌／非品牌（品牌字、品牌ASIN、非品牌字、非品牌ASIN）是依搜尋字詞**事後分類**，只用來看流量組成與成效。寫 Amazon 建議時：不要寫「品牌預算加／減」「非品牌規模維持」「某品牌字降出價」這種需要手動活動才能做的動作；可行的槓桿是整體 AUTO 活動預算、否定關鍵字、排除產品（ASIN）。
 
-**TEST 表加「原廠標記」欄（2026-10-24）：** Meta TEST 素材表（metaTestKol）比照常態素材表加 `tag` 欄位，`ensure_test_tag()` 會自動補欄（W42 已就地補上）；標記邏輯共用 `creative_tag()`（KOL → KOL，否則取原廠標記眾數，無值顯示 NULL）。前端 `tagBadge()` 原本只認「KOL／原廠」，其他值（日廠-Wack、wakazo-kol…）都被顯示成 NULL，2026-10-24 已修成照實顯示，W31–W42 與 all.html 全部補上。
+**TEST 表加「原廠標記」欄（2026-10-24）：** Meta TEST 素材表（metaTestKol）比照常態素材表加 `tag` 欄位，`ensure_test_tag()` 會自動補欄（W42 已就地補上）；標記邏輯共用 `creative_tag()`。
+
+**原廠標記顯示規則（使用者 2026-10-24 指定，硬性）：欄位寫什麼就顯示什麼，沒寫才顯示 NULL。** 直接取 Bridge／快取的 `原廠標記` 欄（當週眾數，當週無資料取上週），不可依廣告名稱或 isKOL 推斷、不可把未知值併成 NULL 或其他類別。目前出現過的值：KOL、原廠、原廠-kol、wakazo、wakazo-kol、日廠-COCO、日廠-TORI、日廠-Jeff、日廠-Wack。前端 `tagBadge()` 原本只認「KOL／原廠」，其他值（日廠-Wack、wakazo-kol…）都被顯示成 NULL，2026-10-24 已修成照實顯示，W31–W42 與 all.html 全部補上。
 
 **花費金額異常標記（2026-10-21）：** `build_weekly_report.py` 的 `ensure_cost_anomaly()` 在 Meta TEST／常態／KOL 表的花費欄加「⚠ 異常」標籤，規則：0 < 花費 < ¥1,000 且 ROAS ≥ 20（已暫停的廣告出現小額回溯，例：W42 原廠-92 ¥353、ROAS 203.95）。使用者會口頭說明，洞察不必特別解釋。
 
@@ -63,6 +65,8 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 - 本機 file:// 開頁面時 API 讀不到 → 只讀、不顯示編輯鈕，屬正常。
 
 **每週 push 指令要包含：** 當週報告 HTML、`all.html`、`manifest.json`、`weeks.json`、`insights.json`、`AD Images`、CLAUDE.md（有改時）、`scripts`（有改時）、`_worker.js`（有改時）、`.gitignore`（有改時）。原始資料（xlsx、csv、`amazon_data/`）不 push。
+
+**硬性規則（2026-10-24 事故後補）：`git add` 只能列出確切的檔案（例：`2026W42/hulken_week42_report.html`），絕不 add 整個週資料夾。** 2026-10-24 Claude 給的指令用了 `git add 2026W31 … 2026W42`，以為 csv 有被 .gitignore 擋，實際上當時 .gitignore 只有 `*.xlsx`，結果 Shopify／Amazon 原始 csv 和一個 .textClipping 被 commit 並 push（337ce49）。已在 .gitignore 補上 `*.csv`、`*.textClipping`、`Claude outputs/`，並 `git rm --cached` 移出追蹤。給 push 指令前要先確認每個路徑都是成品檔。
 
 **硬性規則（使用者 2026-10-21 要求）：任何一次 push 指令——包括週報做完後的修正、補推、只改 insights 或 scripts 的小修——都一律要包含 `git add "AD Images"`。** 使用者常在週報 push 之後才補放新素材縮圖，只給部分檔案的 git add 會讓新圖片一直留在本機沒上線（W42 的 189–193 就是這樣漏掉）。沒有新圖時 `git add "AD Images"` 也不會出錯，所以不需要判斷，固定加上即可。
 

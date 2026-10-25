@@ -344,13 +344,13 @@ def compute_report_data(cache_path, bridge_path, week_start, week_end,
     kol_prev_test = meta_prev[meta_prev['testFlag'] == 'TEST']
     pop = sorted(set(kol_cur_test['NameRow'].dropna()) | set(kol_prev_test['NameRow'].dropna()))
     def creative_tag(nr, sub, prev_sub):
-        """原廠標記 column: 'KOL' for KOL creatives, else the most common 原廠標記 value (None -> NULL badge)."""
+        """原廠標記 column (user rule 2026-10-24): show exactly what the 原廠標記 field says
+        (most common non-empty value this week, else last week); empty -> None (NULL badge).
+        No inference from the ad name / isKOL."""
         src = sub if len(sub) else prev_sub
-        is_kol_row = bool(src['isKOL'].iloc[0]) if len(src) else is_kol(nr)
-        if is_kol_row:
-            return 'KOL'
         tag_val = src[TAG].dropna() if len(src) else pd.Series(dtype=object)
-        return tag_val.mode().iloc[0] if len(tag_val) else None
+        tag_val = tag_val[tag_val.astype(str).str.strip() != '']
+        return str(tag_val.mode().iloc[0]).strip() if len(tag_val) else None
 
     metaTestKol = []
     for nr in pop:

@@ -6,3 +6,8 @@ Mastersheet_Tab_Guide.md
 __pycache__/
 *.pyc
 amazon_data/
+
+# raw data — never push (2026-10-24)
+*.csv
+*.textClipping
+Claude outputs/
