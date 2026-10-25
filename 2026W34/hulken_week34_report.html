@@ -215,7 +215,7 @@
   .pending-badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:#eee6d6;color:#9a6a1c;border:1px dashed #cdb98a;}
   tbody tr.grand td{background:var(--tan-soft);font-weight:800;color:var(--brand-deep);border-top:2px solid var(--brand-gold);}
   .name-cell{font-weight:700;color:var(--ink);}
-  .tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;margin-left:6px;}
+  .tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;margin-left:6px;white-space:nowrap;}
   .tag.kol{background:#eadfc4;color:#7a5c1e;}
   .tag.origin{background:#e2e6df;color:#4c5a44;}
   .tag.null{background:#eee;color:#999;border:1px solid #ddd;}
@@ -672,6 +672,8 @@ renderMetaTestKol();
 function tagBadge(tag){
   if(tag==='KOL') return '<span class="tag kol">KOL</span>';
   if(tag==='原廠') return '<span class="tag origin">原廠</span>';
+  // 其他原廠標記值（例：日廠-Wack、wakazo-kol）照實顯示，空值才顯示 NULL（2026-10-24 修正）
+  if(tag!=null && String(tag).trim()!=='') return '<span class="tag origin">' + String(tag).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])) + '</span>';
   return '<span class="tag null">NULL</span>';
 }
 function heatBg(value, min, max, rgb){

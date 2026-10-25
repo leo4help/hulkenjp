@@ -515,6 +515,8 @@ function heatBg(value, min, max, rgb){
 function tagBadge(tag){
   if(tag==='KOL') return '<span class="tag kol">KOL</span>';
   if(tag==='原廠') return '<span class="tag origin">原廠</span>';
+  // 其他原廠標記值（例：日廠-Wack、wakazo-kol）照實顯示，空值才顯示 NULL（2026-10-24 修正）
+  if(tag!=null && String(tag).trim()!=='') return '<span class="tag origin">' + String(tag).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])) + '</span>';
   return '<span class="tag null">NULL</span>';
 }
 

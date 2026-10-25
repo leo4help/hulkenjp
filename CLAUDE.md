@@ -30,7 +30,7 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 
 **Amazon 投放的是 AUTO Campaign（使用者 2026-10-21 說明）：** 活動層級無法區分品牌／非品牌，也不能分開調整品牌、非品牌的預算或出價。報表中的品牌／非品牌（品牌字、品牌ASIN、非品牌字、非品牌ASIN）是依搜尋字詞**事後分類**，只用來看流量組成與成效。寫 Amazon 建議時：不要寫「品牌預算加／減」「非品牌規模維持」「某品牌字降出價」這種需要手動活動才能做的動作；可行的槓桿是整體 AUTO 活動預算、否定關鍵字、排除產品（ASIN）。
 
-**TEST 表加「原廠標記」欄（2026-10-24）：** Meta TEST 素材表（metaTestKol）比照常態素材表加 `tag` 欄位，`ensure_test_tag()` 會自動補欄（W42 已就地補上）；標記邏輯共用 `creative_tag()`（KOL → KOL，否則取原廠標記眾數，無值顯示 NULL）。
+**TEST 表加「原廠標記」欄（2026-10-24）：** Meta TEST 素材表（metaTestKol）比照常態素材表加 `tag` 欄位，`ensure_test_tag()` 會自動補欄（W42 已就地補上）；標記邏輯共用 `creative_tag()`（KOL → KOL，否則取原廠標記眾數，無值顯示 NULL）。前端 `tagBadge()` 原本只認「KOL／原廠」，其他值（日廠-Wack、wakazo-kol…）都被顯示成 NULL，2026-10-24 已修成照實顯示，W31–W42 與 all.html 全部補上。
 
 **花費金額異常標記（2026-10-21）：** `build_weekly_report.py` 的 `ensure_cost_anomaly()` 在 Meta TEST／常態／KOL 表的花費欄加「⚠ 異常」標籤，規則：0 < 花費 < ¥1,000 且 ROAS ≥ 20（已暫停的廣告出現小額回溯，例：W42 原廠-92 ¥353、ROAS 203.95）。使用者會口頭說明，洞察不必特別解釋。
 
