@@ -343,10 +343,22 @@ def compute_report_data(cache_path, bridge_path, week_start, week_end,
     kol_cur_test = meta_cur[meta_cur['testFlag'] == 'TEST']
     kol_prev_test = meta_prev[meta_prev['testFlag'] == 'TEST']
     pop = sorted(set(kol_cur_test['NameRow'].dropna()) | set(kol_prev_test['NameRow'].dropna()))
+    def creative_tag(nr, sub, prev_sub):
+        """原廠標記 column: 'KOL' for KOL creatives, else the most common 原廠標記 value (None -> NULL badge)."""
+        src = sub if len(sub) else prev_sub
+        is_kol_row = bool(src['isKOL'].iloc[0]) if len(src) else is_kol(nr)
+        if is_kol_row:
+            return 'KOL'
+        tag_val = src[TAG].dropna() if len(src) else pd.Series(dtype=object)
+        return tag_val.mode().iloc[0] if len(tag_val) else None
+
     metaTestKol = []
     for nr in pop:
         sub = kol_cur_test[kol_cur_test['NameRow'] == nr]
-        metaTestKol.append(row_with_delta(nr, sub))
+        tag = creative_tag(nr, sub, kol_prev_test[kol_prev_test['NameRow'] == nr])
+        metaTestKol.append(row_with_delta(nr, sub, extra={'tag': tag}))
+    # 原廠標記 added to the TEST table 2026-10-24 (same column as 常態素材概況)
+    metaTestKol = [{'name': r['name'], 'tag': r['tag'], **{k: v for k, v in r.items() if k not in ('name', 'tag')}} for r in metaTestKol]
 
     # ---- metaCreative: population = union(cur General namerows, prev General namerows) ----
     gen_cur = meta_cur[meta_cur['testFlag'] == 'General']
@@ -355,15 +367,7 @@ def compute_report_data(cache_path, bridge_path, week_start, week_end,
     metaCreative = []
     for nr in pop2:
         sub = gen_cur[gen_cur['NameRow'] == nr]
-        if len(sub):
-            is_kol_row = bool(sub['isKOL'].iloc[0])
-            tag_val = sub[TAG].dropna()
-            tag = 'KOL' if is_kol_row else (tag_val.mode().iloc[0] if len(tag_val) else None)
-        else:
-            prev_sub = gen_prev[gen_prev['NameRow'] == nr]
-            is_kol_row = bool(prev_sub['isKOL'].iloc[0]) if len(prev_sub) else is_kol(nr)
-            tag_val = prev_sub[TAG].dropna() if len(prev_sub) else pd.Series(dtype=object)
-            tag = 'KOL' if is_kol_row else (tag_val.mode().iloc[0] if len(tag_val) else None)
+        tag = creative_tag(nr, sub, gen_prev[gen_prev['NameRow'] == nr])
         metaCreative.append(row_with_delta(nr, sub, extra={'tag': tag}))
     # name, tag should lead the dict -> rebuild in that key order
     metaCreative = [{'name': r['name'], 'tag': r['tag'], **{k: v for k, v in r.items() if k not in ('name', 'tag')}} for r in metaCreative]
@@ -778,6 +782,24 @@ def ensure_cost_anomaly(html):
     return html.replace(pat, pat + '${costAnomaly(r)}')
 
 
+def ensure_test_tag(html):
+    """Add the 原廠標記 column to the Meta TEST creative table, same as 常態素材概況 (2026-10-24, idempotent)."""
+    i = html.find('function renderMetaTestKol')
+    j = html.find('renderMetaTestKol();', i)
+    if i < 0 or j < 0:
+        raise SystemExit('ensure_test_tag: renderMetaTestKol not found')
+    fn = html[i:j]
+    if "label:'原廠標記'" in fn:
+        return html
+    a = "{key:'name', label:'Name-Row'},"
+    b = '<td class="name-cell">${nameCellWithThumb(r.name)}</td>'
+    if fn.count(a) != 1 or fn.count(b) != 1:
+        raise SystemExit('ensure_test_tag: unexpected renderMetaTestKol layout')
+    fn = fn.replace(a, a + "{key:'tag', label:'原廠標記'},")
+    fn = fn.replace(b, b + '\n      <td>${tagBadge(r.tag)}</td>')
+    return html[:i] + fn + html[j:]
+
+
 def sub_const(html, name, value):
     pattern = re.compile(r"(const " + name + r" ?= ?)(\[.*?\]|\{.*?\})(;)", re.S)
     new_html, n = pattern.subn(lambda m: m.group(1) + dumps(value) + m.group(3), html, count=1)
@@ -926,6 +948,7 @@ def build_html(template_path, out_path, data, week_num, prev_week_num,
     #     already carry it; inject it once if the template predates it.
     html = ensure_channel_merged_block(html)
     html = ensure_cost_anomaly(html)
+    html = ensure_test_tag(html)
 
     # 9c. Insight & Suggestion section (W41+, replaces the Weekly Insight
     #     callout; editable online via _worker.js + D1). Inject once, then

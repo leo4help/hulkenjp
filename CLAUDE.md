@@ -30,6 +30,8 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 
 **Amazon 投放的是 AUTO Campaign（使用者 2026-10-21 說明）：** 活動層級無法區分品牌／非品牌，也不能分開調整品牌、非品牌的預算或出價。報表中的品牌／非品牌（品牌字、品牌ASIN、非品牌字、非品牌ASIN）是依搜尋字詞**事後分類**，只用來看流量組成與成效。寫 Amazon 建議時：不要寫「品牌預算加／減」「非品牌規模維持」「某品牌字降出價」這種需要手動活動才能做的動作；可行的槓桿是整體 AUTO 活動預算、否定關鍵字、排除產品（ASIN）。
 
+**TEST 表加「原廠標記」欄（2026-10-24）：** Meta TEST 素材表（metaTestKol）比照常態素材表加 `tag` 欄位，`ensure_test_tag()` 會自動補欄（W42 已就地補上）；標記邏輯共用 `creative_tag()`（KOL → KOL，否則取原廠標記眾數，無值顯示 NULL）。
+
 **花費金額異常標記（2026-10-21）：** `build_weekly_report.py` 的 `ensure_cost_anomaly()` 在 Meta TEST／常態／KOL 表的花費欄加「⚠ 異常」標籤，規則：0 < 花費 < ¥1,000 且 ROAS ≥ 20（已暫停的廣告出現小額回溯，例：W42 原廠-92 ¥353、ROAS 203.95）。使用者會口頭說明，洞察不必特別解釋。
 
 **改線上 Insight 的較簡單方式（2026-10-21）：** Chrome 若已通過 Access 登入 hulkenjp.pages.dev，直接在報告頁執行 `fetch('/api/insights')` 讀、`PUT /api/insights` 寫（以 ads@wakazocorp.com 身分），不用進 Cloudflare dashboard（dashboard 登入常會過期）。修改時以線上內容為準、只改需要改的字串，改完把同樣內容同步回 insights.json。
@@ -349,3 +351,4 @@ Hulken Weekly Report/
 - 未知 slug、根目錄、非 http(s) 目標 → 一律導回 https://hulken.co.jp/。robots.txt 禁止爬取。
 - DNS：hulken.co.jp 在 **GoDaddy**（ns17/ns18.domaincontrol.com），主網域與 www 指向 Shopify，無 MX。需請 Caro 那邊在 GoDaddy 新增 `CNAME go → hulken-go.pages.dev`，再到 hulken-go 專案 Custom domains 加 `go.hulken.co.jp`。
 - push 時要記得 `git add golinks`。
+- 2026-10-22 狀態：hulken-go 已建立並部署（D1 binding DB 已設定），go.hulken.co.jp 已加到 Custom domains（等 GoDaddy CNAME，狀態 Initializing）。D1 有一筆測試短網址 `test`（可刪）。尚未做：在 hulkenjp 加 /api/links 與 UTM 頁「產生短網址」按鈕。
