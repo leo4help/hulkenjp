@@ -6,6 +6,7 @@
  *   GET    /api/insights           -> { me, canEdit, insights: { "2026-10-08": {blocks, _by, _at} } }
  *   PUT    /api/insights           -> body { week: "YYYY-MM-DD" (report week start, Thursday), data: { blocks: { overall:{rows,actions}, metaTest:{rows}, metaCreative:{rows}, kol:{rows}, shopify:{rows} } } }
  *   DELETE /api/insights?week=...  -> delete the online version (page falls back to the built-in insights.json draft)
+ *   GET/POST/DELETE /api/links     -> short links for go.hulken.co.jp (see handleLinks at the bottom)
  *   anything else                  -> static files (env.ASSETS; clean URLs like /all keep working)
  *
  * Pages settings (project hulkenjp):
@@ -26,6 +27,13 @@ export default {
     if (url.pathname === "/api/insights") {
       try {
         return await handleInsights(request, env, url);
+      } catch (e) {
+        return json({ error: "server error: " + (e && e.message ? e.message : String(e)) }, 500);
+      }
+    }
+    if (url.pathname === "/api/links") {
+      try {
+        return await handleLinks(request, env, url);
       } catch (e) {
         return json({ error: "server error: " + (e && e.message ? e.message : String(e)) }, 500);
       }
@@ -202,6 +210,99 @@ async function handleInsights(request, env, url) {
         "INSERT INTO insights_history (week, data, action, updated_by, updated_at) VALUES (?1, NULL, 'revert', ?2, ?3)"
       ).bind(week, user.email, at),
     ]);
+    return json({ ok: true });
+  }
+
+  return json({ error: "method not allowed" }, 405);
+}
+
+/* ------------------------------------------------------------------ short links (added 2026-10-26)
+ * Short links are served publicly by the separate Pages project hulken-go (golinks/_worker.js) at
+ * https://go.hulken.co.jp/<slug>. They are created / deleted only here, behind Cloudflare Access.
+ *
+ *   GET    /api/links              -> { me, canEdit, links: [{slug,url,note,clicks,created_by,created_at,last_click_at}] }
+ *   POST   /api/links              -> body { url, slug? (auto 6 chars if empty), note? }   (ALLOWED_EDITORS only)
+ *   DELETE /api/links?slug=...     -> delete the link (click log in link_clicks is kept)   (ALLOWED_EDITORS only)
+ */
+const LINK_SLUG_RE = /^[A-Za-z0-9_-]{1,64}$/;
+const LINK_RESERVED = new Set(["api", "robots", "favicon", "admin", "www"]);
+const LINK_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"; // no 0/o/1/l/i to avoid confusion on print
+
+let linksSchemaReady = false;
+async function ensureLinksSchema(db) {
+  if (linksSchemaReady) return;
+  await db.batch([
+    db.prepare(`CREATE TABLE IF NOT EXISTS links (
+      slug TEXT PRIMARY KEY COLLATE NOCASE, url TEXT NOT NULL, note TEXT,
+      active INTEGER NOT NULL DEFAULT 1, clicks INTEGER NOT NULL DEFAULT 0,
+      created_by TEXT, created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+      last_click_at TEXT)`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS link_clicks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT NOT NULL,
+      at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+      country TEXT, referer TEXT, is_bot INTEGER NOT NULL DEFAULT 0)`),
+  ]);
+  linksSchemaReady = true;
+}
+
+function randomSlug(n = 6) {
+  const bytes = crypto.getRandomValues(new Uint8Array(n));
+  let s = "";
+  for (const b of bytes) s += LINK_ALPHABET[b % LINK_ALPHABET.length];
+  return s;
+}
+
+async function handleLinks(request, env, url) {
+  if (!env.DB) return json({ error: "server misconfigured: D1 binding DB missing" }, 500);
+  const user = await getUser(request, env);
+  if (user.error) return json({ error: user.error }, user.status);
+  await ensureLinksSchema(env.DB);
+
+  if (request.method === "GET") {
+    const { results } = await env.DB.prepare(
+      `SELECT slug, url, note, clicks, created_by, created_at, last_click_at
+       FROM links WHERE active = 1 ORDER BY created_at DESC LIMIT 500`
+    ).all();
+    return json({ me: user.email, canEdit: user.canEdit, links: results || [] });
+  }
+
+  if (!user.canEdit) return json({ error: "沒有建立／刪除短網址的權限" }, 403);
+
+  if (request.method === "POST") {
+    const body = await request.json().catch(() => null);
+    if (!body) return json({ error: "bad request" }, 400);
+    const target = String(body.url || "").trim();
+    let parsed;
+    try { parsed = new URL(target); } catch (e) { return json({ error: "目標網址格式不正確" }, 400); }
+    if (!/^https?:$/.test(parsed.protocol)) return json({ error: "目標網址必須是 http(s)" }, 400);
+    if (target.length > 2000) return json({ error: "目標網址太長" }, 400);
+    const note = String(body.note || "").slice(0, 200);
+
+    let slug = String(body.slug || "").trim();
+    if (slug) {
+      if (!LINK_SLUG_RE.test(slug)) return json({ error: "短網址結尾只能用英文、數字、- 和 _（最多 64 字）" }, 400);
+      if (LINK_RESERVED.has(slug.toLowerCase())) return json({ error: `「${slug}」是保留字，請換一個` }, 400);
+      const exists = await env.DB.prepare("SELECT slug FROM links WHERE slug = ?1").bind(slug).first();
+      if (exists) return json({ error: `go.hulken.co.jp/${slug} 已經被使用，請換一個` }, 409);
+    } else {
+      for (let i = 0; i < 8 && !slug; i++) {
+        const cand = randomSlug();
+        const exists = await env.DB.prepare("SELECT slug FROM links WHERE slug = ?1").bind(cand).first();
+        if (!exists) slug = cand;
+      }
+      if (!slug) return json({ error: "產生短網址失敗，請再試一次" }, 500);
+    }
+    const at = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+    await env.DB.prepare(
+      "INSERT INTO links (slug, url, note, created_by, created_at) VALUES (?1, ?2, ?3, ?4, ?5)"
+    ).bind(slug, target, note, user.email, at).run();
+    return json({ ok: true, link: { slug, url: target, note, clicks: 0, created_by: user.email, created_at: at, last_click_at: null } });
+  }
+
+  if (request.method === "DELETE") {
+    const slug = url.searchParams.get("slug") || "";
+    if (!LINK_SLUG_RE.test(slug)) return json({ error: "bad slug" }, 400);
+    await env.DB.prepare("DELETE FROM links WHERE slug = ?1").bind(slug).run();
     return json({ ok: true });
   }
 

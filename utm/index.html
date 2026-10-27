@@ -55,6 +55,20 @@
   .tag{display:inline-block;background:var(--field);border:1px solid var(--border);border-radius:999px;padding:1px 8px;font-size:12px;margin:0 4px 4px 0}
   .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
   .emptyrow{color:var(--muted);text-align:center;padding:24px 0}
+  .slug{display:flex;align-items:stretch;gap:8px}
+  .slug .pre{display:flex;flex:1;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card)}
+  .slug .pre span{display:flex;align-items:center;padding:0 12px;background:var(--field);border-right:1px solid var(--border);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;color:var(--muted);white-space:nowrap}
+  .slug .pre input{border:0;border-radius:0;box-shadow:none;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .slug .pre:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+  .newlink{margin-top:14px;padding:12px 14px;border:1px solid var(--accent-soft);background:var(--field);border-radius:10px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .newlink[hidden]{display:none}
+  .newlink b{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-all}
+  .hint.err{color:#b4412b}
+  td.short b{font-size:14px;word-break:break-all}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  td .by{color:var(--muted);font-size:12px}
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#3d3220;color:#fff;
     padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.2s;pointer-events:none}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -67,6 +81,8 @@
     tr{border-bottom:1px solid var(--border);padding:10px 0}
     td{border:0;padding:4px 0}
     .acts{justify-content:flex-start}
+    .slug{flex-direction:column}
+    td.num{text-align:left}
   }
 </style>
 </head>
@@ -103,22 +119,34 @@
     <label class="t">產生的網址</label>
     <div class="out">
       <div class="result empty" id="result">填入 Source 與 Campaign 後會出現在這裡</div>
-      <button class="btn" id="copyBtn" disabled>複製並記錄</button>
+      <button class="btn" id="copyBtn" disabled>複製</button>
     </div>
     <div class="hint" id="err"></div>
   </section>
 
   <section class="card">
+    <h2>2. 一鍵產生短網址</h2>
+    <p class="desc">短網址使用 Hulken 自己的網域 go.hulken.co.jp，可以放在 LINE 訊息、貼文、KOL 合作或印刷品上，並記錄點擊次數。<b>廣告後台的到達網址請直接用上方完整網址，不要用短網址。</b></p>
+    <label class="t" for="slug">自訂短網址結尾 <small>選填，只要輸入「/」後面的文字；不填會自動產生 6 碼</small></label>
+    <div class="slug">
+      <div class="pre"><span>go.hulken.co.jp/</span><input type="text" id="slug" placeholder="例如 kol_mia" autocomplete="off" maxlength="64"></div>
+      <button class="btn" id="shortBtn" disabled>產生短網址</button>
+    </div>
+    <div class="hint" id="slugHint">可使用英文、數字、- 和 _，例如輸入 <b>kol_mia</b> 會得到 go.hulken.co.jp/kol_mia</div>
+    <div class="newlink" id="newLink" hidden><b id="newLinkText"></b><button class="btn ghost" id="newLinkCopy">複製</button></div>
+  </section>
+
+  <section class="card">
     <div class="head-row">
       <div>
-        <h2>最近建立的網址</h2>
-        <p class="desc">按「複製並記錄」後會存在這台電腦的瀏覽器裡。</p>
+        <h2>最近建立的短網址</h2>
+        <p class="desc">點擊數為短網址被打開的次數（含重複點擊，不含 LINE／FB 等連結預覽爬蟲）。</p>
       </div>
       <button class="btn ghost" id="exportBtn">匯出 CSV</button>
     </div>
     <table>
-      <thead><tr><th>網址</th><th>Source / Campaign</th><th>建立</th><th></th></tr></thead>
-      <tbody id="list"></tbody>
+      <thead><tr><th>短網址</th><th>Source / Campaign</th><th style="text-align:right">點擊</th><th>建立</th><th></th></tr></thead>
+      <tbody id="list"><tr><td colspan="5" class="emptyrow">載入中…</td></tr></tbody>
     </table>
   </section>
 </main>
@@ -126,19 +154,18 @@
 
 <script>
 (function(){
-  var KEY = 'hulken_utm_history_v1', TARGET_KEY = 'hulken_utm_target_v1';
+  var TARGET_KEY = 'hulken_utm_target_v1', SHORT_HOST = 'go.hulken.co.jp';
   var SOURCES = ['line','x','ig','fb','youtube','tiktok','google','yahoo','amazon','rakuten','email','qrcode'];
   var $ = function(id){ return document.getElementById(id); };
   var els = {target:$('target'),source:$('source'),campaign:$('campaign')};
+  var links = [], canEdit = false, apiOk = false, busy = false;
 
   function load(k, d){ try{ var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
   function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
-  var history = load(KEY, []);
-  if(!Array.isArray(history)) history = [];
-
   function clean(v){ return (v || '').trim().replace(/\s+/g, '_'); }
-  function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove('show');},1600); }
-  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove('show');},1800); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function shortUrl(slug){ return 'https://' + SHORT_HOST + '/' + slug; }
 
   function build(){
     var raw = els.target.value.trim(), src = clean(els.source.value), cmp = clean(els.campaign.value);
@@ -148,17 +175,15 @@
     var u;
     try{ u = new URL(raw); }catch(e){ $('err').textContent = '目標網址格式不正確'; return null; }
     u.searchParams.set('utm_source', src);
-    var med = '', con = '', trm = '';
-    u.searchParams.delete('utm_medium');
     u.searchParams.set('utm_campaign', cmp);
-    u.searchParams.delete('utm_content'); u.searchParams.delete('utm_term');
-    return {url:u.toString(), dest:u.origin + u.pathname, source:src, medium:med, campaign:cmp, content:con, term:trm};
+    return {url:u.toString(), source:src, campaign:cmp};
   }
 
   function update(){
     var r = build(), box = $('result');
     if(r){ box.textContent = r.url; box.classList.remove('empty'); $('copyBtn').disabled = false; }
     else{ box.textContent = '填入 Source 與 Campaign 後會出現在這裡'; box.classList.add('empty'); $('copyBtn').disabled = true; }
+    $('shortBtn').disabled = !r || !apiOk || !canEdit || busy;
     markChips();
   }
 
@@ -167,11 +192,15 @@
     b.onclick = function(){ input.value = text; update(); input.focus(); };
     return b;
   }
+  function parts(u){
+    try{ var p = new URL(u); return {dest:p.origin + p.pathname, source:p.searchParams.get('utm_source')||'', campaign:p.searchParams.get('utm_campaign')||''}; }
+    catch(e){ return {dest:u, source:'', campaign:''}; }
+  }
   function renderChips(){
     var sc = $('sourceChips'); sc.innerHTML='';
     SOURCES.forEach(function(s){ sc.appendChild(chip(s, els.source)); });
-    var cc = $('campaignChips'); cc.innerHTML=''; var seen = {};
-    history.forEach(function(h){ if(!seen[h.campaign] && Object.keys(seen).length < 8){ seen[h.campaign]=1; cc.appendChild(chip(h.campaign, els.campaign)); } });
+    var cc = $('campaignChips'); cc.innerHTML=''; var seen = {}, n = 0;
+    links.forEach(function(l){ var c = parts(l.url).campaign; if(c && !seen[c] && n < 8){ seen[c]=1; n++; cc.appendChild(chip(c, els.campaign)); } });
     markChips();
   }
   function markChips(){
@@ -185,60 +214,95 @@
     if(navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
     return new Promise(function(res){ var t=document.createElement('textarea'); t.value=text; document.body.appendChild(t); t.select(); try{document.execCommand('copy');}catch(e){} t.remove(); res(); });
   }
+  function fmtDate(iso){ var d=new Date(iso); if(isNaN(d)) return ''; return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function who(email){ return String(email||'').split('@')[0]; }
 
-  function fmtDate(ts){ var d=new Date(ts); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-
-  function renderList(){
+  function renderList(msg){
     var tb = $('list');
-    if(!history.length){ tb.innerHTML = '<tr><td colspan="4" class="emptyrow">還沒有紀錄</td></tr>'; return; }
-    tb.innerHTML = history.map(function(h, i){
-      var tags = '<span class="tag">'+esc(h.source)+'</span>' + (h.medium?'<span class="tag">'+esc(h.medium)+'</span>':'') + '<span class="tag">'+esc(h.campaign)+'</span>' + (h.content?'<span class="tag">'+esc(h.content)+'</span>':'');
-      return '<tr><td class="u">'+esc(h.url)+'<div class="dest">→ '+esc(h.dest)+'</div></td>'+
-        '<td>'+tags+'</td><td style="white-space:nowrap">'+fmtDate(h.ts)+'</td>'+
+    if(msg){ tb.innerHTML = '<tr><td colspan="5" class="emptyrow">'+esc(msg)+'</td></tr>'; return; }
+    if(!links.length){ tb.innerHTML = '<tr><td colspan="5" class="emptyrow">還沒有短網址</td></tr>'; return; }
+    tb.innerHTML = links.map(function(l, i){
+      var p = parts(l.url);
+      var tags = (p.source?'<span class="tag">'+esc(p.source)+'</span>':'') + (p.campaign?'<span class="tag">'+esc(p.campaign)+'</span>':'');
+      return '<tr><td class="u short"><b>'+SHORT_HOST+'/'+esc(l.slug)+'</b><div class="dest">→ '+esc(p.dest.replace(/^https?:\/\//,''))+'</div></td>'+
+        '<td>'+(tags||'<span class="by">—</span>')+'</td>'+
+        '<td class="num">'+(+l.clicks||0).toLocaleString()+'</td>'+
+        '<td style="white-space:nowrap">'+fmtDate(l.created_at)+'<div class="by">'+esc(who(l.created_by))+'</div></td>'+
         '<td><div class="acts"><button class="btn ghost" data-a="copy" data-i="'+i+'">複製</button>'+
-        '<button class="btn ghost" data-a="load" data-i="'+i+'">帶入</button>'+
-        '<button class="btn ghost" data-a="del" data-i="'+i+'">刪除</button></div></td></tr>';
+        '<button class="btn ghost" data-a="orig" data-i="'+i+'">原網址</button>'+
+        (canEdit?'<button class="btn ghost" data-a="del" data-i="'+i+'">刪除</button>':'')+'</div></td></tr>';
     }).join('');
+  }
+
+  function api(method, qs, body){
+    return fetch('/api/links' + (qs||''), {method:method, credentials:'same-origin',
+      headers: body ? {'content-type':'application/json'} : {}, body: body ? JSON.stringify(body) : undefined})
+      .then(function(r){ return r.json().catch(function(){ return {error:'HTTP ' + r.status}; }).then(function(j){ if(!r.ok || j.error) throw new Error(j.error || ('HTTP ' + r.status)); return j; }); });
+  }
+
+  function refresh(){
+    return api('GET').then(function(j){
+      apiOk = true; canEdit = !!j.canEdit; links = j.links || [];
+      if(!canEdit){ $('slugHint').innerHTML = '目前登入的帳號（'+esc(j.me)+'）只能檢視，不能建立短網址。'; }
+      renderList(); renderChips(); update();
+    }).catch(function(e){
+      apiOk = false; renderList('讀不到短網址清單：' + e.message);
+      $('slugHint').textContent = '短網址功能需要在 hulkenjp.pages.dev 登入後使用。'; update();
+    });
   }
 
   $('list').addEventListener('click', function(e){
     var b = e.target.closest('button'); if(!b) return;
-    var i = +b.dataset.i, h = history[i]; if(!h) return;
-    if(b.dataset.a === 'copy'){ copy(h.url).then(function(){ toast('已複製'); }); }
-    else if(b.dataset.a === 'load'){
-      els.target.value = h.dest; els.source.value = h.source; els.campaign.value = h.campaign;
-      update(); window.scrollTo({top:0, behavior:'smooth'});
-    }
+    var l = links[+b.dataset.i]; if(!l) return;
+    if(b.dataset.a === 'copy'){ copy(shortUrl(l.slug)).then(function(){ toast('已複製 ' + SHORT_HOST + '/' + l.slug); }); }
+    else if(b.dataset.a === 'orig'){ copy(l.url).then(function(){ toast('已複製原網址'); }); }
     else if(b.dataset.a === 'del'){
-      if(!confirm('刪除這筆紀錄？')) return;
-      history.splice(i,1); save(KEY, history); renderList(); renderChips();
+      if(!confirm('刪除 ' + SHORT_HOST + '/' + l.slug + '？\n刪除後這個短網址會改為導向 hulken.co.jp 首頁。')) return;
+      api('DELETE', '?slug=' + encodeURIComponent(l.slug)).then(function(){ toast('已刪除'); refresh(); })
+        .catch(function(err){ toast('刪除失敗：' + err.message); });
     }
   });
 
   $('copyBtn').onclick = function(){
     var r = build(); if(!r) return;
-    copy(r.url).then(function(){
-      history = history.filter(function(h){ return h.url !== r.url; });
-      r.ts = Date.now(); history.unshift(r);
-      if(history.length > 200) history.length = 200;
-      save(KEY, history); save(TARGET_KEY, els.target.value.trim());
-      renderList(); renderChips(); toast('已複製並記錄');
-    });
+    copy(r.url).then(function(){ save(TARGET_KEY, els.target.value.trim()); toast('已複製'); });
   };
 
+  $('slug').addEventListener('input', function(){
+    var v = this.value, bad = v && !/^[A-Za-z0-9_-]*$/.test(v), h = $('slugHint');
+    h.classList.toggle('err', !!bad);
+    if(bad) h.textContent = '只能使用英文、數字、- 和 _';
+    else if(canEdit || !apiOk) h.innerHTML = '可使用英文、數字、- 和 _，例如輸入 <b>' + esc(v || 'kol_mia') + '</b> 會得到 ' + SHORT_HOST + '/' + esc(v || 'kol_mia');
+  });
+
+  $('shortBtn').onclick = function(){
+    var r = build(); if(!r || busy) return;
+    var slug = $('slug').value.trim();
+    if(slug && !/^[A-Za-z0-9_-]{1,64}$/.test(slug)){ toast('短網址結尾格式不正確'); return; }
+    busy = true; update(); $('shortBtn').textContent = '產生中…';
+    api('POST', '', {url:r.url, slug:slug}).then(function(j){
+      var s = shortUrl(j.link.slug);
+      $('newLinkText').textContent = s.replace(/^https:\/\//,''); $('newLink').hidden = false;
+      $('slug').value = ''; save(TARGET_KEY, els.target.value.trim());
+      return copy(s).then(function(){ toast('短網址已建立並複製'); }).then(refresh);
+    }).catch(function(e){ toast(e.message); })
+      .then(function(){ busy = false; $('shortBtn').textContent = '產生短網址'; update(); });
+  };
+  $('newLinkCopy').onclick = function(){ copy('https://' + $('newLinkText').textContent).then(function(){ toast('已複製'); }); };
+
   $('exportBtn').onclick = function(){
-    if(!history.length){ toast('沒有紀錄可匯出'); return; }
-    var cols = ['建立日期','網址','目標網址','utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
-    var q = function(v){ return '"' + String(v||'').replace(/"/g,'""') + '"'; };
-    var rows = history.map(function(h){ return [fmtDate(h.ts),h.url,h.dest,h.source,h.medium,h.campaign,h.content,h.term].map(q).join(','); });
-    var blob = new Blob(['\ufeff' + cols.join(',') + '\n' + rows.join('\n')], {type:'text/csv;charset=utf-8'});
-    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'hulken_utm_' + fmtDate(Date.now()) + '.csv';
+    if(!links.length){ toast('沒有紀錄可匯出'); return; }
+    var cols = ['建立日期','建立者','短網址','點擊','完整網址','utm_source','utm_campaign'];
+    var q = function(v){ return '"' + String(v==null?'':v).replace(/"/g,'""') + '"'; };
+    var rows = links.map(function(l){ var p = parts(l.url); return [fmtDate(l.created_at),who(l.created_by),shortUrl(l.slug),l.clicks||0,l.url,p.source,p.campaign].map(q).join(','); });
+    var blob = new Blob(['﻿' + cols.join(',') + '\n' + rows.join('\n')], {type:'text/csv;charset=utf-8'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'hulken_shortlinks_' + fmtDate(new Date().toISOString()) + '.csv';
     document.body.appendChild(a); a.click(); a.remove();
   };
 
   Object.keys(els).forEach(function(k){ els[k].addEventListener('input', update); });
-  els.target.value = load(TARGET_KEY, '') || '';
-  renderChips(); renderList(); update();
+  els.target.value = load(TARGET_KEY, '') || 'https://hulken.co.jp/';
+  renderChips(); update(); refresh();
 })();
 </script>
 </body>
