@@ -158,7 +158,7 @@
   var SOURCES = ['line','x','ig','fb','youtube','tiktok','google','yahoo','amazon','rakuten','email','qrcode'];
   var $ = function(id){ return document.getElementById(id); };
   var els = {target:$('target'),source:$('source'),campaign:$('campaign')};
-  var links = [], canEdit = false, apiOk = false, busy = false;
+  var links = [], me = '', isAdmin = false, apiOk = false, busy = false;
 
   function load(k, d){ try{ var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
   function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
@@ -183,7 +183,7 @@
     var r = build(), box = $('result');
     if(r){ box.textContent = r.url; box.classList.remove('empty'); $('copyBtn').disabled = false; }
     else{ box.textContent = '填入 Source 與 Campaign 後會出現在這裡'; box.classList.add('empty'); $('copyBtn').disabled = true; }
-    $('shortBtn').disabled = !r || !apiOk || !canEdit || busy;
+    $('shortBtn').disabled = !r || !apiOk || busy;
     markChips();
   }
 
@@ -230,7 +230,7 @@
         '<td style="white-space:nowrap">'+fmtDate(l.created_at)+'<div class="by">'+esc(who(l.created_by))+'</div></td>'+
         '<td><div class="acts"><button class="btn ghost" data-a="copy" data-i="'+i+'">複製</button>'+
         '<button class="btn ghost" data-a="orig" data-i="'+i+'">原網址</button>'+
-        (canEdit?'<button class="btn ghost" data-a="del" data-i="'+i+'">刪除</button>':'')+'</div></td></tr>';
+        ((isAdmin || String(l.created_by||'').toLowerCase() === me)?'<button class="btn ghost" data-a="del" data-i="'+i+'">刪除</button>':'')+'</div></td></tr>';
     }).join('');
   }
 
@@ -242,8 +242,7 @@
 
   function refresh(){
     return api('GET').then(function(j){
-      apiOk = true; canEdit = !!j.canEdit; links = j.links || [];
-      if(!canEdit){ $('slugHint').innerHTML = '目前登入的帳號（'+esc(j.me)+'）只能檢視，不能建立短網址。'; }
+      apiOk = true; me = String(j.me||'').toLowerCase(); isAdmin = !!j.isAdmin; links = j.links || [];
       renderList(); renderChips(); update();
     }).catch(function(e){
       apiOk = false; renderList('讀不到短網址清單：' + e.message);
@@ -272,7 +271,7 @@
     var v = this.value, bad = v && !/^[A-Za-z0-9_-]*$/.test(v), h = $('slugHint');
     h.classList.toggle('err', !!bad);
     if(bad) h.textContent = '只能使用英文、數字、- 和 _';
-    else if(canEdit || !apiOk) h.innerHTML = '可使用英文、數字、- 和 _，例如輸入 <b>' + esc(v || 'kol_mia') + '</b> 會得到 ' + SHORT_HOST + '/' + esc(v || 'kol_mia');
+    else h.innerHTML = '可使用英文、數字、- 和 _，例如輸入 <b>' + esc(v || 'kol_mia') + '</b> 會得到 ' + SHORT_HOST + '/' + esc(v || 'kol_mia');
   });
 
   $('shortBtn').onclick = function(){

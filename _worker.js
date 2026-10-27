@@ -220,9 +220,13 @@ async function handleInsights(request, env, url) {
  * Short links are served publicly by the separate Pages project hulken-go (golinks/_worker.js) at
  * https://go.hulken.co.jp/<slug>. They are created / deleted only here, behind Cloudflare Access.
  *
- *   GET    /api/links              -> { me, canEdit, links: [{slug,url,note,clicks,created_by,created_at,last_click_at}] }
- *   POST   /api/links              -> body { url, slug? (auto 6 chars if empty), note? }   (ALLOWED_EDITORS only)
- *   DELETE /api/links?slug=...     -> delete the link (click log in link_clicks is kept)   (ALLOWED_EDITORS only)
+ *   GET    /api/links              -> { me, isAdmin, links: [{slug,url,note,clicks,created_by,created_at,last_click_at}] }
+ *   POST   /api/links              -> body { url, slug? (auto 6 chars if empty), note? }   (anyone signed in through Access)
+ *   DELETE /api/links?slug=...     -> delete the link (click log in link_clicks is kept)   (the link's creator, or ALLOWED_EDITORS)
+ *
+ * Permissions are independent of Insight editing (2026-10-27, user request): every @wakazocorp.com
+ * account that passes Cloudflare Access can create short links; ALLOWED_EDITORS stays Insight-only
+ * plus "admin" for deleting anyone's link.
  */
 const LINK_SLUG_RE = /^[A-Za-z0-9_-]{1,64}$/;
 const LINK_RESERVED = new Set(["api", "robots", "favicon", "admin", "www"]);
@@ -263,10 +267,8 @@ async function handleLinks(request, env, url) {
       `SELECT slug, url, note, clicks, created_by, created_at, last_click_at
        FROM links WHERE active = 1 ORDER BY created_at DESC LIMIT 500`
     ).all();
-    return json({ me: user.email, canEdit: user.canEdit, links: results || [] });
+    return json({ me: user.email, isAdmin: user.canEdit, links: results || [] });
   }
-
-  if (!user.canEdit) return json({ error: "沒有建立／刪除短網址的權限" }, 403);
 
   if (request.method === "POST") {
     const body = await request.json().catch(() => null);
@@ -302,6 +304,11 @@ async function handleLinks(request, env, url) {
   if (request.method === "DELETE") {
     const slug = url.searchParams.get("slug") || "";
     if (!LINK_SLUG_RE.test(slug)) return json({ error: "bad slug" }, 400);
+    const row = await env.DB.prepare("SELECT created_by FROM links WHERE slug = ?1").bind(slug).first();
+    if (!row) return json({ ok: true });
+    if (!user.canEdit && String(row.created_by || "").toLowerCase() !== user.email) {
+      return json({ error: "只能刪除自己建立的短網址" }, 403);
+    }
     await env.DB.prepare("DELETE FROM links WHERE slug = ?1").bind(slug).run();
     return json({ ok: true });
   }
