@@ -2,7 +2,7 @@
 
 `reports.json`（專案根目錄，key = 報告週起始日 YYYY-MM-DD）裡列的專題報告，會在週報
 「Insight & Suggestion（媒體與整體狀況）」區塊下方產生一張卡片 `<section id="review">`，
-附摘要與「查看完整報告」連結，nav 也會多一個「專題檢討」連結。
+附摘要與「查看完整報告」連結（url 可以是外部網址，或同資料夾的相對路徑，例：W43 的 hulken_week43_report-add.html），nav 也會多一個「專題檢討」連結。
 
 每次建置都會先移除模板帶過來的舊卡片，所以專題只出現在指定的那一週。
 單獨執行可以就地更新已建好的週報：
@@ -44,7 +44,7 @@ def _card(r):
             + f'<h3>{e(r["title"])}</h3>'
             + (f'<p class="sr-lead">{e(r["lead"])}</p>' if r.get('lead') else '')
             + (f'<ul class="sr-list">{items}</ul>' if items else '')
-            + f'<div class="sr-foot"><a class="sr-btn" href="{e(r["url"])}" target="_blank" rel="noopener">{e(r.get("cta") or "查看完整檢討報告")} ↗</a>'
+            + f'<div class="sr-foot"><a class="sr-btn" href="{e(r["url"])}"' + (' target="_blank" rel="noopener"' if str(r['url']).startswith('http') else '') + f'>{e(r.get("cta") or "查看完整檢討報告")} {"↗" if str(r["url"]).startswith("http") else "→"}</a>'
             + (f'<span class="sr-note">{e(r["note"])}</span>' if r.get('note') else '')
             + '</div></div>')
 

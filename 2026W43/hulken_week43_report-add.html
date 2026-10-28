@@ -1,0 +1,352 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>HULKEN JP 10/28 業績檢討</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: single reading column (~780px); findings index table up top links into each section; numbers in mono, status chips mark confirmed / ruled-out / open */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --ink:#18202b; --muted:#5b6575; --line:#dfe3ea;
+  --accent:#2f5d8a; --accent-soft:#e6eef6; --drop:#b4442f; --drop-soft:#f8e7e3;
+  --ok:#2e7a55; --ok-soft:#e3f2ea; --warn:#9a6a12; --warn-soft:#f6eedb;
+  --f-display:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161c; --surface:#1a2029; --ink:#e7ebf1; --muted:#9aa5b5; --line:#2c3440;
+  --accent:#7fb0e0; --accent-soft:#1e2c3b; --drop:#ec8a74; --drop-soft:#3a2420;
+  --ok:#74c79c; --ok-soft:#1c3128; --warn:#e2b55c; --warn-soft:#352c19; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161c; --surface:#1a2029; --ink:#e7ebf1; --muted:#9aa5b5; --line:#2c3440;
+  --accent:#7fb0e0; --accent-soft:#1e2c3b; --drop:#ec8a74; --drop-soft:#3a2420;
+  --ok:#74c79c; --ok-soft:#1c3128; --warn:#e2b55c; --warn-soft:#352c19; color-scheme:dark}
+
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:780px;margin:0 auto;padding-block:40px 64px;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.35}
+h1{font-size:clamp(26px,5vw,34px);font-weight:900;letter-spacing:.01em}
+h2{font-size:21px;font-weight:700;display:flex;align-items:baseline;gap:10px}
+h2 .tag{font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.08em}
+h3{font-size:16px;font-weight:700}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:6px 16px}
+header{display:flex;flex-direction:column;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:20px}
+section{display:flex;flex-direction:column;gap:18px}
+.sub{display:flex;flex-direction:column;gap:10px}
+[id]{scroll-margin-top:16px}
+.sub:target{outline:2px solid var(--accent);outline-offset:8px;border-radius:2px}
+
+.verdict{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);padding:18px 20px;border-radius:4px;display:flex;flex-direction:column;gap:8px}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi .k{font-size:12px;color:var(--muted)}
+.kpi .v{font-family:var(--f-mono);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.2}
+.kpi .d{font-size:12px;color:var(--drop);font-family:var(--f-mono)}
+
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:16px 16px 8px;display:flex;flex-direction:column;gap:8px}
+.chart .cap{font-size:13px;color:var(--muted)}
+.chart svg{width:100%;height:auto;display:block}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:460px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.04em;background:var(--bg)}
+tr:last-child td{border-bottom:none}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hi{color:var(--drop);font-weight:600}
+.up{color:var(--ok);font-weight:600}
+
+.index table{min-width:560px}
+.index td:first-child{white-space:nowrap}
+.index a{color:var(--accent);font-weight:700;text-decoration:none;border-bottom:1px solid var(--accent-soft)}
+.index a:hover,.index a:focus-visible{border-bottom-color:var(--accent)}
+.index a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.index .grp td{background:var(--bg);font-size:12px;color:var(--muted);letter-spacing:.06em;font-weight:500;padding-block:6px}
+.index td.st{white-space:nowrap;width:1%}
+
+.chip{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;line-height:1.6}
+.chip.out{background:var(--ok-soft);color:var(--ok)}
+.chip.open{background:var(--warn-soft);color:var(--warn)}
+.chip.find{background:var(--drop-soft);color:var(--drop)}
+
+.bar{display:flex;height:28px;border-radius:4px;overflow:hidden;border:1px solid var(--line);font-size:12px;font-weight:700}
+.bar span{display:flex;align-items:center;padding-inline:10px;white-space:nowrap;min-width:0}
+.bar .conv{background:var(--drop);color:var(--surface)}
+.bar .traf{background:var(--accent);color:var(--surface)}
+
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.note{font-size:13px;color:var(--muted)}
+
+.ledger{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+.row{display:grid;grid-template-columns:88px 1fr;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);align-items:start}
+.row:last-child{border-bottom:none}
+.row > div{min-width:0}
+.row .t{font-weight:700}
+.row .why{font-size:13.5px;color:var(--muted)}
+
+footer{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+.back{align-self:flex-start;font-size:13px;font-weight:700;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent-soft)}.back:hover{border-bottom-color:var(--accent)}
+</style>
+
+<div class="wrap">
+<a class="back" href="hulken_week43_report.html">← 回 W43 廣告成效週報</a>
+<header>
+  <span class="eyebrow">HULKEN® Japan · Shopify × Meta 檢討</span>
+  <h1>10/28 業績驟降原因檢討</h1>
+  <div class="meta">
+    <span>整理日期：2026-10-28</span>
+    <span>資料來源：Shopify 後台、Meta 廣告管理員（帳戶 846388628312382）、GA4</span>
+    <span>時區：JST</span>
+  </div>
+</header>
+
+<section id="index">
+  <h2><span class="tag">00</span>調查結論總覽</h2>
+  <div class="tbl index"><table>
+    <thead><tr><th>調查項目</th><th>結論</th><th>狀態</th></tr></thead>
+    <tbody>
+      <tr class="grp"><td colspan="3">整體</td></tr>
+      <tr><td><a href="#s-overall">營收下滑來源</a></td><td>客單價正常（約 ¥16,500），下滑全部來自訂單數減少</td><td class="st"><span class="chip find">確認</span></td></tr>
+      <tr><td><a href="#s-decomp">影響拆解</a></td><td>和 10/25 比，約七成來自轉換率下降、三成來自流量減少；和 10/27 比，流量持平，幾乎全是轉換率下降</td><td class="st"><span class="chip find">確認</span></td></tr>
+      <tr class="grp"><td colspan="3">Shopify</td></tr>
+      <tr><td><a href="#s-traffic">IG 流量</a></td><td>IG 工作階段 −36%，因 Meta 花費 −21%、CPM +17%</td><td class="st"><span class="chip find">確認</span></td></tr>
+      <tr><td><a href="#s-traffic">Google 搜尋暴增</a></td><td>18–21 點流量翻倍但幾乎不成交，來源不明</td><td class="st"><span class="chip open">待確認</span></td></tr>
+      <tr><td><a href="#s-funnel">加購意願</a></td><td>加購率 3.6% → 2.4%，是轉換下滑的起點；原因未知</td><td class="st"><span class="chip open">待確認</span></td></tr>
+      <tr><td><a href="#s-funnel">結帳流程</a></td><td>未完成結帳人數兩天幾乎相同，流程正常</td><td class="st"><span class="chip out">已排除</span></td></tr>
+      <tr><td><a href="#s-product">商品組合</a></td><td>Black 佔比與近三週相同，跌幅與全站一致</td><td class="st"><span class="chip out">已排除</span></td></tr>
+      <tr><td><a href="#s-stock">庫存紀錄</a></td><td>庫存異動和「10/23 補貨」時間對不上，非主因</td><td class="st"><span class="chip open">待確認</span></td></tr>
+      <tr class="grp"><td colspan="3">Meta</td></tr>
+      <tr><td><a href="#s-placement">IG 版位比例</a></td><td>IG 花費佔比穩定在 92–94%，未被演算法縮減</td><td class="st"><span class="chip out">已排除</span></td></tr>
+      <tr><td><a href="#s-cpm">CPM</a></td><td>10/28 為 3/27 以來最高，全版位上漲；已知因素，但影響小於轉換率</td><td class="st"><span class="chip find">確認</span></td></tr>
+      <tr><td><a href="#s-campaign">行銷活動表現</a></td><td>多個活動同時轉換驟降，非單一活動問題</td><td class="st"><span class="chip find">確認</span></td></tr>
+      <tr><td><a href="#s-budget">預算操作</a></td><td>依當下 ROAS 調整屬合理判斷，非原因</td><td class="st"><span class="chip out">已排除</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s-overall">
+  <div class="verdict">
+    <span class="eyebrow">結論</span>
+    <p>10/28 的下滑<strong>主要來自轉換率下降</strong>：流量沒有大幅減少，但願意加購和購買的人變少，而且多個行銷活動同時發生。<strong>CPM 創約 7 個月新高</strong>是已確認的次要因素，讓 IG 流量減少。網站、結帳流程、商品與版位分配都已排除。加購意願為何下降仍未知，待 10/29 全天數據確認是否為單日低點。</p>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><span class="k">Shopify 訂單</span><span class="v">31</span><span class="d">10/25：87（−64%）</span></div>
+    <div class="kpi"><span class="k">加購率</span><span class="v">2.4%</span><span class="d">10/25：4.1%</span></div>
+    <div class="kpi"><span class="k">Meta 購買</span><span class="v">27</span><span class="d">10/25：66（−59%）</span></div>
+    <div class="kpi"><span class="k">帳戶 CPM</span><span class="v">¥3,723</span><span class="d">3/27 以來最高</span></div>
+  </div>
+  <div class="chart">
+    <h3>Shopify 每日訂單數</h3>
+    <svg id="ordersChart" viewBox="0 0 720 240" role="img" aria-label="10/18 到 10/28 每日訂單長條圖"></svg>
+    <span class="cap">10/23 再入荷，10/25（週日）為近期高峰。10/28 比 10/21–10/22 平日水準低約四成。</span>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">01</span>Shopify 後台觀察</h2>
+
+  <div class="sub" id="s-decomp">
+    <h3>影響拆解：流量 vs 轉換率</h3>
+    <p>訂單數 = 工作階段 × 轉換率。把兩者的變化拆開，看各自貢獻多少下滑：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>比較基準</th><th class="n">工作階段</th><th class="n">轉換率</th><th class="n">訂單</th></tr></thead>
+      <tbody>
+        <tr><td>10/25 → 10/28</td><td class="n">5,471 → 4,049（−26%）</td><td class="n hi">1.55% → 0.74%（−52%）</td><td class="n">87 → 31</td></tr>
+        <tr><td>10/27 → 10/28</td><td class="n">3,914 → 4,049（+3%）</td><td class="n hi">1.38% → 0.74%（−46%）</td><td class="n">54 → 31</td></tr>
+      </tbody>
+    </table></div>
+    <div class="bar" role="img" aria-label="10/25 到 10/28 的下滑，約七成來自轉換率、三成來自流量"><span class="conv" style="flex:71">轉換率 約 71%</span><span class="traf" style="flex:29">流量 約 29%</span></div>
+    <ul>
+      <li>流量面的下滑主要來自 IG：曝光減少約 33%，其中約四成來自 CPM 上漲、六成來自花費減少。換算下來，<strong>CPM 約佔整體下滑的一成多</strong>。</li>
+      <li>和前一天比，總工作階段沒有減少（IG 少的部分被 Google 搜尋暴增補上），下滑幾乎全部來自轉換率。</li>
+      <li>Google 晚間暴增的流量幾乎不成交，會把 10/28 的轉換率拉低；即使扣掉這部分，轉換率仍約 0.8%，明顯低於前幾天。</li>
+    </ul>
+    <p class="note">拆解採對數比例分配，數字為估算，用來判斷相對大小。</p>
+  </div>
+
+  <div class="sub" id="s-traffic">
+    <h3>流量來源</h3>
+    <ul>
+      <li>Instagram 工作階段從 10/25 的 2,560 降到 1,628（−36%），主因是 Meta 廣告帶來的點擊變少：IG 版位花費 −21%（佔比仍維持 92–94%）、CPM +17%，曝光因此少約 33%；CTR 也從 3.12% 小降到 2.81%，連結點擊少約 40%。</li>
+      <li>Google 搜尋在 10/28 日本時間 18–21 點暴增（575 → 1,294 工作階段），但只有 14 個加購、3 筆成交，拉低了整體轉換率。來源待確認。</li>
+    </ul>
+  </div>
+
+  <div class="sub" id="s-funnel">
+    <h3>漏斗：問題在結帳之前</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>指標</th><th class="n">10/25</th><th class="n">10/27</th><th class="n">10/28</th></tr></thead>
+      <tbody>
+        <tr><td>工作階段</td><td class="n">5,471</td><td class="n">3,914</td><td class="n">4,049</td></tr>
+        <tr><td>加購率</td><td class="n">4.1%</td><td class="n">3.6%</td><td class="n hi">2.4%</td></tr>
+        <tr><td>進入結帳 → 完成</td><td class="n">63%</td><td class="n">55%</td><td class="n hi">42%</td></tr>
+        <tr><td>整體轉換率</td><td class="n">1.55%</td><td class="n">1.38%</td><td class="n hi">0.74%</td></tr>
+      </tbody>
+    </table></div>
+    <p>結帳完成率雖然下降，但拆開人數後，<strong>沒完成結帳的人數兩天幾乎一樣</strong>。結帳頁每天大約有 40 多人看了就走，買家變少時，這批人在分母裡的比重變大，完成率才會下降。真正的下滑發生在加購這一步。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>結帳拆解</th><th class="n">10/27</th><th class="n">10/28</th></tr></thead>
+      <tbody>
+        <tr><td>進入結帳</td><td class="n">99</td><td class="n">71</td></tr>
+        <tr><td>完成購買</td><td class="n">54</td><td class="n hi">30</td></tr>
+        <tr><td>沒完成的</td><td class="n">45</td><td class="n">41</td></tr>
+        <tr><td>　其中留下放棄結帳紀錄</td><td class="n">12</td><td class="n">12</td></tr>
+        <tr><td>　其中沒填資料就離開</td><td class="n">33</td><td class="n">29</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">放棄結帳紀錄的商品分布正常，KOL 折扣碼（hira_fan、yukko_fan 等）均有正常套用。加購意願下降的原因目前沒有數據能解釋，見待追蹤。</p>
+  </div>
+
+  <div class="sub" id="s-product">
+    <h3>商品組合</h3>
+    <ul>
+      <li>Black 佔 10/28 訂單約 47%，和最近三週（45–47%）相同；Black Small 從每天 24–26 筆降到 11 筆，跌幅與全站一致。</li>
+      <li>長期趨勢：Midnight Blue 佔比從 9 月初約 21% 降到最近約 14%。</li>
+    </ul>
+  </div>
+
+  <div class="sub" id="s-stock">
+    <h3>庫存（待確認，非主因）</h3>
+    <ul>
+      <li>Black Small 在 10/28 一次入庫約 2,800 件。</li>
+      <li>10/20–10/22 Black Small 庫存減少約 1,100 件，但期間沒怎麼賣，可能是調撥到其他通路；和「10/23 補貨」的時間對不起來。</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2><span class="tag">02</span>Meta 後台發現</h2>
+
+  <div class="sub" id="s-placement">
+    <h3>版位分配沒有變</h3>
+    <p>全版位投放下，IG 每天都拿到約 92–94% 的花費，10/28 也是 92%。演算法並沒有把預算從 IG 移走。</p>
+    <div class="tbl"><table>
+      <thead><tr><th>IG 版位</th><th class="n">10/25</th><th class="n">10/28</th><th class="n">變化</th></tr></thead>
+      <tbody>
+        <tr><td>花費</td><td class="n">¥336,367</td><td class="n">¥266,248</td><td class="n">−21%</td></tr>
+        <tr><td>CPM</td><td class="n">¥3,200</td><td class="n">¥3,753</td><td class="n hi">+17%</td></tr>
+        <tr><td>曝光</td><td class="n">105,120</td><td class="n">70,946</td><td class="n">−33%</td></tr>
+        <tr><td>CTR</td><td class="n">3.12%</td><td class="n">2.81%</td><td class="n">−0.31pt</td></tr>
+        <tr><td>購買</td><td class="n">60</td><td class="n">24</td><td class="n hi">−60%</td></tr>
+        <tr><td>點擊轉購買率</td><td class="n">2.1%</td><td class="n">1.4%</td><td class="n">−0.7pt</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="sub" id="s-cpm">
+    <h3>CPM 創約 7 個月新高</h3>
+    <div class="chart">
+      <svg id="cpmChart" viewBox="0 0 720 240" role="img" aria-label="10/18 到 10/28 帳戶 CPM 折線圖，排除再入荷 RT"></svg>
+      <span class="cap">帳戶 CPM（排除再入荷 RT 活動，JPY）。兩段上升：10/23 跳一階，10/27 起再漲。</span>
+    </div>
+    <ul>
+      <li>排除再入荷 RT 後趨勢不變；RT 只佔約 4–5% 花費，不是推高 CPM 的原因。</li>
+      <li>10/28 帳戶 CPM ¥3,723，是 <strong>3/27（¥3,826）以來最高</strong>；10/27 的 ¥3,324 也是近期高點。今年 2 月中下旬、3 月中下旬曾到 ¥3,700–3,900。</li>
+      <li>CPM 上漲是全版位現象：Facebook +82%（¥2,224 → ¥4,044，CTR 同時從 7.7% 腰斬到 3.8%）、Audience Network +43%，但兩者合計花費不到一成，影響有限。</li>
+      <li>CPM 只影響觸及人數，解釋不了點擊後轉換率下降，所以是次要因素（約佔整體下滑一成多）。</li>
+      <li>本帳戶 2026 年 1 月才開始投放，沒有去年 10 月底的同期資料。</li>
+    </ul>
+  </div>
+
+  <div class="sub" id="s-campaign">
+    <h3>行銷活動：10/25 → 10/28 全面下滑</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>行銷活動</th><th class="n">10/25 購買／花費</th><th class="n">10/28 購買／花費</th></tr></thead>
+      <tbody>
+        <tr><td>hira（KOL）</td><td class="n">10 ／ ¥33k</td><td class="n hi">2 ／ ¥27k</td></tr>
+        <tr><td>Row116（KOL，花費最大）</td><td class="n">15 ／ ¥92k</td><td class="n">12 ／ ¥58k</td></tr>
+        <tr><td>Row179、187、114（KOL 測試）</td><td class="n">15 ／ ¥45k</td><td class="n hi">0 ／ ¥39k</td></tr>
+        <tr><td>Row176、177</td><td class="n">5 ／ ¥23k</td><td class="n">已停投</td></tr>
+        <tr><td>Row180</td><td class="n">7 ／ ¥14k</td><td class="n">3 ／ ¥24k</td></tr>
+        <tr><td>Row119（原廠）</td><td class="n">2 ／ ¥13k</td><td class="n hi">0 ／ ¥28k</td></tr>
+        <tr><td>Row90（KOL）</td><td class="n">4 ／ ¥37k</td><td class="n">2 ／ ¥29k</td></tr>
+        <tr><td>再入荷 RT</td><td class="n">2 ／ ¥16k</td><td class="n up">4 ／ ¥14k</td></tr>
+        <tr><td><strong>帳戶整體</strong></td><td class="n">66 ／ ¥364k</td><td class="n hi">27 ／ ¥289k</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">帳戶 CPA 從 ¥5,508 變成 ¥10,720。和前一天比，10/27 → 10/28 的減少主要集中在 Row119（8 → 0）、hira（8 → 2）、Row90（7 → 2）。</p>
+  </div>
+
+  <div class="sub" id="s-budget">
+    <h3>預算操作</h3>
+    <ul>
+      <li>團隊一貫依當下 ROAS（目標 4）即時加碼或縮減。Row116 在 10/25–10/27 連續三天低於 3（2.75 → 2.51 → 2.45），因此下修；Row119（6.18、5.37）與 Row180（10.05）前兩天表現好，因此加碼。以決策當時的數據來看都是合理判斷，<strong>不視為 10/28 的原因</strong>。</li>
+      <li>Row116 在 10/28 已回升到 3.60；Row180 在 10/28 下降、10/29 回彈。</li>
+    </ul>
+  </div>
+
+  <div class="sub" id="s-caveats">
+    <h3>讀數時的注意事項</h3>
+    <ul>
+      <li><strong>歸因回補</strong>：若帳戶使用點擊後 7 天歸因，10/28 點擊、之後才下單的購買會陸續補記，10/28 的 Meta 購買與 ROAS 之後可能上修。Shopify 的 31 筆是實際訂單，不會變。</li>
+      <li><strong>單日 ROAS 波動大</strong>：一筆訂單約 ¥16,000，每天只有個位數購買的活動，多一單或少一單就會讓 ROAS 在 0 到 6 之間跳動。</li>
+      <li>Meta 工具標記「A:日本名單3%_B:25+_C:女_D:日本ALL」素材疲乏分數 0.37，但該組只有 10/28 上線的 KOL-eriko 新素材（曝光 538），數據量不足，暫不參考。</li>
+    </ul>
+  </div>
+</section>
+
+<section id="s-followup">
+  <h2><span class="tag">03</span>待追蹤</h2>
+  <div class="ledger">
+    <div class="row"><span class="chip open">待確認</span><div><div class="t">加購意願下降的原因</div><div class="why">影響最大的未知因素。可比對 10/27 與 10/28 各活動的素材、落地頁停留與加購率，看是否集中在特定素材或受眾。</div></div></div>
+    <div class="row"><span class="chip open">待確認</span><div><div class="t">10/29 全天數據</div><div class="why">對照 Shopify 訂單與 Meta 購買，確認是否回到平常水準；屆時也可看 10/28 歸因回補後的數字。</div></div></div>
+    <div class="row"><span class="chip open">待確認</span><div><div class="t">10/28 晚間 Google 搜尋流量暴增來源</div><div class="why">日本時間 18–21 點流量翻倍但幾乎不成交，確認是否有媒體或社群曝光。</div></div></div>
+    <div class="row"><span class="chip open">待確認</span><div><div class="t">補貨時間與庫存紀錄對不上</div><div class="why">10/20–10/22 庫存減少約 1,100 件、10/28 入庫約 2,800 件，與「10/23 補貨」不一致。</div></div></div>
+  </div>
+</section>
+
+<footer>數據擷取時間：2026-10-28。Meta 最近兩日數據可能因歸因回補而變動。</footer>
+</div>
+
+<script>
+(function(){
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (t,a,txt) => { const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); if(txt!=null) e.textContent=txt; return e; };
+  const days = ['10/18','10/19','10/20','10/21','10/22','10/23','10/24','10/25','10/26','10/27','10/28'];
+  const W=720,H=240,L=52,R=16,T=20,B=34, pw=W-L-R, ph=H-T-B;
+
+  const orders=[54,56,59,53,46,72,71,87,60,54,31];
+  const s1=document.getElementById('ordersChart');
+  for(let v=0; v<=100; v+=25){
+    const y=T+ph-(v/100)*ph;
+    s1.append(el('line',{x1:L,x2:W-R,y1:y,y2:y,stroke:'var(--line)','stroke-width':1}));
+    s1.append(el('text',{x:L-8,y:y+4,'text-anchor':'end','font-size':11,fill:'var(--muted)','font-family':'var(--f-mono)'},v));
+  }
+  const bw=pw/days.length;
+  orders.forEach((v,i)=>{
+    const h=(v/100)*ph, x=L+i*bw+bw*0.18, y=T+ph-h, w=bw*0.64;
+    const key=(i===10||i===7);
+    s1.append(el('rect',{x,y,width:w,height:h,fill:i===10?'var(--drop)':i===7?'var(--accent)':'var(--muted)','fill-opacity':key?1:0.35,rx:2}));
+    s1.append(el('text',{x:x+w/2,y:y-6,'text-anchor':'middle','font-size':11,fill:'var(--ink)','font-family':'var(--f-mono)','font-weight':key?600:400},v));
+    s1.append(el('text',{x:x+w/2,y:H-12,'text-anchor':'middle','font-size':11,fill:'var(--muted)','font-family':'var(--f-mono)'},days[i]));
+  });
+
+  const cpm=[2676,2517,2811,2840,2855,3118,3105,3053,3068,3292,3689];
+  const s2=document.getElementById('cpmChart');
+  const min=2400,max=3800;
+  for(let v=min; v<=max; v+=350){
+    const y=T+ph-((v-min)/(max-min))*ph;
+    s2.append(el('line',{x1:L,x2:W-R,y1:y,y2:y,stroke:'var(--line)','stroke-width':1}));
+    s2.append(el('text',{x:L-8,y:y+4,'text-anchor':'end','font-size':11,fill:'var(--muted)','font-family':'var(--f-mono)'},v.toLocaleString()));
+  }
+  const step=pw/(days.length-1);
+  const pts=cpm.map((v,i)=>[L+i*step, T+ph-((v-min)/(max-min))*ph]);
+  const area='M'+pts[0][0]+','+(T+ph)+' L'+pts.map(p=>p.join(',')).join(' L')+' L'+pts[pts.length-1][0]+','+(T+ph)+' Z';
+  s2.append(el('path',{d:area,fill:'var(--accent)','fill-opacity':0.1}));
+  s2.append(el('path',{d:'M'+pts.map(p=>p.join(',')).join(' L'),fill:'none',stroke:'var(--accent)','stroke-width':2.2,'stroke-linejoin':'round'}));
+  pts.forEach((p,i)=>{
+    const last=i===pts.length-1;
+    s2.append(el('circle',{cx:p[0],cy:p[1],r:last?5:3,fill:last?'var(--drop)':'var(--accent)'}));
+    s2.append(el('text',{x:p[0],y:H-12,'text-anchor':'middle','font-size':11,fill:'var(--muted)','font-family':'var(--f-mono)'},days[i]));
+  });
+  const lp=pts[pts.length-1];
+  s2.append(el('text',{x:lp[0]-10,y:lp[1]-10,'text-anchor':'end','font-size':12,fill:'var(--drop)','font-family':'var(--f-mono)','font-weight':600},'¥3,689'));
+})();
+</script>
+
+</body></html>
