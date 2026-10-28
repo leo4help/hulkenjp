@@ -961,6 +961,10 @@ def build_html(template_path, out_path, data, week_num, prev_week_num,
         raise SystemExit("INSIGHT_WEEK substitution failed")
     html = sub_const(html, 'INSIGHTS_BUILTIN', data.get('insightsBuiltin') or {})
 
+    # 9c-2. 專題報告卡片（W43+；reports.json，只出現在指定週，模板帶來的舊卡片會先移除）
+    import special_reports
+    html = special_reports.apply(html, data.get('specialReports') or [])
+
     # 9d. channel-coverage note under the 全渠道 table (W41+: e.g. 本週未提供樂天資料)
     import html as _h
     note = data.get('channelNote') or ''
@@ -1007,6 +1011,7 @@ def main():
     ap.add_argument('--channel-source', choices=['manual', 'data'], default='data',
                     help="W41+: 'data' (default) rebuilds the 全渠道 table from ad_data + amazon_data/; 'manual' = legacy Weekly Report Manual sheet")
     ap.add_argument('--amazon-dir', default='amazon_data')
+    ap.add_argument('--reports-json', default='reports.json', help="專題報告卡片，key = week start YYYY-MM-DD")
     ap.add_argument('--insights-json', default='insights.json', help="Claude-written Insight & Suggestion drafts, key = week start YYYY-MM-DD")
     ap.add_argument('--rakuten-cur', default=None)
     ap.add_argument('--rakuten-prev', default=None)
@@ -1035,6 +1040,8 @@ def main():
             data['insightsBuiltin'] = json.load(f).get(week_start.strftime('%Y-%m-%d'), {})
     else:
         data['insightsBuiltin'] = {}
+    import special_reports
+    data['specialReports'] = special_reports.load(args.reports_json, week_start.strftime('%Y-%m-%d'))
 
     if args.dry_run_json:
         with open(args.dry_run_json, 'w', encoding='utf-8') as f:

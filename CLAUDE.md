@@ -26,6 +26,7 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 
 **Shopify 資料改用 Shopify MCP（2026-10-21 驗證通過，使用者不用再下載 CSV）：** Shopify MCP 連的是 HULKEN® Japan（hulken-japan.myshopify.com，JPY／JST）。`FROM sales SHOW orders, total_sales TIMESERIES day SINCE <起> UNTIL <迄>` ＋ `FROM sessions SHOW sessions TIMESERIES day ...` 與使用者後台匯出的「Leo Report」CSV（日／工作階段數／訂單數／總銷售額）10/08–10/21 共 14 天逐日逐欄 100% 一致（總銷售額 = total_sales）。之後每週：用 MCP 抓「上週最後 7 天＋本週」的日資料（重抓上週，避免當時資料未定），寫成同格式 CSV 併入上週的 `SP - 2026-01-01 - ... (merged).csv`（重疊日以 MCP 新資料為準）→ 存成當週 `SP - 2026-01-01 - <週三> (merged).csv` → 照舊跑 `build_shopify_section.py`。週檢查清單裡的 Shopify 檔案改為「不需要」；只有 MCP 連不上時才請使用者手動下載。
 
+- **W43（2026-10-28）：** 樂天本週未投放（使用者事先告知），`#channelNote` 改寫成「樂天本週未投放」（建置後手動改字，重跑腳本會變回「本週未提供 樂天 資料」）。Shopify 用 MCP 抓 10/15–10/28（重抓的 10/15–10/21 只有 10/20、10/21 工作階段數差 1）。Amazon 匯出檔名是 `Sponsored_Products_SearchTerm_Oct_28_2026.csv`（匯出日，不是週期），總額 ¥83,724 與前幾週同量級，判定為單週後改名。新活動 `Row 195,196,197,198,199,200 | A:原廠_…_D:RT_Z:再入荷`（再入荷 RT，10/23 起，原廠標記 wakazo），一個活動含多個 Row，NameRow 依廣告名稱拆開正常。Google 轉換回填再次確認：W42 Google ROAS 報告時 6.81，W43 建置時（快取已用 W43 Bridge）為 7.31。快取推進：device 不能 rm，改用 `cp` 覆蓋舊檔，暫存的 new.* 移到 `_to_delete/`，舊版備份在 `_cache/bak_pre_W43.*`。
 - **W42 TEST/General（2026-10-21）：** W42 Bridge 裡 10/08–10/14 仍是使用者 W41 改名前的舊活動名稱，已比照 W41 修正（90/119/169→General、92/180/184→TEST，91 格）後才併入快取；10/15 起的資料已是新名稱。
 
 **Amazon 投放的是 AUTO Campaign（使用者 2026-10-21 說明）：** 活動層級無法區分品牌／非品牌，也不能分開調整品牌、非品牌的預算或出價。報表中的品牌／非品牌（品牌字、品牌ASIN、非品牌字、非品牌ASIN）是依搜尋字詞**事後分類**，只用來看流量組成與成效。寫 Amazon 建議時：不要寫「品牌預算加／減」「非品牌規模維持」「某品牌字降出價」這種需要手動活動才能做的動作；可行的槓桿是整體 AUTO 活動預算、否定關鍵字、排除產品（ASIN）。
@@ -33,6 +34,8 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 **TEST 表加「原廠標記」欄（2026-10-24）：** Meta TEST 素材表（metaTestKol）比照常態素材表加 `tag` 欄位，`ensure_test_tag()` 會自動補欄（W42 已就地補上）；標記邏輯共用 `creative_tag()`。
 
 **原廠標記顯示規則（使用者 2026-10-24 指定，硬性）：欄位寫什麼就顯示什麼，沒寫才顯示 NULL。** 直接取 Bridge／快取的 `原廠標記` 欄（當週眾數，當週無資料取上週），不可依廣告名稱或 isKOL 推斷、不可把未知值併成 NULL 或其他類別。目前出現過的值：KOL、原廠、原廠-kol、wakazo、wakazo-kol、日廠-COCO、日廠-TORI、日廠-Jeff、日廠-Wack。前端 `tagBadge()` 原本只認「KOL／原廠」，其他值（日廠-Wack、wakazo-kol…）都被顯示成 NULL，2026-10-24 已修成照實顯示，W31–W42 與 all.html 全部補上。
+
+**專題檢討卡片（2026-10-28，W43 起）：** 使用者在其他對話做的專題調查（例：W43「10/28 業績驟降原因檢討」，claude.ai artifact，使用者自行開權限）用 `reports.json`（key = 週起始日）登錄：title／date／source／lead／items（status = find 確認、out 已排除、open 待確認）／url／cta／note。`build_weekly_report.py` 透過 `scripts/special_reports.py` 在 `#insight` 後面插入 `<section id="review">`「專題檢討」卡片＋nav 連結，並先移除模板帶來的舊卡片，所以只出現在登錄的那一週；已建好的週報可單獨跑 `python3 scripts/special_reports.py --html <週報> --week <起始日>` 就地更新。專題結論也要同步寫進當週 Insight（W43 加了「追蹤」列並修正 Meta／Shopify 建議，例：專題已排除商品組合與結帳流程，就不要再寫成缺貨推論）。push 時要加 `reports.json`。
 
 **花費金額異常標記（2026-10-21）：** `build_weekly_report.py` 的 `ensure_cost_anomaly()` 在 Meta TEST／常態／KOL 表的花費欄加「⚠ 異常」標籤，規則：0 < 花費 < ¥1,000 且 ROAS ≥ 20（已暫停的廣告出現小額回溯，例：W42 原廠-92 ¥353、ROAS 203.95）。使用者會口頭說明，洞察不必特別解釋。
 
