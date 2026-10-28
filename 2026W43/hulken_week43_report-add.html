@@ -73,6 +73,10 @@ td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabula
 .chip.out{background:var(--ok-soft);color:var(--ok)}
 .chip.open{background:var(--warn-soft);color:var(--warn)}
 .chip.find{background:var(--drop-soft);color:var(--drop)}
+.chip.plan{background:var(--accent-soft);color:var(--accent)}
+.chip.low{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.plan-head{display:flex;flex-direction:column;gap:4px}
+.row ul{margin-top:6px;font-size:13.5px;color:var(--muted)}
 
 .bar{display:flex;height:28px;border-radius:4px;overflow:hidden;border:1px solid var(--line);font-size:12px;font-weight:700}
 .bar span{display:flex;align-items:center;padding-inline:10px;white-space:nowrap;min-width:0}
@@ -112,11 +116,13 @@ footer{font-size:12px;color:var(--muted);border-top:1px solid var(--line);paddin
     <tbody>
       <tr class="grp"><td colspan="3">整體</td></tr>
       <tr><td><a href="#s-overall">營收下滑來源</a></td><td>客單價正常（約 ¥16,500），下滑全部來自訂單數減少</td><td class="st"><span class="chip find">確認</span></td></tr>
-      <tr><td><a href="#s-decomp">影響拆解</a></td><td>和 10/25 比，約七成來自轉換率下降、三成來自流量減少；和 10/27 比，流量持平，幾乎全是轉換率下降</td><td class="st"><span class="chip find">確認</span></td></tr>
+      <tr><td><a href="#s-decomp">影響拆解</a></td><td>扣除 Google 廣告流量後，和 10/25 比約六成來自轉換率下降、四成來自流量減少；和 10/27 比，主要是轉換率下降</td><td class="st"><span class="chip find">確認</span></td></tr>
+      <tr><td><a href="#s-demand">受眾類型差異</a></td><td>下滑集中在 BT 廣泛受眾的新客開發；再入荷 RT（官網瀏覽 90 天）10/28 ROAS 4.81、持續加碼中，不受影響</td><td class="st"><span class="chip find">確認</span></td></tr>
+      <tr><td><a href="#s-demand">新客轉換走弱的原因</a></td><td>BT 受眾點進來後加購變少，原因尚未確定</td><td class="st"><span class="chip open">待確認</span></td></tr>
       <tr class="grp"><td colspan="3">Shopify</td></tr>
       <tr><td><a href="#s-traffic">IG 流量</a></td><td>IG 工作階段 −36%，因 Meta 花費 −21%、CPM +17%</td><td class="st"><span class="chip find">確認</span></td></tr>
-      <tr><td><a href="#s-traffic">Google 搜尋暴增</a></td><td>18–21 點流量翻倍但幾乎不成交，來源不明</td><td class="st"><span class="chip open">待確認</span></td></tr>
-      <tr><td><a href="#s-funnel">加購意願</a></td><td>加購率 3.6% → 2.4%，是轉換下滑的起點；原因未知</td><td class="st"><span class="chip open">待確認</span></td></tr>
+      <tr><td><a href="#s-traffic">晚間流量暴增</a></td><td>來自 Google PMax 自動轉向便宜點擊，進站後幾乎不加購；佔預算約一成，影響有限</td><td class="st"><span class="chip find">確認</span></td></tr>
+      <tr><td><a href="#s-funnel">加購意願</a></td><td>加購率 3.6% → 2.4%，是轉換下滑的起點</td><td class="st"><span class="chip find">確認</span></td></tr>
       <tr><td><a href="#s-funnel">結帳流程</a></td><td>未完成結帳人數兩天幾乎相同，流程正常</td><td class="st"><span class="chip out">已排除</span></td></tr>
       <tr><td><a href="#s-product">商品組合</a></td><td>Black 佔比與近三週相同，跌幅與全站一致</td><td class="st"><span class="chip out">已排除</span></td></tr>
       <tr><td><a href="#s-stock">庫存紀錄</a></td><td>庫存異動和「10/23 補貨」時間對不上，非主因</td><td class="st"><span class="chip open">待確認</span></td></tr>
@@ -124,6 +130,7 @@ footer{font-size:12px;color:var(--muted);border-top:1px solid var(--line);paddin
       <tr><td><a href="#s-placement">IG 版位比例</a></td><td>IG 花費佔比穩定在 92–94%，未被演算法縮減</td><td class="st"><span class="chip out">已排除</span></td></tr>
       <tr><td><a href="#s-cpm">CPM</a></td><td>10/28 為 3/27 以來最高，全版位上漲；已知因素，但影響小於轉換率</td><td class="st"><span class="chip find">確認</span></td></tr>
       <tr><td><a href="#s-campaign">行銷活動表現</a></td><td>多個活動同時轉換驟降，非單一活動問題</td><td class="st"><span class="chip find">確認</span></td></tr>
+      <tr><td><a href="#s-ads">素材加購率</a></td><td>13 支主力廣告中 12 支加購率下降，非單一素材或到達頁問題；僅 Row116 yukko 主力廣告逆勢上升</td><td class="st"><span class="chip find">確認</span></td></tr>
       <tr><td><a href="#s-budget">預算操作</a></td><td>依當下 ROAS 調整屬合理判斷，非原因</td><td class="st"><span class="chip out">已排除</span></td></tr>
     </tbody>
   </table></div>
@@ -132,7 +139,19 @@ footer{font-size:12px;color:var(--muted);border-top:1px solid var(--line);paddin
 <section id="s-overall">
   <div class="verdict">
     <span class="eyebrow">結論</span>
-    <p>10/28 的下滑<strong>主要來自轉換率下降</strong>：流量沒有大幅減少，但願意加購和購買的人變少，而且多個行銷活動同時發生。<strong>CPM 創約 7 個月新高</strong>是已確認的次要因素，讓 IG 流量減少。網站、結帳流程、商品與版位分配都已排除。加購意願為何下降仍未知，待 10/29 全天數據確認是否為單日低點。</p>
+    <p>10/28 的下滑<strong>主要來自轉換率下降</strong>（約六成）：進站的人看完商品後加購變少，而且幾乎所有 Meta 素材同時發生。<strong>CPM 創約 7 個月新高</strong>是已確認的次要因素（約一成五），讓 IG 流量減少。網站、結帳流程、商品與版位分配都已排除。下滑集中在 <strong>BT 廣泛受眾的新客開發</strong>，對既有訪客再行銷的再入荷 RT 反而表現更好（ROAS 4.81），所以不是整體需求消失。新客轉換為何走弱仍待確認，可觀察 10/29–10/31 的加購率是否回升。</p>
+  </div>
+  <div class="plan-head" id="s-plan">
+    <h3>行動計畫</h3>
+  </div>
+  <div class="ledger">
+    <div class="row"><span class="chip plan">短期</span><div><div class="t">1. 先不因 10/28 單日數字做大調整</div><div class="why">照團隊一貫做法，依當下 ROAS 調整即可。</div></div></div>
+    <div class="row"><span class="chip plan">短期</span><div><div class="t">2. 10/29 結束後對帳</div><div class="why">對照 Shopify 訂單與 Meta 購買，確認是否回到平日水準（約 50 筆）。重點看 BT 活動加購率是否回升：基準為 10/27 的 6.5%（排除 Row116 yukko 主力廣告），10/28 為 3.1%。</div></div></div>
+    <div class="row"><span class="chip plan">短期</span><div><div class="t">3. 留意 RT 加碼的上限</div><div class="why">再入荷 RT 受眾為「官網瀏覽 90 天」，規模有限，頻率已約 1.6，是所有活動中最高。持續加碼時，若頻率超過 2 且 ROAS 下滑，代表受眾接近飽和。</div></div></div>
+    <div class="row"><span class="chip find">中期</span><div><div class="t">4. 驗證「Meta 把預算分到意願較低的族群」</div><div class="why">拉 BT 主要活動在 10/25 與 10/28 的年齡、性別、版位細分，看觸及族群結構是否改變，例如某年齡層花費佔比上升但加購率特別低。可立即執行。</div></div></div>
+    <div class="row"><span class="chip find">中期</span><div><div class="t">5. 若 10/29–10/31 加購率仍未回升</div><div class="why"><ul><li>CPM 回落、加購率仍低：問題較可能在素材，優先檢查「SM 比較」系列（加購 24 → 4）是否疲乏。</li><li>CPM 持續偏高：屬競價環境問題，見第 6 點。</li></ul></div></div></div>
+    <div class="row"><span class="chip find">中期</span><div><div class="t">6. 因應 Q4 CPM 上升</div><div class="why">11 月有雙 11、黑色星期五等檔期，CPM 可能持續走高。CPM 高時，轉換率高的素材與 RT 相對划算：維持 Row116 yukko 主力等穩定素材，並持續測試新訴求（例如 10/28 上線的 eriko「秋冬外出」）。</div></div></div>
+    <div class="row"><span class="chip low">低優先</span><div><div class="t">7. Google Ads 兩項小檢查</div><div class="why">查看 Pmax-260530 在 10/28 的「管道成效」，確認便宜點擊來自哪個版位；另檢查 GA 為何沒有把 Google 廣告帶來的購買歸因到 google / cpc。</div></div></div>
   </div>
   <div class="kpis">
     <div class="kpi"><span class="k">Shopify 訂單</span><span class="v">31</span><span class="d">10/25：87（−64%）</span></div>
@@ -152,28 +171,27 @@ footer{font-size:12px;color:var(--muted);border-top:1px solid var(--line);paddin
 
   <div class="sub" id="s-decomp">
     <h3>影響拆解：流量 vs 轉換率</h3>
-    <p>訂單數 = 工作階段 × 轉換率。把兩者的變化拆開，看各自貢獻多少下滑：</p>
+    <p>訂單數 = 工作階段 × 轉換率。10/28 晚間有大量 Google PMax 的低意願點擊灌進首頁，會讓轉換率看起來更差，所以先扣除 Google 廣告流量，再拆開兩者各自貢獻多少下滑：</p>
     <div class="tbl"><table>
-      <thead><tr><th>比較基準</th><th class="n">工作階段</th><th class="n">轉換率</th><th class="n">訂單</th></tr></thead>
+      <thead><tr><th>比較基準（扣除 Google 廣告）</th><th class="n">工作階段</th><th class="n">轉換率</th><th class="n">完成結帳</th></tr></thead>
       <tbody>
-        <tr><td>10/25 → 10/28</td><td class="n">5,471 → 4,049（−26%）</td><td class="n hi">1.55% → 0.74%（−52%）</td><td class="n">87 → 31</td></tr>
-        <tr><td>10/27 → 10/28</td><td class="n">3,914 → 4,049（+3%）</td><td class="n hi">1.38% → 0.74%（−46%）</td><td class="n">54 → 31</td></tr>
+        <tr><td>10/25 → 10/28</td><td class="n">5,076 → 3,312（−35%）</td><td class="n hi">1.67% → 0.91%（−46%）</td><td class="n">85 → 30</td></tr>
+        <tr><td>10/27 → 10/28</td><td class="n">3,729 → 3,312（−11%）</td><td class="n hi">1.45% → 0.91%（−37%）</td><td class="n">54 → 30</td></tr>
       </tbody>
     </table></div>
-    <div class="bar" role="img" aria-label="10/25 到 10/28 的下滑，約七成來自轉換率、三成來自流量"><span class="conv" style="flex:71">轉換率 約 71%</span><span class="traf" style="flex:29">流量 約 29%</span></div>
+    <div class="bar" role="img" aria-label="10/25 到 10/28 的下滑，約六成來自轉換率、四成來自流量"><span class="conv" style="flex:59">轉換率 約 59%</span><span class="traf" style="flex:41">流量 約 41%</span></div>
     <ul>
-      <li>流量面的下滑主要來自 IG：曝光減少約 33%，其中約四成來自 CPM 上漲、六成來自花費減少。換算下來，<strong>CPM 約佔整體下滑的一成多</strong>。</li>
-      <li>和前一天比，總工作階段沒有減少（IG 少的部分被 Google 搜尋暴增補上），下滑幾乎全部來自轉換率。</li>
-      <li>Google 晚間暴增的流量幾乎不成交，會把 10/28 的轉換率拉低；即使扣掉這部分，轉換率仍約 0.8%，明顯低於前幾天。</li>
+      <li>流量面的下滑主要來自 IG：曝光減少約 33%，其中約四成來自 CPM 上漲、六成來自花費減少。換算下來，<strong>CPM 約佔整體下滑的一成五</strong>。</li>
+      <li>和前一天比，流量只少一成，下滑大部分來自轉換率。</li>
     </ul>
-    <p class="note">拆解採對數比例分配，數字為估算，用來判斷相對大小。</p>
+    <p class="note">Google 廣告工作階段取自 GA（google / cpc），與 Shopify 工作階段的計算方式略有差異；拆解採對數比例分配，數字為估算，用來判斷相對大小。</p>
   </div>
 
   <div class="sub" id="s-traffic">
     <h3>流量來源</h3>
     <ul>
       <li>Instagram 工作階段從 10/25 的 2,560 降到 1,628（−36%），主因是 Meta 廣告帶來的點擊變少：IG 版位花費 −21%（佔比仍維持 92–94%）、CPM +17%，曝光因此少約 33%；CTR 也從 3.12% 小降到 2.81%，連結點擊少約 40%。</li>
-      <li>Google 搜尋在 10/28 日本時間 18–21 點暴增（575 → 1,294 工作階段），但只有 14 個加購、3 筆成交，拉低了整體轉換率。來源待確認。</li>
+      <li>10/28 日本時間 18–21 點的搜尋流量暴增（575 → 1,294 工作階段），來源是 Google 廣告的 <strong>Pmax-260530</strong>：當天沒有手動調整，PMax 自動把預算轉到便宜版位，CPC 從 ¥57 降到 ¥21、點擊翻倍，但進首頁後幾乎沒有加購。Google 只佔總預算約一成，對整體影響有限，主要作用是拉低 10/28 的轉換率數字。</li>
     </ul>
   </div>
 
@@ -199,7 +217,7 @@ footer{font-size:12px;color:var(--muted);border-top:1px solid var(--line);paddin
         <tr><td>　其中沒填資料就離開</td><td class="n">33</td><td class="n">29</td></tr>
       </tbody>
     </table></div>
-    <p class="note">放棄結帳紀錄的商品分布正常，KOL 折扣碼（hira_fan、yukko_fan 等）均有正常套用。加購意願下降的原因目前沒有數據能解釋，見待追蹤。</p>
+    <p class="note">放棄結帳紀錄的商品分布正常，KOL 折扣碼（hira_fan、yukko_fan 等）均有正常套用。加購下滑在素材層級的分布見 <a href="#s-ads">素材加購率</a>，受眾類型的差異見 <a href="#s-demand">受眾類型差異</a>。</p>
   </div>
 
   <div class="sub" id="s-product">
@@ -272,6 +290,54 @@ footer{font-size:12px;color:var(--muted);border-top:1px solid var(--line);paddin
     <p class="note">帳戶 CPA 從 ¥5,508 變成 ¥10,720。和前一天比，10/27 → 10/28 的減少主要集中在 Row119（8 → 0）、hira（8 → 2）、Row90（7 → 2）。</p>
   </div>
 
+  <div class="sub" id="s-ads">
+    <h3>素材加購率：幾乎全面下滑</h3>
+    <p>比較 7 個主要行銷活動、13 支廣告在 10/27 與 10/28 的到達頁瀏覽與加購（Meta 歸因）：</p>
+    <div class="tbl"><table>
+      <thead><tr><th>13 支廣告合計</th><th class="n">10/27</th><th class="n">10/28</th></tr></thead>
+      <tbody>
+        <tr><td>到達頁瀏覽</td><td class="n">1,862</td><td class="n">1,367</td></tr>
+        <tr><td>加購</td><td class="n">97</td><td class="n">48</td></tr>
+        <tr><td>加購率（加購 ÷ 到達頁瀏覽）</td><td class="n">5.2%</td><td class="n hi">3.5%</td></tr>
+        <tr><td>　排除 Row116 yukko 主力廣告</td><td class="n">6.5%</td><td class="n hi">3.1%</td></tr>
+        <tr><td>購買</td><td class="n">38</td><td class="n hi">16</td></tr>
+      </tbody>
+    </table></div>
+    <div class="tbl"><table>
+      <thead><tr><th>值得注意的素材</th><th class="n">到達頁瀏覽</th><th class="n">加購</th><th class="n">購買</th></tr></thead>
+      <tbody>
+        <tr><td>Row116 yukko「時尚外出」主力（唯一逆勢）</td><td class="n">708 → 427</td><td class="n up">22 → 19（3.1% → 4.4%）</td><td class="n up">6 → 12</td></tr>
+        <tr><td>hira「SM 比較」（Row114、Row119 共 4 支）</td><td class="n">140 → 168</td><td class="n hi">24 → 4</td><td class="n hi">9 → 0</td></tr>
+        <tr><td>hira「野餐」（導商品頁）</td><td class="n">281 → 154</td><td class="n">19 → 8（6.8% → 5.2%）</td><td class="n">8 → 2</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li>13 支廣告中有 12 支加購率下降，導商品頁和導系列頁的都一樣，<strong>不是某支素材或某個到達頁壞掉</strong>。</li>
+      <li>到達頁瀏覽仍有一定數量，但看完之後加購的人變少，代表點進來的人購買意願較低。</li>
+      <li>「SM 比較」主題跌得最重：瀏覽數持平甚至增加，加購卻從 24 掉到 4。</li>
+    </ul>
+  </div>
+
+  <div class="sub" id="s-demand">
+    <h3>受眾類型差異：下滑集中在新客開發</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>受眾類型</th><th>代表活動</th><th class="n">10/27 ROAS</th><th class="n">10/28 ROAS</th></tr></thead>
+      <tbody>
+        <tr><td>RT 再行銷（官網瀏覽 90 天）</td><td>再入荷 RT</td><td class="n">2.66</td><td class="n up">4.81</td></tr>
+        <tr><td>BT 廣泛受眾（新客開發）</td><td>hira</td><td class="n">2.92</td><td class="n hi">1.20</td></tr>
+        <tr><td>BT 廣泛受眾（新客開發）</td><td>Row90</td><td class="n">4.49</td><td class="n hi">1.14</td></tr>
+        <tr><td>BT 廣泛受眾（新客開發）</td><td>Row119</td><td class="n">5.37</td><td class="n hi">0</td></tr>
+        <tr><td>BT 廣泛受眾（新客開發）</td><td>Row116</td><td class="n">2.45</td><td class="n up">3.60</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li>再入荷 RT 投放給曾瀏覽官網的人，是最熟悉品牌的一群。10/28 它的 ROAS 反而上升，而且仍在持續加碼，代表<strong>既有的購買需求還在</strong>。</li>
+      <li>下滑集中在 BT 廣泛受眾的新客開發活動。除了 Row116 的 yukko 主力廣告之外，這些活動點進來的人加購率普遍下降。</li>
+      <li>10/23 再入荷沒有搭配限時優惠，10/28 網站與商品頁也沒有調整，排除了促銷結束或網站變動的可能。</li>
+      <li>新客轉換為何走弱還沒有定論。可能的方向之一是 CPM 走高期間，Meta 把廣泛受眾的預算分配到意願較低的族群，但目前沒有數據能直接證明。可以先觀察 10/29–10/31 BT 活動的加購率是否回升。</li>
+    </ul>
+  </div>
+
   <div class="sub" id="s-budget">
     <h3>預算操作</h3>
     <ul>
@@ -283,7 +349,7 @@ footer{font-size:12px;color:var(--muted);border-top:1px solid var(--line);paddin
   <div class="sub" id="s-caveats">
     <h3>讀數時的注意事項</h3>
     <ul>
-      <li><strong>歸因回補</strong>：若帳戶使用點擊後 7 天歸因，10/28 點擊、之後才下單的購買會陸續補記，10/28 的 Meta 購買與 ROAS 之後可能上修。Shopify 的 31 筆是實際訂單，不會變。</li>
+      <li><strong>報表以轉換發生日記錄</strong>：10/28 的 Meta 購買即為當天實際發生的轉換，不會再回溯變動。</li>
       <li><strong>單日 ROAS 波動大</strong>：一筆訂單約 ¥16,000，每天只有個位數購買的活動，多一單或少一單就會讓 ROAS 在 0 到 6 之間跳動。</li>
       <li>Meta 工具標記「A:日本名單3%_B:25+_C:女_D:日本ALL」素材疲乏分數 0.37，但該組只有 10/28 上線的 KOL-eriko 新素材（曝光 538），數據量不足，暫不參考。</li>
     </ul>
@@ -293,14 +359,14 @@ footer{font-size:12px;color:var(--muted);border-top:1px solid var(--line);paddin
 <section id="s-followup">
   <h2><span class="tag">03</span>待追蹤</h2>
   <div class="ledger">
-    <div class="row"><span class="chip open">待確認</span><div><div class="t">加購意願下降的原因</div><div class="why">影響最大的未知因素。可比對 10/27 與 10/28 各活動的素材、落地頁停留與加購率，看是否集中在特定素材或受眾。</div></div></div>
-    <div class="row"><span class="chip open">待確認</span><div><div class="t">10/29 全天數據</div><div class="why">對照 Shopify 訂單與 Meta 購買，確認是否回到平常水準；屆時也可看 10/28 歸因回補後的數字。</div></div></div>
-    <div class="row"><span class="chip open">待確認</span><div><div class="t">10/28 晚間 Google 搜尋流量暴增來源</div><div class="why">日本時間 18–21 點流量翻倍但幾乎不成交，確認是否有媒體或社群曝光。</div></div></div>
+    <div class="row"><span class="chip open">待確認</span><div><div class="t">BT 新客轉換走弱的原因</div><div class="why">觀察 10/29–10/31 BT 活動的加購率是否回升，並對照同期 CPM 走勢。若 CPM 回落而加購率仍低，再從素材與受眾設定找原因。</div></div></div>
+    <div class="row"><span class="chip open">待確認</span><div><div class="t">10/29 全天數據</div><div class="why">對照 Shopify 訂單與 Meta 購買，確認是否回到平常水準。</div></div></div>
+    <div class="row"><span class="chip open">待確認</span><div><div class="t">「SM 比較」素材表現</div><div class="why">10/28 加購跌幅最大（24 → 4）。若 10/29 後仍未回升，評估是否為素材疲乏。</div></div></div>
     <div class="row"><span class="chip open">待確認</span><div><div class="t">補貨時間與庫存紀錄對不上</div><div class="why">10/20–10/22 庫存減少約 1,100 件、10/28 入庫約 2,800 件，與「10/23 補貨」不一致。</div></div></div>
   </div>
 </section>
 
-<footer>數據擷取時間：2026-10-28。Meta 最近兩日數據可能因歸因回補而變動。</footer>
+<footer>數據擷取時間：2026-10-28。Meta 報表以轉換發生日記錄。</footer>
 </div>
 
 <script>
