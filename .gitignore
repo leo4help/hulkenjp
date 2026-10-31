@@ -11,3 +11,7 @@ amazon_data/
 *.csv
 *.textClipping
 Claude outputs/
+
+# Google OAuth credentials — never push (2026-10-29)
+client_secret_*.json
+google_token*.json
