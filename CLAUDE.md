@@ -28,6 +28,8 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 3. **Amazon**：`Sponsored_Products_SearchTerm_*.csv` 一週一檔（Amazon MCP 申請中，拿到之前照舊讀檔）。檔名常是匯出日（例 `..._Nov_4_2026.csv`），確認總額與前幾週同量級後改名 `..._<起>_<迄>.csv`，複製一份到 `amazon_data/`。
 4. **樂天**：有投放才需要檔案（格式未定，第一次收到要先看格式、補 loader）；使用者事先說「本週沒有投放」就跳過，建置後把 `#channelNote` 改成「樂天本週未投放」。樂天目前**沒有可用的廣告數據 MCP**（2026-11-04 查過：社群做的 RMS MCP 只有訂單／商品／庫存，RPP 廣告報表官方公開 API 沒有提供），要串接得先確認 RMS WEB SERVICE 契約是否開放 RPP 報表。
 
+**寫建議前先查到期日（使用者 2026-11-04 要求，硬性）：** 用 Meta MCP `ads_get_ad_entities` level=adset、fields name, campaign_name, end_time, effective_status（time_range 近兩週、amount_spent>0）查每支素材廣告組合的結束日，並對照 `KOL授權金` 的授權期間。已到期或活動已暫停的素材，不可建議「恢復／加碼／再看一週」；快到期的要寫出到期日、建議以銜接新素材為主。KOL 素材多半是授權到期才關（例 W44 otona-179 10/29、isuka-180 10/31 到期），不是表現差。
+
 **每週建置順序（W44 起）：** ⚠️ 先推進快取：`update_cache_incremental.py --bridge <上週資料夾>/Hulken_Claude_Bridge_mcp.xlsx --new-cutoff <本週起始日>`（上週的媒體數據只存在上週的 _mcp 檔，Bridge 不再有）→ Meta MCP → `scripts/mcp_to_csv.py meta`（雲端跑）→ Google MCP → `mcp_to_csv.py google` → 兩份 CSV 寫回週資料夾 → `scripts/build_mcp_bridge.py` 合成 `Hulken_Claude_Bridge_mcp.xlsx` → 新素材 Row 沒有原廠標記／命名不合規（例 A:KOL_B:名稱）先問使用者 → Amazon 改名 → Shopify MCP 合併 → `build_weekly_report.py` → `build_shopify_section.py` → 寫 insights.json 後重跑兩支 → all.html 三支腳本 → manifest／weeks → 新 Row 縮圖用 Meta MCP 下載 → 瀏覽器檢查 → 給 push 指令。
 
 **（以下為 W41–W43 舊清單，保留作歷史參考）每週資料夾應有的檔案（缺一就先停下來提醒使用者補上，不要做完分析才說；使用者若事先說「本週沒有 X」才跳過）：**
@@ -55,6 +57,8 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 **TEST 表加「原廠標記」欄（2026-10-24）：** Meta TEST 素材表（metaTestKol）比照常態素材表加 `tag` 欄位，`ensure_test_tag()` 會自動補欄（W42 已就地補上）；標記邏輯共用 `creative_tag()`。
 
 **原廠標記顯示規則（使用者 2026-10-24 指定，硬性）：欄位寫什麼就顯示什麼，沒寫才顯示 NULL。** 直接取 Bridge／快取的 `原廠標記` 欄（當週眾數，當週無資料取上週），不可依廣告名稱或 isKOL 推斷、不可把未知值併成 NULL 或其他類別。目前出現過的值：KOL、原廠、原廠-kol、wakazo、wakazo-kol、日廠-COCO、日廠-TORI、日廠-Jeff、日廠-Wack。前端 `tagBadge()` 原本只認「KOL／原廠」，其他值（日廠-Wack、wakazo-kol…）都被顯示成 NULL，2026-10-24 已修成照實顯示，W31–W42 與 all.html 全部補上。
+
+**本週 Highlight（2026-11-04，W44 起，使用者要求放在最前面）：** `highlights.json`（key＝週起始日）登錄 title／lead／chart（labels、sublabels、series[{name, values, main}]、band、bandLabel，畫成 inline SVG 線圖）／bullets，`build_weekly_report.py` 透過 `scripts/week_highlight.py` 插在「廣告成效討論 — Overview」之前（nav 第一個），每週先移除舊的，只出現在登錄的那一週；已建好的週報可單獨跑 `python3 scripts/week_highlight.py --html <週報> --week <起始日>`。W44 內容：業績衰退集中在 10/30–11/1 週末三天（Shopify 每日銷售額 W44 vs W43 vs W42，依星期對齊）。push 時加 `highlights.json`。
 
 **專題檢討卡片（2026-10-28，W43 起）：** 使用者在其他對話做的專題調查（例：W43「10/28 業績驟降原因檢討」，claude.ai artifact，使用者自行開權限）用 `reports.json`（key = 週起始日）登錄：title／date／source／lead／items（status = find 確認、out 已排除、open 待確認）／url／cta／note。`build_weekly_report.py` 透過 `scripts/special_reports.py` 在 `#insight` 後面插入 `<section id="review">`「專題檢討」卡片＋nav 連結，並先移除模板帶來的舊卡片，所以只出現在登錄的那一週；已建好的週報可單獨跑 `python3 scripts/special_reports.py --html <週報> --week <起始日>` 就地更新。專題結論也要同步寫進當週 Insight（W43 加了「追蹤」列並修正 Meta／Shopify 建議，例：專題已排除商品組合與結帳流程，就不要再寫成缺貨推論）。W43 的專題原本是 claude.ai artifact（組織外無法分享），使用者決定改放在站內：`2026W43/hulken_week43_report-add.html`（從 artifact 原樣複製，只加了「← 回 W43 週報」連結；同受 Cloudflare Access 保護），卡片 url 用相對路徑、同分頁開啟。專題頁面放在對應週資料夾，命名 `hulken_week<N>_report-add.html`。push 時要加 `reports.json` 和專題頁面。 使用者更新 artifact 後要重新同步：讀新版 → 重做 add 頁（同樣只加回連結）→ 同步 reports.json 卡片與當週 Insight（W43 第二版把拆解改成「扣除 Google 廣告後六成轉換率／四成流量」、加入 BT vs RT 受眾差異、晚間流量確認來自 Pmax-260530，並更正「Meta 10/28 會歸因回補」——報表以轉換發生日記錄，不會回溯）。注意：`device_commit_files` 用同一個 stagedPath 再次寫入時曾寫回舊內容，覆蓋檔案要換新的 stagedPath 檔名，寫完用 sha256 核對。
 
