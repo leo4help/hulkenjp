@@ -43,6 +43,10 @@ import pandas as pd
 NAME_ALIASES = {
     'A:原廠-Wakazo-25A:原廠-Wakazo': 'A:原廠-Wakazo-25',
     'A:KOL-marika.oka-154': 'A:KOL-marika-oka-154',
+    # W44 (2026-11-04): Row212/213 ad names were 'A:KOL_B:pon_…' / 'A:KOL_B:runa_…' (KOL name in B:);
+    # user confirmed the real names are A:KOL-pon / A:KOL-runa -> merge onto the license-row spelling.
+    'A:KOL-212': 'A:KOL-pon-212',
+    'A:KOL-213': 'A:KOL-runa-213',
 }
 
 COST = '花費金額 (JPY)'

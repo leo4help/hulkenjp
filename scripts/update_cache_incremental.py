@@ -37,7 +37,7 @@ it deliberately, same pattern as everything else in this project).
 import argparse, re, json
 import pandas as pd
 
-NAME_ALIASES = {'A:原廠-Wakazo-25A:原廠-Wakazo': 'A:原廠-Wakazo-25'}
+NAME_ALIASES = {'A:原廠-Wakazo-25A:原廠-Wakazo': 'A:原廠-Wakazo-25', 'A:KOL-212': 'A:KOL-pon-212', 'A:KOL-213': 'A:KOL-runa-213'}
 
 
 def goal(campaign):
