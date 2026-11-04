@@ -18,7 +18,19 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 
 ## ⚠️ W41 起的新流程（2026-10-14，優先於下方舊步驟中衝突的部分）
 
-**每週資料夾應有的檔案（缺一就先停下來提醒使用者補上，不要做完分析才說；使用者若事先說「本週沒有 X」才跳過）：**
+**⭐ W44 起的每週輸入（2026-11-04 定案，優先於下面所有舊清單；缺任何一項先停下來問使用者，不要做完才說）：**
+1. `Hulken_Claude_Bridge.xlsx`（使用者放進週資料夾），需要其中三個分頁（2026-11-04 定案）：
+   - `KOL_cost_data`：**授權金攤提以此為準**（Start Date＝當天、AD Name＝`A:KOL-xxx-<Row>_`、Cost＝當天攤提；表內有未來日期，只取本週）。驗證：1/16–11/04 與舊的 Claude_Analysis_Data 攤提列／歷史快取逐日逐人完全一致（差 0）。攤提＝費用 ÷ 實際付費期間天數；「無延長費續約」只延長授權期間不加錢，所以不要用 `KOL授權金` 的授權期間欄自己算。
+   - `KOL授權金`：授權金計算機 firstWave、授權到期／待執行追蹤。
+   - `Meta 素材表（查看標記用）`：原廠標記對照（MCP 沒有這欄）。
+   `Claude_Analysis_Data` 分頁已不需要（有也只會用到 week-start 之前的列）。
+2. **Meta、Google 用 MCP 抓**，**Shopify 用 MCP 抓**（做法見下方兩段）。Meta MCP 在雲端可直接用；Google Ads MCP 掛在使用者電腦的 device（`mcp__remote-devices__google-ads__*`），電腦沒連上就抓不到 → 停下來問。
+3. **Amazon**：`Sponsored_Products_SearchTerm_*.csv` 一週一檔（Amazon MCP 申請中，拿到之前照舊讀檔）。檔名常是匯出日（例 `..._Nov_4_2026.csv`），確認總額與前幾週同量級後改名 `..._<起>_<迄>.csv`，複製一份到 `amazon_data/`。
+4. **樂天**：有投放才需要檔案（格式未定，第一次收到要先看格式、補 loader）；使用者事先說「本週沒有投放」就跳過，建置後把 `#channelNote` 改成「樂天本週未投放」。樂天目前**沒有可用的廣告數據 MCP**（2026-11-04 查過：社群做的 RMS MCP 只有訂單／商品／庫存，RPP 廣告報表官方公開 API 沒有提供），要串接得先確認 RMS WEB SERVICE 契約是否開放 RPP 報表。
+
+**每週建置順序（W44 起）：** ⚠️ 先推進快取：`update_cache_incremental.py --bridge <上週資料夾>/Hulken_Claude_Bridge_mcp.xlsx --new-cutoff <本週起始日>`（上週的媒體數據只存在上週的 _mcp 檔，Bridge 不再有）→ Meta MCP → `scripts/mcp_to_csv.py meta`（雲端跑）→ Google MCP → `mcp_to_csv.py google` → 兩份 CSV 寫回週資料夾 → `scripts/build_mcp_bridge.py` 合成 `Hulken_Claude_Bridge_mcp.xlsx` → 新素材 Row 沒有原廠標記／命名不合規（例 A:KOL_B:名稱）先問使用者 → Amazon 改名 → Shopify MCP 合併 → `build_weekly_report.py` → `build_shopify_section.py` → 寫 insights.json 後重跑兩支 → all.html 三支腳本 → manifest／weeks → 新 Row 縮圖用 Meta MCP 下載 → 瀏覽器檢查 → 給 push 指令。
+
+**（以下為 W41–W43 舊清單，保留作歷史參考）每週資料夾應有的檔案（缺一就先停下來提醒使用者補上，不要做完分析才說；使用者若事先說「本週沒有 X」才跳過）：**
 1. `Hulken_Claude_Bridge.xlsx`（Meta / Google / KOL 授權金，同以往）
 2. Amazon：`Sponsored_Products_SearchTerm_*.csv`（Sponsored Products 搜尋字詞報表，**一週一檔**，涵蓋該報告週 週四～週三）。Amazon 後台的 Lifetime 報表沒有日維度，所以使用者改成每週下載一份。收到後改名為 `Sponsored_Products_SearchTerm_<起>_<迄>.csv`，放一份在當週資料夾、一份在 `amazon_data/`（gitignored；跨週累計排除建議要用）。W41 一次補齊了 8/13 起的 9 週歷史。注意：後台匯出上限 300 列（依花費排序，最後一列約 ¥75），與以前 Weekly Report Manual 口徑相同（W40 金額逐元吻合）。
 3. Shopify：**W42 起改用 Shopify MCP 抓（見下方），不再需要使用者下載**；舊做法是 `Leo Report - <起> - <迄>.csv`（只含近一個月），與上週的 `SP - 2026-01-01 - ... (merged).csv` 合併（重疊日以新檔為準、排除報告週之後的日期）再跑 `build_shopify_section.py`。
@@ -27,7 +39,7 @@ GitHub repo: `leo4help/hulkenjp`, branch `main`. **Account isolation rule (hard 
 **W44 起 Meta／Google 改用 MCP（2026-11-04，使用者要求；Amazon 仍讀檔、Shopify 用 MCP、樂天依當週）：**
 - **Meta**（帳號 846388628312382「HULKEN Japan」）：`ads_get_ad_entities` level=ad、time_increment="1"、time_range＝本週、filter amount_spent>0、limit 1000；欄位 name, campaign_name, adset_name, amount_spent, impressions, link_click, omni_purchase, offsite_conversion_fb_pixel_purchase_values, purchase_roas, omni_add_to_cart。結果太大會存成檔案，用 scratchpad 的整理腳本轉 CSV（`2026W44/mcp_meta_<起>_<迄>.csv`）。**W43 驗證：逐日花費／購買／營收／點擊／曝光／加購與 Bridge（Ads Manager 匯出）完全一致**（只差晚入帳的少量花費）。
 - **Google**（customer 4550430444）：device 上的 google-ads MCP `search_search`，resource=campaign、segments.date 逐日；購買／營收**必須用 `metrics.conversions_by_conversion_date` / `conversions_value_by_conversion_date`**（Bridge 是這個口徑，W43 逐日一致；`metrics.conversions` 對不上）。cost_micros ÷ 1e6。存成 `mcp_google_<起>_<迄>.csv`。
-- **Bridge 仍要提供三樣**：`Claude_Analysis_Data` 裡本週的 KOL 授權金攤提列（goal '-'）、`KOL授權金` 分頁（計算機 firstWave；使用者說明攤提＝費用 ÷ 授權期間天數，W44 用表重算與攤提列相差 ≤¥2，R20、R90、R97、R114、R122 不一致是因為「無延長費續約」：授權期間欄寫的是續約後的總期間（例 R90 6/25~12/16），但費用只攤在原本付費的期間（R90 ¥297,570 攤在 6/25–7/24，之後為 0），所以不能直接用授權期間欄去除，仍以攤提列為準）、`Meta 素材表（查看標記用）`（原廠標記對照，MCP 沒有這欄）。Bridge 裡本週已無媒體列。
+- **Bridge 仍要提供三樣（2026-11-04 改為 `KOL_cost_data` 分頁，見最上方輸入清單）**：原本是 `Claude_Analysis_Data` 裡本週的 KOL 授權金攤提列（goal '-'）、`KOL授權金` 分頁（計算機 firstWave；使用者說明攤提＝費用 ÷ 授權期間天數，W44 用表重算與攤提列相差 ≤¥2，R20、R90、R97、R114、R122 不一致是因為「無延長費續約」：授權期間欄寫的是續約後的總期間（例 R90 6/25~12/16），但費用只攤在原本付費的期間（R90 ¥297,570 攤在 6/25–7/24，之後為 0），所以不能直接用授權期間欄去除，仍以攤提列為準）、`Meta 素材表（查看標記用）`（原廠標記對照，MCP 沒有這欄）。Bridge 裡本週已無媒體列。
 - `scripts/build_mcp_bridge.py` 把 Bridge＋兩份 MCP CSV 合成舊格式的 `Hulken_Claude_Bridge_mcp.xlsx`，之後所有腳本照舊用它當 `--bridge`。原廠標記：素材表有寫就照寫；表上空白且廣告名稱 A:KOL 開頭 → KOL（與舊 Bridge 一致）；其他空白 → NULL。
 - **素材縮圖**：Meta MCP `ads_get_ad_entities`(object_ids, fields creative_id) → `ads_get_creatives`(thumbnail_url, child_attachments)。輪播用 `ads_get_ad_images`(hashes) 的 url 取原圖、縮成寬 228；影片（KOL 合作貼文）`ads_get_ad_videos` 查不到，只能用 thumbnail_url 的 64×64 縮圖（表格 34×60 顯示可接受，hover 大圖會糊）。fbcdn 網址有時效（oe 參數），一定要下載存成 `AD Images/<Row>.jpg`，不要把網址寫進報告。device 上可直接下載 fbcdn。
 - W44 命名例外：Row212/213 廣告名稱原本是 `A:KOL_B:pon…`／`A:KOL_B:runa…`，使用者已在後台改成 `A:KOL-pon…`／`A:KOL-runa…`；NAME_ALIASES 加了 `A:KOL-212→A:KOL-pon-212`、`A:KOL-213→A:KOL-runa-213`（三支腳本都加）。runa-213 授權金 ¥0（使用者確認）。

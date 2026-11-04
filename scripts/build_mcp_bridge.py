@@ -3,7 +3,8 @@ KOL授權金分頁、「Meta 素材表（查看標記用）」。本腳本把三
 後面的 update_cache_incremental / build_weekly_report / build_all_lifetime 等腳本不用改。
 
 輸入：
-  --bridge       使用者給的 Bridge（Claude_Analysis_Data 只用到 week-start 之前的列＋本週的授權金列）
+  --bridge       使用者給的 Bridge。授權金攤提：有 `KOL_cost_data` 分頁就以它為準（2026-11-04 起），
+                 沒有才用 Claude_Analysis_Data 的攤提列。Claude_Analysis_Data 分頁可有可無（有的話保留 week-start 之前的列）。
   --meta-csv     Meta MCP ads_get_ad_entities（level=ad, time_increment=1）整理後的 CSV
                  欄位：分析報告開始, 廣告名稱, 行銷活動名稱, 廣告組合名稱, 花費金額 (JPY), 曝光次數,
                        連結點擊次數, 購買次數, 購買轉換值, 加到購物車次數
@@ -21,6 +22,10 @@ import argparse, re
 import pandas as pd
 
 TAG_SHEET = 'Meta 素材表（查看標記用）'
+COLS = ['分析報告開始', '分析報告結束', '廣告名稱', '廣告投遞', '廣告組合預算', '廣告組合預算類型', '花費金額 (JPY)', '購買次數',
+        '每次購買成本 (JPY)', '購買 ROAS（廣告投資報酬率）', '購買轉換值', '連結點擊次數', 'CTR（連結點閱率）',
+        'CPC（單次點擊成本） (JPY)', '曝光次數', 'CPM（每千次廣告曝光成本） (JPY)', '頻率', '歸因設定', '成果', '成果指標',
+        '每次成果成本', '行銷活動名稱', '廣告組合名稱', '加到購物車次數', '每次加到購物車的成本 (JPY)', '原廠標記']
 
 
 def _clean(name):
@@ -38,11 +43,33 @@ def main():
     ws = pd.Timestamp(a.week_start)
 
     x = pd.ExcelFile(a.bridge)
-    br = pd.read_excel(x, 'Claude_Analysis_Data')
-    br['分析報告開始'] = pd.to_datetime(br['分析報告開始'])
+    if 'Claude_Analysis_Data' in x.sheet_names:
+        br = pd.read_excel(x, 'Claude_Analysis_Data')
+        br['分析報告開始'] = pd.to_datetime(br['分析報告開始'])
+    else:
+        br = pd.DataFrame(columns=COLS)
+    cols = list(br.columns) if len(br.columns) else COLS
     is_lic = br['行銷活動名稱'].isna() | (br['行銷活動名稱'].astype(str).str.strip() == '-')
-    keep = br[(br['分析報告開始'] < ws) | is_lic]
-    cols = list(br.columns)
+    if 'KOL_cost_data' in x.sheet_names:
+        # 2026-11-04 起攤提以 KOL_cost_data 為準（Start Date = 當天、AD Name = 'A:KOL-xxx-<Row>_'、Cost = 當天攤提）。
+        # 驗證：1/16–11/04 與 Claude_Analysis_Data 攤提列／歷史快取逐日逐人完全一致。
+        k = pd.read_excel(x, 'KOL_cost_data')
+        k['Start Date'] = pd.to_datetime(k['Start Date'])
+        k = k[(k['Start Date'] >= ws) & (k['Start Date'] <= ws + pd.Timedelta(days=6))]  # 表內有未來日期，只取本週
+        lic = pd.DataFrame({c: [None] * len(k) for c in cols})
+        lic['分析報告開始'] = k['Start Date'].values
+        lic['分析報告結束'] = k['Start Date'].values
+        lic['廣告名稱'] = k['AD Name'].values
+        lic['行銷活動名稱'] = '-'
+        lic['廣告組合名稱'] = '-'
+        lic['花費金額 (JPY)'] = k['Cost'].values
+        for c in ['購買次數', '購買轉換值', '連結點擊次數', '曝光次數', '加到購物車次數']:
+            lic[c] = 0
+        lic['原廠標記'] = 'KOL'
+        keep = pd.concat([x_ for x_ in (br[br['分析報告開始'] < ws], lic) if len(x_)], ignore_index=True)
+        print(f'license rows from KOL_cost_data: {len(lic)} (week total {lic["花費金額 (JPY)"].sum():,.0f})')
+    else:
+        keep = br[(br['分析報告開始'] < ws) | is_lic]
 
     tags = pd.read_excel(x, TAG_SHEET) if TAG_SHEET in x.sheet_names else pd.DataFrame(columns=['後台名稱', '原廠標記'])
     tags = tags.dropna(subset=['後台名稱'])
