@@ -32,7 +32,70 @@ CSS = CSS_MARK + '''
   .hl-chart{overflow-x:auto;}
   .hl-chart svg{width:100%;min-width:560px;height:auto;display:block;}
   .hl-list{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.75;}
+  .hl-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-4px 0 8px;}
+  .hl-status{font-size:12px;color:var(--ink-soft);}
+  .hl-form{display:flex;flex-direction:column;gap:8px;}
+  .hl-form label{font-size:12px;font-weight:700;color:var(--ink-soft);}
+  .hl-form input,.hl-form textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:13.5px;line-height:1.6;}
+  .hl-form .hl-brow{display:flex;gap:6px;align-items:flex-start;}
+  .hl-form .hl-note{font-size:12px;color:var(--ink-soft);}
+/* week-highlight end */
 '''
+JS_MARK = '/* week-highlight editor */'
+JS = """
+/* week-highlight editor */
+(function(){
+  const sec=document.getElementById('highlight'); if(!sec) return;
+  const WEEK=sec.dataset.week, API='/api/highlights';
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const md=s=>esc(s).replace(/\\*\\*(.+?)\\*\\*/g,'<b>$1</b>');
+  let BUILTIN={title:'',lead:'',bullets:[]}; try{BUILTIN=JSON.parse($('hlBuiltin').textContent)}catch(e){}
+  let remote=null, canEdit=false, editing=false;
+  const cur=()=>remote||BUILTIN;
+  function show(){
+    const d=cur();
+    $('hlTitle').textContent=d.title||'';
+    $('hlLead').innerHTML=md(d.lead||''); $('hlLead').hidden=!d.lead||editing;
+    $('hlBullets').innerHTML=(d.bullets||[]).map(b=>'<li>'+md(b)+'</li>').join(''); $('hlBullets').hidden=editing;
+    $('hlTitle').hidden=editing; $('hlForm').hidden=!editing;
+    $('hlEditBtn').hidden=!canEdit; $('hlEditBtn').textContent=editing?'✓ 儲存':'✎ 編輯文字';
+    $('hlRevertBtn').hidden=!(canEdit&&remote&&!editing);
+    $('hlStatus').textContent=remote?('線上修改版本'+(remote._by?' · '+remote._by:'')+(remote._at?' · '+remote._at.replace('T',' ').replace('Z',' UTC'):'')):'';
+  }
+  function form(){
+    const d=cur(), bs=(d.bullets||[]).slice(); if(!bs.length) bs.push('');
+    $('hlForm').innerHTML='<label>標題</label><input id="hlFTitle" value="'+esc(d.title||'')+'">'
+      +'<label>導言（**文字** = 粗體）</label><textarea id="hlFLead" rows="3">'+esc(d.lead||'')+'</textarea>'
+      +'<label>重點（每格一條；清空即刪除）</label><div id="hlFBullets">'
+      +bs.map(b=>'<div class="hl-brow"><textarea rows="2">'+esc(b)+'</textarea></div>').join('')+'</div>'
+      +'<div><button class="ins-btn" id="hlAddB" type="button">＋ 新增一條</button> <button class="ins-btn" id="hlCancel" type="button">取消</button></div>'
+      +'<div class="hl-note">圖表依數據產生，不開放編輯。</div>';
+    $('hlAddB').onclick=()=>{const r=document.createElement('div');r.className='hl-brow';r.innerHTML='<textarea rows="2"></textarea>';$('hlFBullets').appendChild(r)};
+    $('hlCancel').onclick=()=>{editing=false;show()};
+  }
+  async function save(){
+    const data={title:$('hlFTitle').value,lead:$('hlFLead').value,bullets:[...$('hlFBullets').querySelectorAll('textarea')].map(t=>t.value).filter(v=>v.trim())};
+    $('hlStatus').textContent='儲存中…';
+    const r=await fetch(API,{method:'PUT',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({week:WEEK,data})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok){$('hlStatus').textContent='儲存失敗：'+(j.error||r.status);return false}
+    remote=j.item; return true;
+  }
+  $('hlEditBtn').onclick=async()=>{ if(editing){ if(await save()){editing=false;show()} } else {editing=true;form();show()} };
+  $('hlRevertBtn').onclick=async()=>{
+    if(!confirm('把本週 Highlight 文字還原成建置時的原始版本？（所有人都會看到還原後的內容）'))return;
+    const r=await fetch(API+'?week='+encodeURIComponent(WEEK),{method:'DELETE',credentials:'same-origin'});
+    if(r.ok){remote=null;show()}else alert('還原失敗：HTTP '+r.status);
+  };
+  show();
+  if(location.protocol.startsWith('http')) fetch(API,{cache:'no-store',credentials:'same-origin'}).then(r=>r.ok?r.json():null).then(j=>{
+    if(!j)return; canEdit=!!j.canEdit; remote=(j.highlights||{})[WEEK]||null; show();
+  }).catch(()=>{});
+})();
+"""
+
+
 COLORS = ['#a9822e', '#9a9184', '#63785a', '#b4442f']
 
 
@@ -97,20 +160,24 @@ def _svg(ch):
             f'<div class="hl-legend">{legend}</div>{"".join(out)}</div>')
 
 
-def _section(hl):
-    parts = [f'<h3>{_e(hl["title"])}</h3>']
-    if hl.get('lead'):
-        parts.append(f'<p class="hl-lead">{_md(hl["lead"])}</p>')
+def _section(hl, week=''):
+    text = {'title': hl.get('title', ''), 'lead': hl.get('lead', ''), 'bullets': list(hl.get('bullets') or [])}
+    parts = [f'<h3 id="hlTitle">{_e(text["title"])}</h3>',
+             f'<p class="hl-lead" id="hlLead"{"" if text["lead"] else " hidden"}>{_md(text["lead"])}</p>',
+             '<div class="hl-form" id="hlForm" hidden></div>']
     if hl.get('chart'):
         parts.append(_svg(hl['chart']))
-    if hl.get('bullets'):
-        parts.append('<ul class="hl-list">' + ''.join(f'<li>{_md(b)}</li>' for b in hl['bullets']) + '</ul>')
-    return ('  <section id="highlight">\n'
+    parts.append('<ul class="hl-list" id="hlBullets">' + ''.join(f'<li>{_md(b)}</li>' for b in text['bullets']) + '</ul>')
+    builtin = json.dumps(text, ensure_ascii=False).replace('</', '<\\/')
+    return (f'  <section id="highlight" data-week="{_e(week)}">\n'
             '    <div class="sec-head"><h2>本週 Highlight</h2><span class="sec-tag">本週最需要先知道的事</span></div>\n'
-            f'    <div class="hl-card">{"".join(parts)}</div>\n  </section>')
+            '    <div class="hl-bar"><button class="ins-btn primary" id="hlEditBtn" hidden>✎ 編輯文字</button>'
+            '<button class="ins-btn danger" id="hlRevertBtn" hidden>還原原始版本</button><span class="hl-status" id="hlStatus"></span></div>\n'
+            f'    <div class="hl-card">{"".join(parts)}</div>\n'
+            f'    <script type="application/json" id="hlBuiltin">{builtin}</script>\n  </section>')
 
 
-def apply(html, hl):
+def apply(html, hl, week=''):
     i, j = html.find(BEGIN), html.find(END)
     if i >= 0 and j > i:
         a = i - 2 if html[i - 2:i] == '  ' else i
@@ -120,15 +187,22 @@ def apply(html, hl):
     html = NAV_RE.sub('', html)
     if not hl:
         return html
-    if CSS_MARK not in html:
-        k = html.find('</style>')
-        html = html[:k] + CSS + html[k:]
+    if CSS_MARK in html:  # 每次換成最新版 CSS（舊版沒有 end 標記時刪到 .hl-list 那行）
+        c0 = html.find(CSS_MARK)
+        c1 = html.find('/* week-highlight end */', c0)
+        c1 = c1 + len('/* week-highlight end */\n') if c1 >= 0 else html.find('\n', html.find('.hl-list{', c0)) + 1
+        html = html[:c0] + html[c1:]
+    k = html.find('</style>')
+    html = html[:k] + CSS + html[k:]
     s = html.find('<section id="overview"')
     if s < 0:
         raise SystemExit('week_highlight: #overview section not found')
     ls = html.rfind('\n', 0, s) + 1
-    block = f'  {BEGIN}\n{_section(hl)}\n  {END}\n'
+    block = f'  {BEGIN}\n{_section(hl, week)}\n  {END}\n'
     html = html[:ls] + block + html[ls:]
+    if JS_MARK not in html:
+        j2 = html.rfind('</script>')
+        html = html[:j2] + JS + html[j2:]
     nav = '<a href="#overview">Overview 總覽</a>'
     if nav in html:
         html = html.replace(nav, '<a href="#highlight" data-hl-nav>本週 Highlight</a>\n    ' + nav, 1)
@@ -150,7 +224,7 @@ if __name__ == '__main__':
     a = ap.parse_args()
     with open(a.html, encoding='utf-8') as f:
         h = f.read()
-    h = apply(h, load(a.highlights_json, a.week))
+    h = apply(h, load(a.highlights_json, a.week), a.week)
     with open(a.html, 'w', encoding='utf-8') as f:
         f.write(h)
     print('updated', a.html)

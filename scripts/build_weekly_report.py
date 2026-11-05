@@ -970,7 +970,7 @@ def build_html(template_path, out_path, data, week_num, prev_week_num,
     html = special_reports.apply(html, data.get('specialReports') or [])
     # 9c-3. 本週 Highlight（W44+；highlights.json，放在 Overview 之前，只出現在指定週）
     import week_highlight
-    html = week_highlight.apply(html, data.get('weekHighlight'))
+    html = week_highlight.apply(html, data.get('weekHighlight'), week_start.strftime('%Y-%m-%d'))
 
     # 9d. channel-coverage note under the 全渠道 table (W41+: e.g. 本週未提供樂天資料)
     import html as _h

@@ -410,6 +410,14 @@
   .hl-chart{overflow-x:auto;}
   .hl-chart svg{width:100%;min-width:560px;height:auto;display:block;}
   .hl-list{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.75;}
+  .hl-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-4px 0 8px;}
+  .hl-status{font-size:12px;color:var(--ink-soft);}
+  .hl-form{display:flex;flex-direction:column;gap:8px;}
+  .hl-form label{font-size:12px;font-weight:700;color:var(--ink-soft);}
+  .hl-form input,.hl-form textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:13.5px;line-height:1.6;}
+  .hl-form .hl-brow{display:flex;gap:6px;align-items:flex-start;}
+  .hl-form .hl-note{font-size:12px;color:var(--ink-soft);}
+/* week-highlight end */
 </style>
 </head>
 <body>
@@ -453,9 +461,11 @@
 
   <!-- ================= OVERVIEW ================= -->
   <!-- WEEK-HIGHLIGHT:BEGIN -->
-  <section id="highlight">
+  <section id="highlight" data-week="2026-10-29">
     <div class="sec-head"><h2>本週 Highlight</h2><span class="sec-tag">本週最需要先知道的事</span></div>
-    <div class="hl-card"><h3>業績衰退集中在 10/30–11/1 週末三天，平日已回穩</h3><p class="hl-lead">官網銷售額 ¥655.4 萬，比上週少 ¥93.5 萬（-12.5%）。<b>週五到週日三天少了 ¥166.2 萬</b>，其他四天反而多了 ¥72.7 萬。</p><div class="hl-chart"><div class="hl-chart-title">Shopify 每日銷售額（依星期對齊）</div><div class="hl-legend"><span><i style="border-top-color:#a9822e;"></i>W44（10/29–11/4）</span><span><i style="border-top-color:#9a9184;border-top-style:dashed;"></i>W43（10/22–10/28，再入荷後高峰）</span><span><i style="border-top-color:#c9bfae;border-top-style:dashed;"></i>W42（10/15–10/21）</span></div><svg viewBox="0 0 760 300" role="img" aria-label="Shopify 每日銷售額（依星期對齊）"><rect x="122.5" y="24" width="323.0" height="224" fill="#b4442f" fill-opacity="0.07" rx="6"/><text x="284.0" y="38" text-anchor="middle" font-size="12" font-weight="700" fill="#b4442f">週末 −¥166 萬</text><line x1="56" x2="740" y1="248.0" y2="248.0" stroke="#e7ded0"/><text x="48" y="252.0" text-anchor="end" font-size="11" fill="#6b6255">0</text><line x1="56" x2="740" y1="192.0" y2="192.0" stroke="#e7ded0"/><text x="48" y="196.0" text-anchor="end" font-size="11" fill="#6b6255">50</text><line x1="56" x2="740" y1="136.0" y2="136.0" stroke="#e7ded0"/><text x="48" y="140.0" text-anchor="end" font-size="11" fill="#6b6255">100</text><line x1="56" x2="740" y1="80.0" y2="80.0" stroke="#e7ded0"/><text x="48" y="84.0" text-anchor="end" font-size="11" fill="#6b6255">150</text><line x1="56" x2="740" y1="24.0" y2="24.0" stroke="#e7ded0"/><text x="48" y="28.0" text-anchor="end" font-size="11" fill="#6b6255">200</text><text x="48" y="16" text-anchor="end" font-size="11" fill="#6b6255">萬円</text><text x="56.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">四</text><text x="56.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">10/29</text><text x="170.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">五</text><text x="170.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">10/30</text><text x="284.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">六</text><text x="284.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">10/31</text><text x="398.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">日</text><text x="398.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">11/1</text><text x="512.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">一</text><text x="512.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">11/2</text><text x="626.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">二</text><text x="626.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">11/3</text><text x="740.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">三</text><text x="740.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">11/4</text><path d="M56.0,140.0 L170.0,166.2 L284.0,193.1 L398.0,111.5 L512.0,135.0 L626.0,124.2 L740.0,131.9" fill="none" stroke="#a9822e" stroke-width="3" stroke-linejoin="round"/><circle cx="56.0" cy="140.0" r="4.5" fill="#a9822e"/><text x="56.0" y="130.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">96.4</text><circle cx="170.0" cy="166.2" r="4.5" fill="#a9822e"/><text x="170.0" y="156.2" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">73</text><circle cx="284.0" cy="193.1" r="4.5" fill="#a9822e"/><text x="284.0" y="183.1" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">49</text><circle cx="398.0" cy="111.5" r="4.5" fill="#a9822e"/><text x="398.0" y="101.5" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">121.9</text><circle cx="512.0" cy="135.0" r="4.5" fill="#a9822e"/><text x="512.0" y="125.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">100.9</text><circle cx="626.0" cy="124.2" r="4.5" fill="#a9822e"/><text x="626.0" y="114.2" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">110.5</text><circle cx="740.0" cy="131.9" r="4.5" fill="#a9822e"/><text x="740.0" y="121.9" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">103.7</text><path d="M56.0,149.4 L170.0,109.5 L284.0,108.1 L398.0,67.2 L512.0,136.0 L626.0,134.4 L740.0,192.6" fill="none" stroke="#9a9184" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="6 5"/><circle cx="56.0" cy="149.4" r="3.2" fill="#9a9184"/><circle cx="170.0" cy="109.5" r="3.2" fill="#9a9184"/><circle cx="284.0" cy="108.1" r="3.2" fill="#9a9184"/><circle cx="398.0" cy="67.2" r="3.2" fill="#9a9184"/><circle cx="512.0" cy="136.0" r="3.2" fill="#9a9184"/><circle cx="626.0" cy="134.4" r="3.2" fill="#9a9184"/><circle cx="740.0" cy="192.6" r="3.2" fill="#9a9184"/><path d="M56.0,100.2 L170.0,127.9 L284.0,161.8 L398.0,141.5 L512.0,158.3 L626.0,137.6 L740.0,147.4" fill="none" stroke="#c9bfae" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="6 5"/><circle cx="56.0" cy="100.2" r="3.2" fill="#c9bfae"/><circle cx="170.0" cy="127.9" r="3.2" fill="#c9bfae"/><circle cx="284.0" cy="161.8" r="3.2" fill="#c9bfae"/><circle cx="398.0" cy="141.5" r="3.2" fill="#c9bfae"/><circle cx="512.0" cy="158.3" r="3.2" fill="#c9bfae"/><circle cx="626.0" cy="137.6" r="3.2" fill="#c9bfae"/><circle cx="740.0" cy="147.4" r="3.2" fill="#c9bfae"/></svg></div><ul class="hl-list"><li><b>上週週末基準偏高</b>：W43 週末是 10/23 再入荷後的高峰（日曜 87 單、¥161.4 萬）。和 W42 週末比，本週只少 ¥35.5 萬（¥279.3 萬 → ¥243.8 萬）。</li><li><b>週末 Meta 預算收得較多、週六轉換特別差</b>：週五到週日 Meta 花費 ¥92.7 萬 → ¥65.9 萬（-29%）；10/31（六）官網只有 28 單、轉換率 0.66%，Meta ROAS 1.75，是本週最差的一天（推論可能與萬聖節有關，數據無法證明）。</li><li><b>不是 Google 造成的</b>：Google 預算 11/1 才減半，週末跌幅在那之前就已發生。</li><li><b>平日已回穩</b>：週一到週三 184 單（W43 同期 145 單，含 10/28 驟降日），11/1 起每天 59–69 單。</li></ul></div>
+    <div class="hl-bar"><button class="ins-btn primary" id="hlEditBtn" hidden>✎ 編輯文字</button><button class="ins-btn danger" id="hlRevertBtn" hidden>還原原始版本</button><span class="hl-status" id="hlStatus"></span></div>
+    <div class="hl-card"><h3 id="hlTitle">業績衰退集中在 10/30–11/1 週末三天，平日已回穩</h3><p class="hl-lead" id="hlLead">官網銷售額 ¥655.4 萬，比上週少 ¥93.5 萬（-12.5%）。<b>週五到週日三天少了 ¥166.2 萬</b>，其他四天反而多了 ¥72.7 萬。</p><div class="hl-form" id="hlForm" hidden></div><div class="hl-chart"><div class="hl-chart-title">Shopify 每日銷售額（依星期對齊）</div><div class="hl-legend"><span><i style="border-top-color:#a9822e;"></i>W44（10/29–11/4）</span><span><i style="border-top-color:#9a9184;border-top-style:dashed;"></i>W43（10/22–10/28，再入荷後高峰）</span><span><i style="border-top-color:#c9bfae;border-top-style:dashed;"></i>W42（10/15–10/21）</span></div><svg viewBox="0 0 760 300" role="img" aria-label="Shopify 每日銷售額（依星期對齊）"><rect x="122.5" y="24" width="323.0" height="224" fill="#b4442f" fill-opacity="0.07" rx="6"/><text x="284.0" y="38" text-anchor="middle" font-size="12" font-weight="700" fill="#b4442f">週末 −¥166 萬</text><line x1="56" x2="740" y1="248.0" y2="248.0" stroke="#e7ded0"/><text x="48" y="252.0" text-anchor="end" font-size="11" fill="#6b6255">0</text><line x1="56" x2="740" y1="192.0" y2="192.0" stroke="#e7ded0"/><text x="48" y="196.0" text-anchor="end" font-size="11" fill="#6b6255">50</text><line x1="56" x2="740" y1="136.0" y2="136.0" stroke="#e7ded0"/><text x="48" y="140.0" text-anchor="end" font-size="11" fill="#6b6255">100</text><line x1="56" x2="740" y1="80.0" y2="80.0" stroke="#e7ded0"/><text x="48" y="84.0" text-anchor="end" font-size="11" fill="#6b6255">150</text><line x1="56" x2="740" y1="24.0" y2="24.0" stroke="#e7ded0"/><text x="48" y="28.0" text-anchor="end" font-size="11" fill="#6b6255">200</text><text x="48" y="16" text-anchor="end" font-size="11" fill="#6b6255">萬円</text><text x="56.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">四</text><text x="56.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">10/29</text><text x="170.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">五</text><text x="170.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">10/30</text><text x="284.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">六</text><text x="284.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">10/31</text><text x="398.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">日</text><text x="398.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">11/1</text><text x="512.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">一</text><text x="512.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">11/2</text><text x="626.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">二</text><text x="626.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">11/3</text><text x="740.0" y="270" text-anchor="middle" font-size="12" font-weight="700" fill="#2b2620">三</text><text x="740.0" y="286" text-anchor="middle" font-size="10.5" fill="#6b6255">11/4</text><path d="M56.0,140.0 L170.0,166.2 L284.0,193.1 L398.0,111.5 L512.0,135.0 L626.0,124.2 L740.0,131.9" fill="none" stroke="#a9822e" stroke-width="3" stroke-linejoin="round"/><circle cx="56.0" cy="140.0" r="4.5" fill="#a9822e"/><text x="56.0" y="130.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">96.4</text><circle cx="170.0" cy="166.2" r="4.5" fill="#a9822e"/><text x="170.0" y="156.2" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">73</text><circle cx="284.0" cy="193.1" r="4.5" fill="#a9822e"/><text x="284.0" y="183.1" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">49</text><circle cx="398.0" cy="111.5" r="4.5" fill="#a9822e"/><text x="398.0" y="101.5" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">121.9</text><circle cx="512.0" cy="135.0" r="4.5" fill="#a9822e"/><text x="512.0" y="125.0" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">100.9</text><circle cx="626.0" cy="124.2" r="4.5" fill="#a9822e"/><text x="626.0" y="114.2" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">110.5</text><circle cx="740.0" cy="131.9" r="4.5" fill="#a9822e"/><text x="740.0" y="121.9" text-anchor="middle" font-size="11.5" font-weight="700" fill="#a9822e">103.7</text><path d="M56.0,149.4 L170.0,109.5 L284.0,108.1 L398.0,67.2 L512.0,136.0 L626.0,134.4 L740.0,192.6" fill="none" stroke="#9a9184" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="6 5"/><circle cx="56.0" cy="149.4" r="3.2" fill="#9a9184"/><circle cx="170.0" cy="109.5" r="3.2" fill="#9a9184"/><circle cx="284.0" cy="108.1" r="3.2" fill="#9a9184"/><circle cx="398.0" cy="67.2" r="3.2" fill="#9a9184"/><circle cx="512.0" cy="136.0" r="3.2" fill="#9a9184"/><circle cx="626.0" cy="134.4" r="3.2" fill="#9a9184"/><circle cx="740.0" cy="192.6" r="3.2" fill="#9a9184"/><path d="M56.0,100.2 L170.0,127.9 L284.0,161.8 L398.0,141.5 L512.0,158.3 L626.0,137.6 L740.0,147.4" fill="none" stroke="#c9bfae" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="6 5"/><circle cx="56.0" cy="100.2" r="3.2" fill="#c9bfae"/><circle cx="170.0" cy="127.9" r="3.2" fill="#c9bfae"/><circle cx="284.0" cy="161.8" r="3.2" fill="#c9bfae"/><circle cx="398.0" cy="141.5" r="3.2" fill="#c9bfae"/><circle cx="512.0" cy="158.3" r="3.2" fill="#c9bfae"/><circle cx="626.0" cy="137.6" r="3.2" fill="#c9bfae"/><circle cx="740.0" cy="147.4" r="3.2" fill="#c9bfae"/></svg></div><ul class="hl-list" id="hlBullets"><li><b>上週週末基準偏高</b>：W43 週末是 10/23 再入荷後的高峰（日曜 87 單、¥161.4 萬）。和 W42 週末比，本週只少 ¥35.5 萬（¥279.3 萬 → ¥243.8 萬）。</li><li><b>週末 Meta 預算收得較多、週六轉換特別差</b>：週五到週日 Meta 花費 ¥92.7 萬 → ¥65.9 萬（-29%）；10/31（六）官網只有 28 單、轉換率 0.66%，Meta ROAS 1.75，是本週最差的一天（推論可能與萬聖節有關，數據無法證明）。</li><li><b>不是 Google 造成的</b>：Google 預算 11/1 才減半，週末跌幅在那之前就已發生。</li><li><b>平日已回穩</b>：週一到週三 184 單（W43 同期 145 單，含 10/28 驟降日），11/1 起每天 59–69 單。</li></ul></div>
+    <script type="application/json" id="hlBuiltin">{"title": "業績衰退集中在 10/30–11/1 週末三天，平日已回穩", "lead": "官網銷售額 ¥655.4 萬，比上週少 ¥93.5 萬（-12.5%）。**週五到週日三天少了 ¥166.2 萬**，其他四天反而多了 ¥72.7 萬。", "bullets": ["**上週週末基準偏高**：W43 週末是 10/23 再入荷後的高峰（日曜 87 單、¥161.4 萬）。和 W42 週末比，本週只少 ¥35.5 萬（¥279.3 萬 → ¥243.8 萬）。", "**週末 Meta 預算收得較多、週六轉換特別差**：週五到週日 Meta 花費 ¥92.7 萬 → ¥65.9 萬（-29%）；10/31（六）官網只有 28 單、轉換率 0.66%，Meta ROAS 1.75，是本週最差的一天（推論可能與萬聖節有關，數據無法證明）。", "**不是 Google 造成的**：Google 預算 11/1 才減半，週末跌幅在那之前就已發生。", "**平日已回穩**：週一到週三 184 單（W43 同期 145 單，含 10/28 驟降日），11/1 起每天 59–69 單。"]}</script>
   </section>
   <!-- WEEK-HIGHLIGHT:END -->
   <section id="overview">
@@ -1287,6 +1297,57 @@ const shopWeeks = [{"wk": 1, "range": "01/01–01/07", "days": 7, "sessions": 13
   renderShopTable();
 })();
 /* ===== SHOPIFY END ===== */
+
+/* week-highlight editor */
+(function(){
+  const sec=document.getElementById('highlight'); if(!sec) return;
+  const WEEK=sec.dataset.week, API='/api/highlights';
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const md=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+  let BUILTIN={title:'',lead:'',bullets:[]}; try{BUILTIN=JSON.parse($('hlBuiltin').textContent)}catch(e){}
+  let remote=null, canEdit=false, editing=false;
+  const cur=()=>remote||BUILTIN;
+  function show(){
+    const d=cur();
+    $('hlTitle').textContent=d.title||'';
+    $('hlLead').innerHTML=md(d.lead||''); $('hlLead').hidden=!d.lead||editing;
+    $('hlBullets').innerHTML=(d.bullets||[]).map(b=>'<li>'+md(b)+'</li>').join(''); $('hlBullets').hidden=editing;
+    $('hlTitle').hidden=editing; $('hlForm').hidden=!editing;
+    $('hlEditBtn').hidden=!canEdit; $('hlEditBtn').textContent=editing?'✓ 儲存':'✎ 編輯文字';
+    $('hlRevertBtn').hidden=!(canEdit&&remote&&!editing);
+    $('hlStatus').textContent=remote?('線上修改版本'+(remote._by?' · '+remote._by:'')+(remote._at?' · '+remote._at.replace('T',' ').replace('Z',' UTC'):'')):'';
+  }
+  function form(){
+    const d=cur(), bs=(d.bullets||[]).slice(); if(!bs.length) bs.push('');
+    $('hlForm').innerHTML='<label>標題</label><input id="hlFTitle" value="'+esc(d.title||'')+'">'
+      +'<label>導言（**文字** = 粗體）</label><textarea id="hlFLead" rows="3">'+esc(d.lead||'')+'</textarea>'
+      +'<label>重點（每格一條；清空即刪除）</label><div id="hlFBullets">'
+      +bs.map(b=>'<div class="hl-brow"><textarea rows="2">'+esc(b)+'</textarea></div>').join('')+'</div>'
+      +'<div><button class="ins-btn" id="hlAddB" type="button">＋ 新增一條</button> <button class="ins-btn" id="hlCancel" type="button">取消</button></div>'
+      +'<div class="hl-note">圖表依數據產生，不開放編輯。</div>';
+    $('hlAddB').onclick=()=>{const r=document.createElement('div');r.className='hl-brow';r.innerHTML='<textarea rows="2"></textarea>';$('hlFBullets').appendChild(r)};
+    $('hlCancel').onclick=()=>{editing=false;show()};
+  }
+  async function save(){
+    const data={title:$('hlFTitle').value,lead:$('hlFLead').value,bullets:[...$('hlFBullets').querySelectorAll('textarea')].map(t=>t.value).filter(v=>v.trim())};
+    $('hlStatus').textContent='儲存中…';
+    const r=await fetch(API,{method:'PUT',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({week:WEEK,data})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok){$('hlStatus').textContent='儲存失敗：'+(j.error||r.status);return false}
+    remote=j.item; return true;
+  }
+  $('hlEditBtn').onclick=async()=>{ if(editing){ if(await save()){editing=false;show()} } else {editing=true;form();show()} };
+  $('hlRevertBtn').onclick=async()=>{
+    if(!confirm('把本週 Highlight 文字還原成建置時的原始版本？（所有人都會看到還原後的內容）'))return;
+    const r=await fetch(API+'?week='+encodeURIComponent(WEEK),{method:'DELETE',credentials:'same-origin'});
+    if(r.ok){remote=null;show()}else alert('還原失敗：HTTP '+r.status);
+  };
+  show();
+  if(location.protocol.startsWith('http')) fetch(API,{cache:'no-store',credentials:'same-origin'}).then(r=>r.ok?r.json():null).then(j=>{
+    if(!j)return; canEdit=!!j.canEdit; remote=(j.highlights||{})[WEEK]||null; show();
+  }).catch(()=>{});
+})();
 </script>
 
 <div id="lightbox">

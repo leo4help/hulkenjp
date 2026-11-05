@@ -6,6 +6,9 @@
  *   GET    /api/insights           -> { me, canEdit, insights: { "2026-10-08": {blocks, _by, _at} } }
  *   PUT    /api/insights           -> body { week: "YYYY-MM-DD" (report week start, Thursday), data: { blocks: { overall:{rows,actions}, metaTest:{rows}, metaCreative:{rows}, kol:{rows}, shopify:{rows} } } }
  *   DELETE /api/insights?week=...  -> delete the online version (page falls back to the built-in insights.json draft)
+ *   GET    /api/highlights         -> { me, canEdit, highlights: { "2026-10-29": {title, lead, bullets, _by, _at} } }   (W44+, 本週 Highlight 文字)
+ *   PUT    /api/highlights         -> body { week, data: { title, lead, bullets: [..] } }   (ALLOWED_EDITORS only)
+ *   DELETE /api/highlights?week=.. -> back to the built-in highlights.json text
  *   GET/POST/DELETE /api/links     -> short links for go.hulken.co.jp (see handleLinks at the bottom)
  *   anything else                  -> static files (env.ASSETS; clean URLs like /all keep working)
  *
@@ -27,6 +30,13 @@ export default {
     if (url.pathname === "/api/insights") {
       try {
         return await handleInsights(request, env, url);
+      } catch (e) {
+        return json({ error: "server error: " + (e && e.message ? e.message : String(e)) }, 500);
+      }
+    }
+    if (url.pathname === "/api/highlights") {
+      try {
+        return await handleHighlights(request, env, url);
       } catch (e) {
         return json({ error: "server error: " + (e && e.message ? e.message : String(e)) }, 500);
       }
@@ -310,6 +320,80 @@ async function handleLinks(request, env, url) {
       return json({ error: "只能刪除自己建立的短網址" }, 403);
     }
     await env.DB.prepare("DELETE FROM links WHERE slug = ?1").bind(slug).run();
+    return json({ ok: true });
+  }
+
+  return json({ error: "method not allowed" }, 405);
+}
+
+
+/* ------------------------------------------------------------------ highlights (本週 Highlight 文字, 2026-11-04) */
+let hlSchemaReady = false;
+async function ensureHlSchema(db) {
+  if (hlSchemaReady) return;
+  await db.batch([
+    db.prepare(`CREATE TABLE IF NOT EXISTS highlights (
+      week TEXT PRIMARY KEY, data TEXT NOT NULL, updated_by TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')))`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS highlights_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, week TEXT NOT NULL, data TEXT,
+      action TEXT NOT NULL, updated_by TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')))`),
+  ]);
+  hlSchemaReady = true;
+}
+
+function cleanHighlight(d) {
+  if (!d || typeof d !== "object") return null;
+  const str = (v, max) => (typeof v === "string" ? v.slice(0, max) : "");
+  if (d.bullets !== undefined && !Array.isArray(d.bullets)) return null;
+  const bullets = (d.bullets || []).filter((b) => typeof b === "string").map((b) => b.slice(0, 1000)).filter((b) => b.trim()).slice(0, 12);
+  return { title: str(d.title, 200), lead: str(d.lead, 2000), bullets };
+}
+
+async function handleHighlights(request, env, url) {
+  if (!env.DB) return json({ error: "server misconfigured: D1 binding DB missing" }, 500);
+  const user = await getUser(request, env);
+  if (user.error) return json({ error: user.error }, user.status);
+  await ensureHlSchema(env.DB);
+
+  if (request.method === "GET") {
+    const { results } = await env.DB.prepare("SELECT week, data, updated_by, updated_at FROM highlights").all();
+    const highlights = {};
+    for (const r of results || []) {
+      try { highlights[r.week] = { ...JSON.parse(r.data), _by: r.updated_by, _at: r.updated_at }; } catch (e) { /* skip */ }
+    }
+    return json({ me: user.email, canEdit: user.canEdit, highlights });
+  }
+
+  if (!user.canEdit) return json({ error: "沒有編輯權限" }, 403);
+  const at = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+
+  if (request.method === "PUT") {
+    const body = await request.json().catch(() => null);
+    if (!body || !KEY_RE.test(body.week || "")) return json({ error: "week must be YYYY-MM-DD" }, 400);
+    const clean = cleanHighlight(body.data);
+    if (!clean) return json({ error: "data must be {title, lead, bullets[]}" }, 400);
+    const text = JSON.stringify(clean);
+    await env.DB.batch([
+      env.DB.prepare(
+        `INSERT INTO highlights (week, data, updated_by, updated_at) VALUES (?1, ?2, ?3, ?4)
+         ON CONFLICT(week) DO UPDATE SET data = excluded.data, updated_by = excluded.updated_by, updated_at = excluded.updated_at`
+      ).bind(body.week, text, user.email, at),
+      env.DB.prepare("INSERT INTO highlights_history (week, data, action, updated_by, updated_at) VALUES (?1, ?2, 'save', ?3, ?4)")
+        .bind(body.week, text, user.email, at),
+    ]);
+    return json({ ok: true, item: { ...clean, _by: user.email, _at: at } });
+  }
+
+  if (request.method === "DELETE") {
+    const week = url.searchParams.get("week") || "";
+    if (!KEY_RE.test(week)) return json({ error: "week must be YYYY-MM-DD" }, 400);
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM highlights WHERE week = ?1").bind(week),
+      env.DB.prepare("INSERT INTO highlights_history (week, data, action, updated_by, updated_at) VALUES (?1, NULL, 'revert', ?2, ?3)")
+        .bind(week, user.email, at),
+    ]);
     return json({ ok: true });
   }
 
