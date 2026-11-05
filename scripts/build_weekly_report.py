@@ -375,6 +375,16 @@ def compute_report_data(cache_path, bridge_path, week_start, week_end,
         metaCreative.append(row_with_delta(nr, sub, extra={'tag': tag}))
     # name, tag should lead the dict -> rebuild in that key order
     metaCreative = [{'name': r['name'], 'tag': r['tag'], **{k: v for k, v in r.items() if k not in ('name', 'tag')}} for r in metaCreative]
+    # raw components so the page can recompute the footer total for a filtered subset (2026-11-04):
+    # rev = this week's revenue; pc / pr = LAST week's General-bucket cost / revenue for the same NameRow
+    # (same baseline as metaCreativeTotal, so 'all selected' reproduces it exactly)
+    _cs = gen_cur.groupby('NameRow')[[COST, REV]].sum()
+    _ps = gen_prev.groupby('NameRow')[[COST, REV]].sum()
+    for r in metaCreative:
+        nr = r['name']
+        r['rev'] = r2(float(_cs[REV].get(nr, 0.0)), 1)
+        r['pc'] = r2(float(_ps[COST].get(nr, 0.0)), 1)
+        r['pr'] = r2(float(_ps[REV].get(nr, 0.0)), 1)
 
     gen_cur_total = agg_metrics(gen_cur)
     gen_prev_total = agg_metrics(gen_prev)
@@ -667,6 +677,7 @@ def compute_report_data(cache_path, bridge_path, week_start, week_end,
         'channelMergedRows': channelMergedRows, 'channelMergedGrand': channelMergedGrand,
         'channelNote': channelNote,
         'brandSplit': brandSplit, 'testSplit': testSplit, 'overviewGrandRef': overviewGrandRef,
+        'rowNotes': row_notes(pd.concat([meta_cur, meta_prev])),
         'metaTestRows': metaTestRows, 'metaTestKol': metaTestKol,
         'metaCreative': metaCreative, 'metaCreativeTotal': metaCreativeTotal,
         'kolRows': kolRows, 'kolGrand': kolGrand,
@@ -784,6 +795,122 @@ def ensure_cost_anomaly(html):
     if html.count(pat) < 2:
         raise SystemExit('ensure_cost_anomaly: cost cell pattern not found')
     return html.replace(pat, pat + '${costAnomaly(r)}')
+
+
+# Name-Row 旁的小標記（2026-11-04，使用者要求）：行銷活動名稱含關鍵字的素材在名稱旁加標籤。
+CAMPAIGN_NOTES = {'再入荷': '再入荷'}
+
+
+def row_notes(df):
+    out = {}
+    for kw, label in CAMPAIGN_NOTES.items():
+        hit = df[df['行銷活動名稱'].astype(str).str.contains(kw, na=False)]
+        for nr in hit['NameRow'].dropna().unique():
+            out[nr] = label
+    return dict(sorted(out.items()))
+
+
+ROWNOTE_MARK = '/* row-notes + tag-filter */'
+ROWNOTE_CSS = ROWNOTE_MARK + """
+  .note-badge{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:800;background:#e8efe2;color:#4c6a3c;white-space:nowrap;vertical-align:middle;}
+  .tag-filter{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:10px 0 8px;font-size:12.5px;}
+  .tag-filter .tf-label{font-weight:800;color:var(--ink-soft);margin-right:2px;}
+  .tag-filter label{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:#fff;cursor:pointer;user-select:none;}
+  .tag-filter label.on{border-color:var(--brand-gold);background:#fbf5e8;color:var(--brand-deep);font-weight:700;}
+  .tag-filter input{margin:0;accent-color:var(--brand-gold);}
+  .tag-filter .tf-all{border:none;background:none;color:var(--brand-gold);font:inherit;font-weight:700;cursor:pointer;padding:3px 4px;}
+"""
+ROWNOTE_JS = """
+/* row-notes + tag-filter (2026-11-04) */
+const ROW_NOTES = {};
+function rowNoteBadge(name){ const t = ROW_NOTES[name]; return t ? `<span class="note-badge">${t}</span>` : ''; }
+const TAG_FILTERS = {};
+const tagKey = r => (r.tag==null || String(r.tag).trim()==='') ? 'NULL' : String(r.tag);
+function tagPass(id, r){ const st = TAG_FILTERS[id]; return !st || st.has(tagKey(r)); }
+function tagFilterInit(id, rows, renderFn){
+  const box = document.getElementById(id + 'TagFilter'); if(!box) return;
+  const tags = [...new Set(rows.map(tagKey))].sort((a,b)=> (a==='NULL')-(b==='NULL') || a.localeCompare(b));
+  TAG_FILTERS[id] = new Set(tags);
+  const draw = () => {
+    const st = TAG_FILTERS[id], all = st.size===tags.length;
+    box.innerHTML = '<span class="tf-label">原廠標記</span>' + tags.map(t =>
+      `<label class="${st.has(t)?'on':''}"><input type="checkbox" data-t="${t}" ${st.has(t)?'checked':''}>${t}</label>`).join('')
+      + `<button type="button" class="tf-all">${all?'全部取消':'全選'}</button>`;
+    box.querySelectorAll('input').forEach(cb => cb.onchange = () => { cb.checked ? st.add(cb.dataset.t) : st.delete(cb.dataset.t); draw(); renderFn(); });
+    box.querySelector('.tf-all').onclick = () => { if(all) st.clear(); else tags.forEach(t=>st.add(t)); draw(); renderFn(); };
+  };
+  draw();
+}
+"""
+
+
+def ensure_rownotes_tagfilter(html):
+    """名稱旁「再入荷」等標記 + TEST／常態表上方的原廠標記複選篩選器（2026-11-04，idempotent）。"""
+    if ROWNOTE_MARK in html:
+        return html
+    html = html.replace('</style>', ROWNOTE_CSS + '</style>', 1)
+    a = '<span>${name}</span></div>`;'
+    if html.count(a) != 1:
+        raise SystemExit('ensure_rownotes_tagfilter: nameCellWithThumb layout changed')
+    html = html.replace(a, '<span>${name}</span>${rowNoteBadge(name)}</div>`;')
+    i = html.find('function nameCellWithThumb')
+    html = html[:i] + ROWNOTE_JS.lstrip('\n') + html[i:]
+    for tid, key, sortv in (('metaTestKolTable', 'metaTestKol', 'metaTestSort'), ('metaCreativeTable', 'metaCreative', 'metaCreativeSort')):
+        t = html.find(f'<table id="{tid}">')
+        d = html.rfind('<div class="table-scroll', 0, t)
+        ls = html.rfind('\n', 0, d) + 1
+        html = html[:ls] + f'    <div class="tag-filter" id="{key}TagFilter"></div>\n' + html[ls:]
+        o = f'const rows = sortRows({key}, {sortv});'
+        if html.count(o) != 1:
+            raise SystemExit(f'ensure_rownotes_tagfilter: {o} not found')
+        html = html.replace(o, f"const rows = sortRows({key}.filter(r=>tagPass('{key}',r)), {sortv});")
+    for key, fn in (('metaTestKol', 'renderMetaTestKol'), ('metaCreative', 'renderMetaCreative')):
+        o = f'\n{fn}();\n'
+        if html.count(o) != 1:
+            raise SystemExit(f'ensure_rownotes_tagfilter: {fn}() call not found')
+        html = html.replace(o, f"\n{fn}();\ntagFilterInit('{key}', {key}, {fn});\n")
+    return html
+
+
+FILTERED_TOTAL_MARK = '/* filtered-creative-total */'
+
+
+def ensure_filtered_total(html):
+    """常態素材表的總計跟著原廠標記篩選重算（2026-11-04，idempotent）。全選時用原本的 metaCreativeTotal。"""
+    if FILTERED_TOTAL_MARK in html:
+        return html
+    i = html.find('function renderMetaCreative')
+    j = html.find('renderMetaCreative();', i)
+    fn = html[i:j]
+    old_label = '<td class="name-cell">總計（Meta 全素材，General＋TEST）</td>'
+    pairs = [
+        (old_label, '<td class="name-cell">${tot.label}</td>'),
+        ('${fmtInt(metaCreativeTotal.cost)}', '${fmtInt(tot.cost)}'),
+        ('${deltaChip(metaCreativeTotal.costD,{size:\'sub\'})}', '${deltaChip(tot.costD,{size:\'sub\'})}'),
+        ('<b>${metaCreativeTotal.roas}</b>', '<b>${tot.roas}</b>'),
+        ('${deltaChip(metaCreativeTotal.roasD,{size:\'sub\'})}', '${deltaChip(tot.roasD,{size:\'sub\'})}'),
+    ]
+    for a, b in pairs:
+        if fn.count(a) != 1:
+            raise SystemExit(f'ensure_filtered_total: pattern not found: {a}')
+        fn = fn.replace(a, b)
+    o = "const rows = sortRows(metaCreative.filter(r=>tagPass('metaCreative',r)), metaCreativeSort);"
+    if fn.count(o) != 1:
+        raise SystemExit('ensure_filtered_total: needs ensure_rownotes_tagfilter first')
+    fn = fn.replace(o, o + "\n  const tot = creativeTotal(rows);")
+    js = FILTERED_TOTAL_MARK + """
+function creativeTotal(rows){
+  const st = TAG_FILTERS['metaCreative'];
+  const all = !st || rows.length === metaCreative.length;
+  if(all) return {label:'總計（Meta 全素材，General＋TEST）', cost:metaCreativeTotal.cost, costD:metaCreativeTotal.costD, roas:metaCreativeTotal.roas, roasD:metaCreativeTotal.roasD};
+  let c=0,v=0,pc=0,pr=0; rows.forEach(r=>{c+=r.cost||0; v+=r.rev||0; pc+=r.pc||0; pr+=r.pr||0;});
+  if(!rows.length) return {label:'篩選後合計（未選擇任何原廠標記）', cost:0, costD:null, roas:'–', roasD:null};
+  const roas=c?Math.round(v/c*100)/100:'–', proas=pc?pr/pc:null;
+  const pct=(a,b)=> (b==null||b===0||a==null)?null:Math.round((a-b)/Math.abs(b)*1000)/10;
+  return {label:`篩選後合計（${[...st].join('、')}・${rows.length} 支）`, cost:c, costD:pct(c,pc), roas, roasD:typeof roas==='number'?pct(roas,proas):null};
+}
+"""
+    return html[:i] + js + fn + html[j:]
 
 
 def ensure_test_tag(html):
@@ -953,6 +1080,9 @@ def build_html(template_path, out_path, data, week_num, prev_week_num,
     html = ensure_channel_merged_block(html)
     html = ensure_cost_anomaly(html)
     html = ensure_test_tag(html)
+    html = ensure_rownotes_tagfilter(html)
+    html = ensure_filtered_total(html)
+    html = sub_const(html, 'ROW_NOTES', data.get('rowNotes') or {})
 
     # 9c. Insight & Suggestion section (W41+, replaces the Weekly Insight
     #     callout; editable online via _worker.js + D1). Inject once, then
