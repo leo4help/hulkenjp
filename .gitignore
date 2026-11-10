@@ -19,3 +19,4 @@ google_token*.json
 # API keys (never commit)
 .secrets/
 *Secret*.txt
+*api-key*.txt
