@@ -61,9 +61,10 @@ metaW = A[-1]['channels']['Meta']
 avgRoas = metaW['rev'] / metaW['cost']
 
 YTD = json.load(open(os.path.join(D, 'overview_ytd.json'), encoding='utf-8'))
+GYTD = json.load(open(os.path.join(D, 'groups_ytd.json'), encoding='utf-8'))
 data = dict(weeks=weeks, labels=labels, A=A, B=BC['B'], C=BC['C'], amzSide=amzSide, amzEx=amzEx,
             creatives=CR, avgRoas=avgRoas, minSpend=5000, lic=LIC,
-            amzNote=BC['C'][-1]['platform'].get('note', ''), ytd=YTD)
+            amzNote=BC['C'][-1]['platform'].get('note', ''), ytd=YTD, G=GYTD)
 
 # ---------- template pieces from the previous report ----------
 prev = sorted(f for f in os.listdir(ROOT) if re.fullmatch(r'2026W\d\d', f) and f < folder)[-1]
@@ -120,6 +121,20 @@ CSS2 = r"""
   .rg-presets{display:flex;gap:6px;flex-wrap:wrap;}
   .rg-preset{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font:inherit;font-size:12px;color:var(--ink-soft);cursor:pointer;}
   .rg-preset.on{border-color:var(--brand-gold);background:var(--tan-soft);color:var(--brand-deep);font-weight:800;}
+  .chart-tip{position:fixed;z-index:80;display:none;pointer-events:none;background:rgba(43,38,32,.94);color:#fff;border-radius:9px;padding:9px 12px;font-size:12px;line-height:1.55;box-shadow:0 6px 20px rgba(0,0,0,.25);min-width:180px;}
+  .chart-tip .tt-h{font-weight:800;margin-bottom:4px;color:#f0d79a;}
+  .chart-tip .tt-r{display:flex;align-items:center;gap:6px;white-space:nowrap;}
+  .chart-tip .tt-r i{display:inline-block;width:10px;height:10px;border-radius:2px;flex:0 0 auto;}
+  .chart-tip .tt-r b{margin-left:auto;padding-left:14px;font-weight:800;}
+  .chart-tip .tt-tot{border-top:1px solid rgba(255,255,255,.25);margin-top:3px;padding-top:3px;font-weight:700;}
+  .rg-sep{width:1px;height:20px;background:var(--line);margin:0 6px;}
+  .rg-gl{font-size:12px;font-weight:800;color:var(--brand-deep);}
+  .rg-grp{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-size:12px;cursor:pointer;color:var(--ink-faint);background:#fff;}
+  .rg-grp.on{border-color:var(--brand-gold);color:var(--brand-deep);font-weight:800;background:var(--tan-soft);}
+  .rg-grp input{display:none;} .rg-grp i{width:10px;height:10px;border-radius:2px;display:inline-block;}
+  .rg-grp:not(.on) i{opacity:.3;}
+  .rg-presets{align-items:center;}
+  table.std th.sortable{cursor:pointer;user-select:none;white-space:nowrap;}
   .pub-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;margin-right:12px;}
   .pub-badge{font-size:12.5px;font-weight:800;color:#a3561c;background:#fff4e2;border:1px solid #e8c48a;border-radius:999px;padding:5px 12px;}
   .pub-badge.on{color:var(--good);background:#eaf6ef;border-color:#a9d8bd;}
@@ -140,7 +155,8 @@ def ins_block(key, title, tag):
 def group_section(g, badge, title, platform, extra=''):
     return f'''
   <section id="grp{g}">
-    <div class="sec-head"><h2><span class="grp-badge">{badge}</span>{title}</h2><span class="sec-tag">平台：{platform} · 8 週趨勢（{weeks[0]}–{weeks[-1]}）</span></div>
+    <div class="sec-head"><h2><span class="grp-badge">{badge}</span>{title}</h2><span class="sec-tag">平台：{platform} · 趨勢圖 2026 W1 起，預設近 8 週；表格為本週 WoW</span></div>
+    <div class="rg-box" id="rg{g}"></div>
     <div class="chart-grid" id="charts{g}"></div>
     <div class="sub-h">本週成效（WoW）</div>
     <div class="table-scroll"><table class="std" id="tbl{g}"></table></div>

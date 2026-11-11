@@ -39,46 +39,68 @@ function chart(el,o){
   for(let k=0;k<=4;k++){const v=lmax*k/4,y=YL(v);s+=`<line x1="${L}" x2="${W-Rr}" y1="${y}" y2="${y}" stroke="#ece4d6"/><text x="${L-5}" y="${y+3.5}" text-anchor="end" font-size="9.5" fill="#9a9186">${fl(v)}</text>`;
     if(o.right)s+=`<text x="${W-Rr+5}" y="${YR(rmax*k/4)+3.5}" font-size="9.5" fill="#9a9186">${fr(rmax*k/4)}</text>`}
   o.labels.forEach((lb,i)=>{if(o.xEvery&&(n-1-i)%o.xEvery)return;const [a,b]=lb.split('\n');s+=`<text x="${X(i)}" y="${H-B+14}" text-anchor="middle" font-size="9.5" font-weight="${i===n-1?800:600}" fill="#6b6255">${a}</text><text x="${X(i)}" y="${H-B+26}" text-anchor="middle" font-size="8.5" fill="#9a9186">${b||''}</text>`});
-  const tops=[];(o.bars||[]).length&&o.labels.forEach((_,i)=>{let acc=0;o.bars.forEach(b=>{const v=b.values[i]||0;if(v>0){const y0=YL(acc),y1=YL(acc+v);s+=`<rect x="${X(i)-bw*.32}" y="${y1}" width="${bw*.64}" height="${Math.max(0,y0-y1)}" fill="${b.color}"><title>${b.name} ${o.labels[i].replace('\n',' ')}：${(o.tipL||fl)(v)}</title></rect>`}acc+=v});
+  const tops=[];(o.bars||[]).length&&o.labels.forEach((_,i)=>{let acc=0;o.bars.forEach(b=>{const v=b.values[i]||0;if(v>0){const y0=YL(acc),y1=YL(acc+v);s+=`<rect x="${X(i)-bw*.32}" y="${y1}" width="${bw*.64}" height="${Math.max(0,y0-y1)}" fill="${b.color}"></rect>`}acc+=v});
     const ty=YL(acc)-4,hit=(o.lines||[]).some(l=>l.values[i]!=null&&Math.abs((l.right?YR:YL)(l.values[i])-ty+3)<11);tops[i]=hit?null:ty;
     if(o.barTotal&&acc>0)s+=hit?`<text x="${X(i)}" y="${YL(acc)+13}" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">${o.barTotal(acc)}</text>`:`<text x="${X(i)}" y="${ty}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#3d3220" stroke="#fff" stroke-width="3" paint-order="stroke">${o.barTotal(acc)}</text>`});
   (o.lines||[]).forEach(l=>{const Y=l.right?YR:YL;let d='',pen=false;l.values.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?'L':'M')+X(i)+','+Y(v);pen=true});
     s+=`<path d="${d}" fill="none" stroke="${l.color}" stroke-width="2.2" ${l.dash?'stroke-dasharray="5 4"':''} stroke-linejoin="round"/>`;
-    l.values.forEach((v,i)=>{if(v==null)return;s+=`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${l.color}"><title>${l.name} ${o.labels[i].replace('\n',' ')}：${l.fmt(v)}</title></circle>`;
+    l.values.forEach((v,i)=>{if(v==null)return;s+=`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${l.color}"></circle>`;
       if(o.labelLast!==false&&(i===n-1||o.labelAll)){const ly=(o.barTotal&&tops[i]!=null&&Math.abs(Y(v)-7-tops[i])<12)?(Y(v)-7<tops[i]?Y(v)-14:Y(v)+16):Y(v)-7;s+=`<text x="${X(i)}" y="${ly}" text-anchor="middle" font-size="9.5" font-weight="700" fill="${l.color}" stroke="#fff" stroke-width="3" paint-order="stroke">${l.fmt(v)}</text>`}})});
+  for(let i=0;i<n;i++)s+=`<rect class="hv" data-i="${i}" x="${X(i)-bw/2}" y="${T}" width="${bw}" height="${ih}" fill="transparent"/>`;
   s+='</svg>';
   const lg=[...(o.bars||[]).map(b=>`<span><i style="background:${b.color};height:10px"></i>${b.name}</span>`),...(o.lines||[]).map(l=>`<span><i style="background:${l.color}"></i>${l.name}${l.right?'（右軸）':''}</span>`)].join('');
   el.innerHTML=(o.title?`<h4>${o.title}</h4>`:'')+`<div class="lg">${lg}</div>`+s;
+  el.querySelectorAll('.hv').forEach(r=>{const i=+r.dataset.i;
+    r.onmouseenter=()=>{r.setAttribute('fill','rgba(169,130,46,.10)');
+      const bars=(o.bars||[]).map(b=>[b.color,b.name,b.values[i]||0,(o.tipL||o.fmtL||(v=>v))]);
+      let h=`<div class="tt-h">${o.labels[i].replace('\n','（')}${o.labels[i].includes('\n')?' 起）':''}</div>`;
+      bars.forEach(([c,nm,v,f])=>h+=`<div class="tt-r"><i style="background:${c}"></i>${nm}<b>${f(v)}</b></div>`);
+      if(bars.length>1)h+=`<div class="tt-r tt-tot">合計<b>${(o.tipL||o.fmtL)(bars.reduce((a,x)=>a+x[2],0))}</b></div>`;
+      (o.lines||[]).forEach(l=>h+=`<div class="tt-r"><i style="background:${l.color};height:3px"></i>${l.name}<b>${l.values[i]==null?'–':(l.tip||l.fmt)(l.values[i])}</b></div>`);
+      TIP.innerHTML=h;TIP.style.display='block'};
+    r.onmousemove=e=>{const w=TIP.offsetWidth,x=e.clientX+16+w>innerWidth?e.clientX-w-16:e.clientX+16;TIP.style.left=x+'px';TIP.style.top=(e.clientY+14)+'px'};
+    r.onmouseleave=()=>{r.setAttribute('fill','transparent');TIP.style.display='none'}});
 }
+const TIP=(()=>{const d=document.createElement('div');d.className='chart-tip';document.body.appendChild(d);return d})();
 const man=v=>(v/1e4).toFixed(v>=1e6?0:1)+'萬',manAxis=v=>Math.round(v/1e4)+'';
 
-/* ---------- Overview chart（2026 W1 起，時間條選擇顯示週數，預設 8 週） ---------- */
-(function(){
-  const Y=R.ytd,NY=Y.length,el=document.getElementById('ovChart'),box=document.getElementById('ovRange');
-  let lo=Math.max(0,NY-8),hi=NY-1;
-  const lab=r=>{const d=new Date(r.start+'T00:00:00');return `${r.week}\n${d.getMonth()+1}/${d.getDate()}`};
-  function draw(){
-    const ys=Y.slice(lo,hi+1),n=ys.length,dense=n>16;
-    chart(el,{w:1100,h:330,padL:50,right:true,labels:ys.map(lab),labelAll:!dense,labelLast:!dense,xEvery:n>26?4:(n>16?2:0),
-      bars:[{name:'Shopify 官網',color:'#3d6fb6',values:ys.map(r=>r.shopify)},{name:'Amazon',color:'#e8a33d',values:ys.map(r=>r.amazon)},{name:'樂天',color:'#c9473f',values:ys.map(r=>r.rakuten)}],
-      barTotal:dense?null:(v=>(v/1e4).toFixed(0)),fmtL:manAxis,tipL:man,fmtR:manAxis,
-      lines:[{name:'廣告花費（三通路合計，不含授權金）',color:'#1f2a44',right:true,values:ys.map(r=>r.spendA+r.spendB+r.spendC),fmt:v=>(v/1e4).toFixed(1)}]});
-    el.insertAdjacentHTML('afterbegin','<h4 style="margin:0 0 4px;font-size:14px;color:var(--brand-deep)">平台營收（萬円，堆疊）與廣告花費（萬円，右軸）</h4>');
-    document.getElementById('ovRangeLabel').textContent=`${Y[lo].week}（${Y[lo].start.slice(5).replace('-','/')}）— ${Y[hi].week}（共 ${n} 週）`;
-    const pct=i=>i/(NY-1)*100,fill=document.getElementById('ovRangeFill');fill.style.left=pct(lo)+'%';fill.style.width=(pct(hi)-pct(lo))+'%';
-    document.getElementById('ovLo').value=lo;document.getElementById('ovHi').value=hi;
-    box.querySelectorAll('.rg-preset').forEach(b=>b.classList.toggle('on',hi===NY-1&&(+b.dataset.n===n||(b.dataset.n==='all'&&lo===0))));
-  }
-  const ticks=Y.map((r,i)=>{const d=new Date(r.start+'T00:00:00'),p=i?new Date(Y[i-1].start+'T00:00:00'):null;return (!p||p.getMonth()!==d.getMonth())?`<span style="left:${i/(NY-1)*100}%">${d.getMonth()+1}月</span>`:''}).join('');
-  box.innerHTML=`<div class="rg-head"><span class="rg-title">📅 圖表顯示區間</span><span class="rg-label" id="ovRangeLabel"></span></div>
-    <div class="rg-track"><div class="rg-rail"></div><div class="rg-fill" id="ovRangeFill"></div>
-      <input type="range" id="ovLo" min="0" max="${NY-1}" step="1"><input type="range" id="ovHi" min="0" max="${NY-1}" step="1"></div>
+/* ---------- 時間條（雙把手＋快速鍵；Part 1 與 Part 2 各組各自獨立） ---------- */
+const WK=R.ytd.map(r=>({week:r.week,start:r.start}));
+const wkLabel=r=>{const d=new Date(r.start+'T00:00:00');return `${r.week}\n${d.getMonth()+1}/${d.getDate()}`};
+function rangeBox(box,onChange,extraHtml){
+  const NY=WK.length,id=box.id;let lo=Math.max(0,NY-8),hi=NY-1;
+  const ticks=WK.map((r,i)=>{const d=new Date(r.start+'T00:00:00'),p=i?new Date(WK[i-1].start+'T00:00:00'):null;return (!p||p.getMonth()!==d.getMonth())?`<span style="left:${i/(NY-1)*100}%">${d.getMonth()+1}月</span>`:''}).join('');
+  box.innerHTML=`<div class="rg-head"><span class="rg-title">📅 圖表顯示區間</span><span class="rg-label"></span></div>
+    <div class="rg-track"><div class="rg-rail"></div><div class="rg-fill"></div>
+      <input type="range" class="rg-lo" min="0" max="${NY-1}" step="1"><input type="range" class="rg-hi" min="0" max="${NY-1}" step="1"></div>
     <div class="rg-ticks">${ticks}</div>
-    <div class="rg-presets">${[['8','近 8 週'],['12','近 12 週'],['26','近 26 週'],['all','全部']].map(([k,t])=>`<button type="button" class="rg-preset" data-n="${k}">${t}</button>`).join('')}</div>`;
-  const L=document.getElementById('ovLo'),H=document.getElementById('ovHi');
-  L.oninput=()=>{lo=Math.min(+L.value,hi);draw()};H.oninput=()=>{hi=Math.max(+H.value,lo);draw()};
-  box.querySelectorAll('.rg-preset').forEach(b=>b.onclick=()=>{hi=NY-1;lo=b.dataset.n==='all'?0:Math.max(0,NY-(+b.dataset.n));draw()});
-  draw();
+    <div class="rg-presets">${[['8','近 8 週'],['12','近 12 週'],['26','近 26 週'],['all','全部']].map(([k,t])=>`<button type="button" class="rg-preset" data-n="${k}">${t}</button>`).join('')}${extraHtml||''}</div>`;
+  const L=box.querySelector('.rg-lo'),H=box.querySelector('.rg-hi'),fill=box.querySelector('.rg-fill'),lab=box.querySelector('.rg-label');
+  function upd(){const n=hi-lo+1,pct=i=>i/(NY-1)*100;
+    lab.textContent=`${WK[lo].week}（${WK[lo].start.slice(5).replace('-','/')}）— ${WK[hi].week}（共 ${n} 週）`;
+    fill.style.left=pct(lo)+'%';fill.style.width=(pct(hi)-pct(lo))+'%';L.value=lo;H.value=hi;
+    box.querySelectorAll('.rg-preset').forEach(b=>b.classList.toggle('on',hi===NY-1&&(+b.dataset.n===n||(b.dataset.n==='all'&&lo===0))));
+    onChange(lo,hi)}
+  L.oninput=()=>{lo=Math.min(+L.value,hi);upd()};H.oninput=()=>{hi=Math.max(+H.value,lo);upd()};
+  box.querySelectorAll('.rg-preset').forEach(b=>b.onclick=()=>{hi=NY-1;lo=b.dataset.n==='all'?0:Math.max(0,NY-(+b.dataset.n));upd()});
+  const api={redraw:()=>onChange(lo,hi)};setTimeout(upd);return api}
+const denseOpts=n=>({labelAll:n<=16,labelLast:n<=16,xEvery:n>26?4:(n>16?2:0)});
+
+/* ---------- Overview chart（2026 W1 起；組別篩選 A／B／C 可複選） ---------- */
+(function(){
+  const Y=R.ytd,el=document.getElementById('ovChart'),box=document.getElementById('ovRange');
+  const GS=[['A','(A) 官網｜Shopify','#3d6fb6','shopify','spendA'],['B','(B) 樂天','#c9473f','rakuten','spendB'],['C','(C) Amazon','#e8a33d','amazon','spendC']];
+  const SEL=new Set(['A','B','C']);let LO=0,HI=0;
+  function draw(lo,hi){LO=lo;HI=hi;const ys=Y.slice(lo,hi+1),n=ys.length,gs=GS.filter(g=>SEL.has(g[0])),dense=n>16;
+    const order=['A','C','B'];gs.sort((a,b)=>order.indexOf(a[0])-order.indexOf(b[0]));
+    chart(el,{w:1100,h:330,padL:50,right:true,labels:ys.map(wkLabel),...denseOpts(n),
+      bars:gs.map(g=>({name:g[1],color:g[2],values:ys.map(r=>r[g[3]])})),
+      barTotal:dense?null:(v=>(v/1e4).toFixed(0)),fmtL:manAxis,tipL:fYen,fmtR:manAxis,
+      lines:gs.length?[{name:`廣告花費（${gs.map(g=>g[0]).join('＋')}，不含授權金）`,color:'#1f2a44',right:true,values:ys.map(r=>gs.reduce((a,g)=>a+r[g[4]],0)),fmt:v=>(v/1e4).toFixed(1),tip:fYen}]:[]});
+    el.insertAdjacentHTML('afterbegin','<h4 style="margin:0 0 4px;font-size:14px;color:var(--brand-deep)">平台營收（萬円，堆疊）與廣告花費（萬円，右軸）</h4>')}
+  const extra=`<span class="rg-sep"></span><span class="rg-gl">組別</span>`+GS.map(g=>`<label class="rg-grp on"><input type="checkbox" data-g="${g[0]}" checked><i style="background:${g[2]}"></i>${g[0]}</label>`).join('');
+  rangeBox(box,draw,extra);
+  box.querySelectorAll('.rg-grp input').forEach(cb=>cb.onchange=()=>{cb.checked?SEL.add(cb.dataset.g):SEL.delete(cb.dataset.g);cb.parentNode.classList.toggle('on',cb.checked);draw(LO,HI)});
 })();
 
 /* ---------- standard table ---------- */
@@ -113,14 +135,18 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
 
 /* ---------- group sections ---------- */
 ['C','B','A'].forEach(k=>{
-  const G=GROUPS[k],M=R.labels.map((_,i)=>gMet(G,i)),el=document.getElementById('charts'+k);
-  const box=()=>{const d=document.createElement('div');d.className='mini';el.appendChild(d);return d};
-  chart(box(),{title:'Cost 廣告花費',labels:R.labels,bars:G.ch.map(([n,c])=>({name:n,color:c,values:G.src.map(w=>w.channels[n].cost)})),fmtL:manAxis,tipL:fYen,barTotal:v=>(v/1e4).toFixed(1)});
-  chart(box(),{title:'廣告營收 ＋ 平台營收（萬円）',labels:R.labels,fmtL:manAxis,lines:[{name:'廣告營收',color:G.color,values:M.map(m=>m.rev),fmt:v=>(v/1e4).toFixed(0)},{name:'平台營收',color:'#3d3220',dash:true,values:M.map(m=>m.prev),fmt:v=>(v/1e4).toFixed(0)}]});
-  chart(box(),{title:'廣告 ROAS ＋ 平台 ROAS',labels:R.labels,fmtL:v=>v.toFixed(v<10?1:0),lines:[{name:'廣告 ROAS',color:G.color,values:M.map(m=>m.roas),fmt:f2},{name:'平台 ROAS',color:'#3d3220',dash:true,values:M.map(m=>m.proas),fmt:f2}]});
-  chart(box(),{title:'CPM（円）',labels:R.labels,fmtL:v=>fInt(v),lines:[{name:'CPM',color:G.color,values:M.map(m=>m.cpm||null),fmt:fInt}]});
-  chart(box(),{title:'CTR（%）',labels:R.labels,fmtL:v=>v.toFixed(1),lines:[{name:'CTR',color:G.color,values:M.map(m=>m.ctr),fmt:v=>v.toFixed(2)}]});
-  chart(box(),{title:'廣告 CVR ＋ 平台 CVR（%）',labels:R.labels,fmtL:v=>v.toFixed(1),lines:[{name:'廣告 CVR',color:G.color,values:M.map(m=>m.cvr),fmt:v=>v.toFixed(2)},{name:'平台 CVR',color:'#3d3220',dash:true,values:M.map(m=>m.pcvr),fmt:v=>v.toFixed(2)}]});
+  const G=GROUPS[k],FG=R.G[k],el=document.getElementById('charts'+k);
+  const MF=FG.map(w=>{const m=met(sum(G.ch.map(c=>w.channels[c[0]])),w.platform);if(!m.cost)m.rev=null;if(!w.platform.sales&&!w.platform.sessions){m.prev=null;m.pcvr=null}return m});
+  const boxes=[...Array(6)].map(()=>{const d=document.createElement('div');d.className='mini';el.appendChild(d);return d});
+  rangeBox(document.getElementById('rg'+k),(lo,hi)=>{
+    const M=MF.slice(lo,hi+1),W=FG.slice(lo,hi+1),L=WK.slice(lo,hi+1).map(wkLabel),D=denseOpts(M.length),dense=M.length>16;
+    chart(boxes[0],{title:'Cost 廣告花費',labels:L,...D,bars:G.ch.map(([n,c])=>({name:n,color:c,values:W.map(w=>w.channels[n].cost)})),fmtL:manAxis,tipL:fYen,barTotal:dense?null:(v=>(v/1e4).toFixed(1))});
+    chart(boxes[1],{title:'廣告營收 ＋ 平台營收（萬円）',labels:L,...D,fmtL:manAxis,lines:[{name:'廣告營收',color:G.color,values:M.map(m=>m.rev),fmt:v=>(v/1e4).toFixed(0),tip:fYen},{name:'平台營收',color:'#3d3220',dash:true,values:M.map(m=>m.prev),fmt:v=>(v/1e4).toFixed(0),tip:fYen}]});
+    chart(boxes[2],{title:'廣告 ROAS ＋ 平台 ROAS',labels:L,...D,fmtL:v=>v.toFixed(v<10?1:0),lines:[{name:'廣告 ROAS',color:G.color,values:M.map(m=>m.roas),fmt:f2},{name:'平台 ROAS',color:'#3d3220',dash:true,values:M.map(m=>m.proas),fmt:f2}]});
+    chart(boxes[3],{title:'CPM（円）',labels:L,...D,fmtL:v=>fInt(v),lines:[{name:'CPM',color:G.color,values:M.map(m=>m.cpm||null),fmt:fInt,tip:fYen}]});
+    chart(boxes[4],{title:'CTR（%）',labels:L,...D,fmtL:v=>v.toFixed(1),lines:[{name:'CTR',color:G.color,values:M.map(m=>m.ctr),fmt:v=>v.toFixed(2),tip:fPct}]});
+    chart(boxes[5],{title:'廣告 CVR ＋ 平台 CVR（%）',labels:L,...D,fmtL:v=>v.toFixed(1),lines:[{name:'廣告 CVR',color:G.color,values:M.map(m=>m.cvr),fmt:v=>v.toFixed(2),tip:fPct},{name:'平台 CVR',color:'#3d3220',dash:true,values:M.map(m=>m.pcvr),fmt:v=>v.toFixed(2),tip:fPct}]});
+  });
   const t=document.getElementById('tbl'+k);t.innerHTML=HEAD+'<tbody>'+groupRows(k)+'</tbody>';bindExpand(t);t.querySelector('tr.cat-row').click();
   t.querySelectorAll('tr.cat-row').forEach(r=>{if(r.dataset.g==='G')r.click()});
   const hints={A:`平台 = Shopify 總銷售額、CVR = 訂單數 ÷ 工作階段。花費不含 KOL 授權金（本週 ¥${fInt(LIC)}），含授權金 ROAS 以小字顯示。ChatGPT 廣告 11/8 開始投放（30 天點擊＋1 天瀏覽歸因，花費約延遲 7–8 小時）。Google 轉換以轉換日計，之後幾天仍會回補。`,
@@ -137,6 +163,22 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
   const e=document.getElementById('tblAmzEx');
   e.innerHTML='<thead><tr><th>搜尋字詞 / ASIN</th><th>分類</th><th>累計花費</th><th>累計訂單</th><th>出現週數</th><th>本週花費</th><th>建議</th></tr></thead><tbody>'+
     (R.amzEx.length?R.amzEx.map(x=>`<tr><td>${x.term}</td><td>${x.seg}</td><td>${fYen(x.cost)}</td><td>${x.orders}</td><td>${x.weeks}</td><td>${fYen(x.cur)}</td><td>${x.action}${x.cur>0?'（本週仍在花）':''}</td></tr>`).join(''):'<tr><td colspan="7" class="na">無</td></tr>')+'</tbody>'})();
+
+/* ---------- 表格點擊排序（預設：廣告 ROAS 大到小；子列在各自上層內排序；合計列固定在最下） ---------- */
+const SORT_STATE={};
+function cellVal(td,isText){if(!td)return null;const n=td.childNodes[0];const t=(isText||!n?td.textContent:n.textContent).trim();
+  if(isText)return t;const v=parseFloat(t.replace(/[¥,%]/g,''));return isNaN(v)?null:v}
+function sortable(t){if(!t||!t.tHead)return;const ths=[...t.tHead.rows[0].cells];
+  let st=SORT_STATE[t.id];if(!st){let c=ths.findIndex(th=>th.dataset.lab==='廣告 ROAS'||th.textContent.trim()==='廣告 ROAS');if(c<0)c=ths.findIndex(th=>th.textContent.trim()==='ROAS');if(c<0)c=ths.findIndex(th=>/花費/.test(th.textContent));st=SORT_STATE[t.id]={col:c<0?1:c,dir:-1}}
+  ths.forEach((th,i)=>{th.classList.add('sortable');if(!th.dataset.lab)th.dataset.lab=th.textContent.trim();th.innerHTML=th.dataset.lab+(i===st.col?(st.dir<0?' ▼':' ▲'):'');
+    th.onclick=()=>{st.dir=st.col===i?-st.dir:(i===0?1:-1);st.col=i;sortable(t)}});
+  const tb=t.tBodies[0];if(!tb)return;const rows=[...tb.rows];if(rows.length<2)return;
+  const grand=rows.filter(r=>r.classList.contains('grand')),rest=rows.filter(r=>!r.classList.contains('grand'));
+  const kids={},top=[];rest.forEach(r=>{const p=r.getAttribute('data-parent');if(p)(kids[p]=kids[p]||[]).push(r);else top.push(r)});
+  const cmp=(a,b)=>{const isT=st.col===0,va=cellVal(a.cells[st.col],isT),vb=cellVal(b.cells[st.col],isT);
+    if(va==null&&vb==null)return 0;if(va==null)return 1;if(vb==null)return -1;return isT?st.dir*String(va).localeCompare(String(vb)):st.dir*(va-vb)};
+  const out=[];const walk=list=>{list.sort(cmp).forEach(r=>{out.push(r);const g=r.dataset.g;if(g&&kids[g])walk(kids[g])})};walk(top);
+  [...out,...grand].forEach(r=>tb.appendChild(r))}
 
 /* ---------- Meta creatives ---------- */
 const AD_IMG_DIR='../AD Images/';
@@ -156,13 +198,14 @@ function renderCr(){const rs=R.creatives.filter(c=>TSEL.has(tagOf(c)));
   const sm=rs.filter(c=>c.cost<R.minSpend),big=rs.filter(c=>c.cost>=R.minSpend),hi=big.filter(c=>c.rev/c.cost>=R.avgRoas),lo=big.filter(c=>c.rev/c.cost<R.avgRoas);
   [['tblCrHi',hi,'cntHi'],['tblCrLo',lo,'cntLo'],['tblCrSm',sm,'cntSm']].forEach(([id,arr,cid])=>{arr.sort((a,b)=>b.cost-a.cost);
     document.getElementById(id).innerHTML=CRH+'<tbody>'+(arr.length?arr.map(crRow).join('')+crTotal(arr):'<tr><td colspan="13" class="na">無</td></tr>')+'</tbody>';
-    document.getElementById(cid).textContent=`${arr.length} 支`})}
+    document.getElementById(cid).textContent=`${arr.length} 支`;sortable(document.getElementById(id))})}
 function drawTF(){const box=document.getElementById('crTagFilter'),all=TSEL.size===TAGS.length;
   box.innerHTML='<span class="tf-label">原廠標記</span>'+TAGS.map(t=>`<label class="${TSEL.has(t)?'on':''}"><input type="checkbox" data-t="${t}" ${TSEL.has(t)?'checked':''}>${t}</label>`).join('')+`<button type="button">${all?'全部取消':'全選'}</button>`;
   box.querySelectorAll('input').forEach(cb=>cb.onchange=()=>{cb.checked?TSEL.add(cb.dataset.t):TSEL.delete(cb.dataset.t);drawTF();renderCr()});
   box.querySelector('button').onclick=()=>{if(all)TSEL.clear();else TAGS.forEach(t=>TSEL.add(t));drawTF();renderCr()}}
 document.getElementById('crAvgNote').textContent=`平均 ROAS ${f2(R.avgRoas)}（本週 Meta 帳戶，不含授權金）`;
 drawTF();renderCr();
+['ovTable','tblC','tblB','tblA','tblAmzSide','tblAmzEx'].forEach(id=>sortable(document.getElementById(id)));
 
 /* ---------- 發佈 / 封存（W45+，只有編輯者看得到按鈕；權限由 _worker.js 在伺服器端控管） ---------- */
 (function(){const bar=document.getElementById('pubBar');if(!bar||!location.protocol.startsWith('http'))return;
