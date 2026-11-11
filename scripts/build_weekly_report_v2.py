@@ -48,8 +48,10 @@ for side in ['品牌', '非品牌']:
                           clicks=int(s.loc[pd.Timestamp(d), 'clicks']) if pd.Timestamp(d) in s.index else 0,
                           conv=int(s.loc[pd.Timestamp(d), 'orders']) if pd.Timestamp(d) in s.index else 0) for d in starts]
 ex = amz.exclusion_candidates(hist, wstart.isoformat())
+EXCL = {x['term'].lower(): x for x in json.load(open(os.path.join(ROOT, 'scripts', 'amazon_excluded.json'), encoding='utf-8'))['items']}
 amzEx = [dict(term=r.term, seg=r.seg, cost=round(r.cost), orders=int(r.orders), weeks=int(r.weeks),
-              cur=round(r.curCost), action=r.action) for r in ex.itertuples()]
+              cur=round(r.curCost), action=r.action, done=(EXCL.get(r.term.lower()) or {}).get('date') or ('先前' if r.term.lower() in EXCL else ''))
+         for r in ex.itertuples()]
 
 # ---------- creatives ----------
 for c in CR:
@@ -135,6 +137,8 @@ CSS2 = r"""
   .rg-grp:not(.on) i{opacity:.3;}
   .rg-presets{align-items:center;}
   table.std th.sortable{cursor:pointer;user-select:none;white-space:nowrap;}
+  .done-pill{display:inline-block;font-size:11.5px;font-weight:800;color:var(--good);background:#eaf6ef;border:1px solid #a9d8bd;border-radius:999px;padding:2px 9px;white-space:nowrap;}
+  .mini.mini-wide{grid-column:1/-1;}
   .pub-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;margin-right:12px;}
   .pub-badge{font-size:12.5px;font-weight:800;color:#a3561c;background:#fff4e2;border:1px solid #e8c48a;border-radius:999px;padding:5px 12px;}
   .pub-badge.on{color:var(--good);background:#eaf6ef;border-color:#a9d8bd;}
@@ -170,7 +174,8 @@ extraC = '''
     <div class="table-scroll"><table class="std" id="tblAmzSide"></table></div>
     <div class="hint">品牌 = 品牌字（hulken／ハルケン…）＋自家 ASIN；其餘為非品牌。資料為 SP 搜尋字詞報表（主控台匯出上限 300 列，極小字詞不在內）。</div>
     <div class="sub-h">建議排除清單（非品牌，累計花費 > ¥5,000 且 0 單，或 > ¥10,000 且 ≤ 1 單）</div>
-    <div class="table-scroll"><table class="std" id="tblAmzEx"></table></div>'''
+    <div class="table-scroll"><table class="std" id="tblAmzEx"></table></div>
+    <div class="hint">「已執行」= 已加到 Amazon - AUTO Campaign 廣告活動層級的負面關鍵字（排除確切文字）／負面產品（紀錄在 scripts/amazon_excluded.json）。排除後，花費仍可能因報表延遲在下週出現少量。</div>'''
 
 extraA = '''
     <div class="sub-h">Meta 素材表現（本週）<span class="cr-cnt" id="crAvgNote"></span></div>
@@ -181,7 +186,7 @@ extraA = '''
     <div class="table-scroll"><table class="std" id="tblCrLo"></table></div>
     <div class="sub-h">樣本不足（本週花費 &lt; ¥5,000）<span class="cr-cnt" id="cntSm"></span></div>
     <div class="table-scroll"><table class="std" id="tblCrSm"></table></div>
-    <div class="hint">平均 = 本週 Meta 帳戶媒體 ROAS（不含 KOL 授權金）。ROAS 下方小字為含本週授權金攤提的 ROAS（僅有授權金的 KOL 素材）。WoW 以同一 Row 上週全部 Meta 媒體花費為基準。</div>'''
+    <div class="hint">平均 = 本週 Meta 帳戶媒體 ROAS（不含 KOL 授權金）。ROAS 下方小字為含本週授權金攤提的 ROAS（僅有授權金的 KOL 素材）。每個數值下方為 WoW（以同一 Row 上週全部 Meta 媒體成效為基準；小計列的上週只加總本週也有花費的素材）。</div>'''
 
 html = f'''<!DOCTYPE html>
 <html lang="zh-Hant">

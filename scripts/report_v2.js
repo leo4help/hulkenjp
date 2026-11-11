@@ -137,7 +137,7 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
 ['C','B','A'].forEach(k=>{
   const G=GROUPS[k],FG=R.G[k],el=document.getElementById('charts'+k);
   const MF=FG.map(w=>{const m=met(sum(G.ch.map(c=>w.channels[c[0]])),w.platform);if(!m.cost)m.rev=null;if(!w.platform.sales&&!w.platform.sessions){m.prev=null;m.pcvr=null}return m});
-  const boxes=[...Array(6)].map(()=>{const d=document.createElement('div');d.className='mini';el.appendChild(d);return d});
+  const boxes=[...Array(k==='A'?7:6)].map(()=>{const d=document.createElement('div');d.className='mini';el.appendChild(d);return d});
   rangeBox(document.getElementById('rg'+k),(lo,hi)=>{
     const M=MF.slice(lo,hi+1),W=FG.slice(lo,hi+1),L=WK.slice(lo,hi+1).map(wkLabel),D=denseOpts(M.length),dense=M.length>16;
     chart(boxes[0],{title:'Cost 廣告花費',labels:L,...D,bars:G.ch.map(([n,c])=>({name:n,color:c,values:W.map(w=>w.channels[n].cost)})),fmtL:manAxis,tipL:fYen,barTotal:dense?null:(v=>(v/1e4).toFixed(1))});
@@ -146,6 +146,11 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
     chart(boxes[3],{title:'CPM（円）',labels:L,...D,fmtL:v=>fInt(v),lines:[{name:'CPM',color:G.color,values:M.map(m=>m.cpm||null),fmt:fInt,tip:fYen}]});
     chart(boxes[4],{title:'CTR（%）',labels:L,...D,fmtL:v=>v.toFixed(1),lines:[{name:'CTR',color:G.color,values:M.map(m=>m.ctr),fmt:v=>v.toFixed(2),tip:fPct}]});
     chart(boxes[5],{title:'廣告 CVR ＋ 平台 CVR（%）',labels:L,...D,fmtL:v=>v.toFixed(1),lines:[{name:'廣告 CVR',color:G.color,values:M.map(m=>m.cvr),fmt:v=>v.toFixed(2),tip:fPct},{name:'平台 CVR',color:'#3d3220',dash:true,values:M.map(m=>m.pcvr),fmt:v=>v.toFixed(2),tip:fPct}]});
+    if(k==='A'){const P=W.map(w=>w.platform);
+      chart(boxes[6],{title:'官網漏斗：加入購物車率（右軸）＋ 加購→結帳完成率（左軸）（%）',w:1100,h:300,right:true,labels:L,...D,fmtL:v=>v.toFixed(0),fmtR:v=>v.toFixed(1),lines:[
+        {name:'加入購物車率（加購工作階段 ÷ 工作階段）',color:'#3d6fb6',right:true,values:P.map(p=>p.sessions&&p.cart!=null?p.cart/p.sessions*100:null),fmt:v=>v.toFixed(2),tip:fPct},
+        {name:'加購→結帳完成率（完成結帳 ÷ 加購工作階段）',color:'#c9473f',values:P.map(p=>p.cart?p.comp/p.cart*100:null),fmt:v=>v.toFixed(1),tip:fPct}]});
+      boxes[6].classList.add('mini-wide')}
   });
   const t=document.getElementById('tbl'+k);t.innerHTML=HEAD+'<tbody>'+groupRows(k)+'</tbody>';bindExpand(t);t.querySelector('tr.cat-row').click();
   t.querySelectorAll('tr.cat-row').forEach(r=>{if(r.dataset.g==='G')r.click()});
@@ -161,8 +166,8 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
     s+=`<tr><td>${side}</td>`+COLS.filter(x=>!['prev','proas','pcvr'].includes(x[0])).map(([k,_,f,mode])=>`<td>${f(c[k])}${dl(c[k],p[k],mode,k==='cpm')}</td>`).join('')+'</tr>'});
   t.innerHTML=s+'</tbody>';
   const e=document.getElementById('tblAmzEx');
-  e.innerHTML='<thead><tr><th>搜尋字詞 / ASIN</th><th>分類</th><th>累計花費</th><th>累計訂單</th><th>出現週數</th><th>本週花費</th><th>建議</th></tr></thead><tbody>'+
-    (R.amzEx.length?R.amzEx.map(x=>`<tr><td>${x.term}</td><td>${x.seg}</td><td>${fYen(x.cost)}</td><td>${x.orders}</td><td>${x.weeks}</td><td>${fYen(x.cur)}</td><td>${x.action}${x.cur>0?'（本週仍在花）':''}</td></tr>`).join(''):'<tr><td colspan="7" class="na">無</td></tr>')+'</tbody>'})();
+  e.innerHTML='<thead><tr><th>搜尋字詞 / ASIN</th><th>分類</th><th>累計花費</th><th>累計訂單</th><th>出現週數</th><th>本週花費</th><th>建議</th><th>狀態</th></tr></thead><tbody>'+
+    (R.amzEx.length?R.amzEx.map(x=>`<tr><td>${x.term}</td><td>${x.seg}</td><td>${fYen(x.cost)}</td><td>${x.orders}</td><td>${x.weeks}</td><td>${fYen(x.cur)}</td><td>${x.action}${x.cur>0?'（本週仍在花）':''}</td><td>${x.done?`<span class="done-pill">✓ 已執行${x.done!=='先前'?'（'+x.done.slice(5).replace('-','/')+'）':''}</span>`:'<span class="na">待執行</span>'}</td></tr>`).join(''):'<tr><td colspan="8" class="na">無</td></tr>')+'</tbody>'})();
 
 /* ---------- 表格點擊排序（預設：廣告 ROAS 大到小；子列在各自上層內排序；合計列固定在最下） ---------- */
 const SORT_STATE={};
@@ -185,19 +190,22 @@ const AD_IMG_DIR='../AD Images/';
 function thumb(r){return `<span class="thumb-slot"><img src="${AD_IMG_DIR}${r}.jpg" class="thumb js-zoom" data-row="${r}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="thumb thumb-missing" style="display:none">缺圖<br>#${r}</div></span>`}
 document.addEventListener('click',e=>{const im=e.target.closest('.js-zoom');if(!im)return;const lb=document.getElementById('lightbox');document.getElementById('lightboxImg').src=im.src;lb.style.display='flex'});
 const tagOf=c=>c.tag||'NULL';const TAGS=[...new Set(R.creatives.map(tagOf))].sort((a,b)=>(a==='NULL')-(b==='NULL')||a.localeCompare(b));const TSEL=new Set(TAGS);
-const CRH='<thead><tr><th>Name-Row</th><th>原廠標記</th><th>類型</th><th>花費</th><th>營收</th><th>ROAS</th><th>購買</th><th>CPA</th><th>CTR</th><th>CVR</th><th>CPM</th><th>上週花費</th><th>上週 ROAS</th></tr></thead>';
-function crRow(c){const roas=div(c.rev,c.cost),pr=c.prev_cost?div(c.prev_rev,c.prev_cost):null;
-  return `<tr><td><div style="display:flex;align-items:center;gap:8px">${thumb(c.row)}<span>${c.nameRow}</span></div></td><td>${c.tag?`<span class="tag-pill">${c.tag}</span>`:'<span class="na">NULL</span>'}</td><td><span class="type-pill">${c.type}</span></td>
-  <td>${fYen(c.cost)}${c.prev_cost?dl(c.cost,c.prev_cost,'pct'):'<span class="dl flat">上週無花費</span>'}</td><td>${fYen(c.rev)}</td>
-  <td><b>${f2(roas)}</b>${c.lic?`<span class="lic-s">含授權金 ${f2(div(c.rev,c.cost+c.lic))}（¥${fInt(c.lic)}）</span>`:''}${pr!=null?dl(roas,pr,'pct'):''}</td>
-  <td>${fInt(c.pur)}</td><td>${c.pur?fYen(c.cost/c.pur):'–'}</td><td>${fPct(div(c.clicks,c.imp)*100)}</td><td>${fPct(div(c.pur,c.clicks)*100)}</td><td>${fYen(div(c.cost,c.imp)*1000)}</td>
-  <td>${c.prev_cost?fYen(c.prev_cost):'–'}</td><td>${pr!=null?f2(pr):'–'}</td></tr>`}
-function crTotal(rs){const x=rs.reduce((o,c)=>{o.cost+=c.cost;o.rev+=c.rev;o.pur+=c.pur;o.imp+=c.imp;o.clicks+=c.clicks;o.lic+=c.lic||0;return o},{cost:0,rev:0,pur:0,imp:0,clicks:0,lic:0});
-  return `<tr class="grand"><td>小計（${rs.length}）</td><td></td><td></td><td>${fYen(x.cost)}</td><td>${fYen(x.rev)}</td><td>${f2(div(x.rev,x.cost))}${x.lic?`<span class="lic-s">含授權金 ${f2(div(x.rev,x.cost+x.lic))}</span>`:''}</td><td>${fInt(x.pur)}</td><td>${x.pur?fYen(x.cost/x.pur):'–'}</td><td>${fPct(div(x.clicks,x.imp)*100)}</td><td>${fPct(div(x.pur,x.clicks)*100)}</td><td>${fYen(div(x.cost,x.imp)*1000)}</td><td></td><td></td></tr>`}
+const CRH='<thead><tr><th>Name-Row</th><th>原廠標記</th><th>花費</th><th>營收</th><th>ROAS</th><th>購買</th><th>CPA</th><th>CTR</th><th>CVR</th><th>CPM</th></tr></thead>';
+function crMet(x){return {cost:x.cost,rev:x.rev,roas:div(x.rev,x.cost),pur:x.pur,cpa:x.pur?x.cost/x.pur:null,ctr:x.imp?x.clicks/x.imp*100:null,cvr:x.clicks?x.pur/x.clicks*100:null,cpm:x.imp?x.cost/x.imp*1000:null}}
+function crPrev(c){return c.prev_cost?crMet({cost:c.prev_cost,rev:c.prev_rev,pur:c.prev_pur,imp:c.prev_imp,clicks:c.prev_clicks}):null}
+function crCells(m,p,opt={}){const D=(k,inv)=>p?dl(m[k],p[k],'pct',inv):(k==='cost'?'<span class="dl flat">上週無花費</span>':'<span class="dl flat">–</span>');
+  return `<td>${fYen(m.cost)}${D('cost')}</td><td>${fYen(m.rev)}${D('rev')}</td><td>${opt.bold?'<b>':''}${f2(m.roas)}${opt.bold?'</b>':''}${opt.lic||''}${D('roas')}</td>
+  <td>${fInt(m.pur)}${D('pur')}</td><td>${fYen(m.cpa)}${D('cpa',true)}</td><td>${fPct(m.ctr)}${D('ctr')}</td><td>${fPct(m.cvr)}${D('cvr')}</td><td>${fYen(m.cpm)}${D('cpm',true)}</td>`}
+function crRow(c){const m=crMet(c);
+  return `<tr><td><div style="display:flex;align-items:center;gap:8px">${thumb(c.row)}<span>${c.nameRow}</span></div></td><td>${c.tag?`<span class="tag-pill">${c.tag}</span>`:'<span class="na">NULL</span>'}</td>`+
+    crCells(m,crPrev(c),{bold:true,lic:c.lic?`<span class="lic-s">含授權金 ${f2(div(c.rev,c.cost+c.lic))}（¥${fInt(c.lic)}）</span>`:''})+'</tr>'}
+function crTotal(rs){const z=()=>({cost:0,rev:0,pur:0,imp:0,clicks:0});const x=z(),y=z();let lic=0;
+  rs.forEach(c=>{x.cost+=c.cost;x.rev+=c.rev;x.pur+=c.pur;x.imp+=c.imp;x.clicks+=c.clicks;lic+=c.lic||0;if(c.prev_cost){y.cost+=c.prev_cost;y.rev+=c.prev_rev;y.pur+=c.prev_pur;y.imp+=c.prev_imp;y.clicks+=c.prev_clicks}});
+  return `<tr class="grand"><td>小計（${rs.length}）</td><td></td>`+crCells(crMet(x),y.cost?crMet(y):null,{lic:lic?`<span class="lic-s">含授權金 ${f2(div(x.rev,x.cost+lic))}</span>`:''})+'</tr>'}
 function renderCr(){const rs=R.creatives.filter(c=>TSEL.has(tagOf(c)));
   const sm=rs.filter(c=>c.cost<R.minSpend),big=rs.filter(c=>c.cost>=R.minSpend),hi=big.filter(c=>c.rev/c.cost>=R.avgRoas),lo=big.filter(c=>c.rev/c.cost<R.avgRoas);
   [['tblCrHi',hi,'cntHi'],['tblCrLo',lo,'cntLo'],['tblCrSm',sm,'cntSm']].forEach(([id,arr,cid])=>{arr.sort((a,b)=>b.cost-a.cost);
-    document.getElementById(id).innerHTML=CRH+'<tbody>'+(arr.length?arr.map(crRow).join('')+crTotal(arr):'<tr><td colspan="13" class="na">無</td></tr>')+'</tbody>';
+    document.getElementById(id).innerHTML=CRH+'<tbody>'+(arr.length?arr.map(crRow).join('')+crTotal(arr):'<tr><td colspan="10" class="na">無</td></tr>')+'</tbody>';
     document.getElementById(cid).textContent=`${arr.length} 支`;sortable(document.getElementById(id))})}
 function drawTF(){const box=document.getElementById('crTagFilter'),all=TSEL.size===TAGS.length;
   box.innerHTML='<span class="tf-label">原廠標記</span>'+TAGS.map(t=>`<label class="${TSEL.has(t)?'on':''}"><input type="checkbox" data-t="${t}" ${TSEL.has(t)?'checked':''}>${t}</label>`).join('')+`<button type="button">${all?'全部取消':'全選'}</button>`;
