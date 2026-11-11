@@ -401,5 +401,6 @@ Hulken Weekly Report/
 - 洞察 key：groupC／groupB／groupA／recap（recap 帶 actions）；`_worker.js` BLOCK_KEYS 已加入。
 - `<週>/_data/`：groupA_weekly.json、groupBC_weekly.json、meta_ads_w<NN>.txt、meta_creatives_w<NN>.json、kol_license_week.json、amazon_platform_daily.json、rakuten_rkarte_daily.txt、rakuten_ads_daily.json（都是原始資料，不 push）。
 - 時區：device 的檔案時間是 UTC，寫給使用者前一律換算日本時間（W45 曾把 TDA 下載時間 UTC 22:31 誤寫成當天，實為 JST 11/12 07:31）。
+- **Overview 堆疊圖（2026-11-11 使用者要求）：** 資料從 2026 W1（1/1，週四）起，存在 `<週>/_data/overview_ytd.json`（每週 shopify／amazon／rakuten 平台營收＋spendA／B／C），上方時間條（雙把手＋近 8／12／26 週／全部）預設近 8 週。每週只要在檔尾加一週。來源：Shopify MCP、Amazon 業務報告（內建瀏覽器）、樂天受注 API（63 天上限，要分段；樂天店 4/13 開賣）＋R-Karte；花費 Meta MCP 週、Google MCP（5/30 起投放）、Amazon AD（6/27–7/8 Mastersheet、W28 7/9–7/15 = `2026W45/Sponsored_Products_AdGroup_Nov_11_2026.csv` 只有總覽 ¥174,662、W29–W32 Weekly Report Manual、W33 起 SP 搜尋字詞檔）、樂天廣告 RPP／TDA PDF（使用者確認：Amazon AD、RPP、TDA 都是從最早有資料的日期才開始投放；重疊週以 PDF 為準，不用 Manual）。
 - **發佈／封存（2026-11-11 使用者要求，W45 起每週）：** `_worker.js` 的 `GATE_FROM = "2026W45"`，此週起的資料夾預設「封存」，只有 ALLOWED_EDITORS 能開；檢視者開到會得到「尚未發佈」頁，`/weeks.json`、`/manifest.json` 也會對檢視者濾掉封存週（首頁自動跳到最新已發佈週）。報告標題列的「發佈／封存」按鈕（只有編輯者看得到）呼叫 `PUT /api/publish {folder, status}`，狀態存在 D1 `publish_state`，每次操作寫 `publish_history`。新週推上線後一律是封存，使用者自己按發佈；不要替他發佈。
 - W45 待補：Amazon 11/11 工作階段（業務報告更新後補，目前平台 CVR 用 11/5–11/10）；新 Row 209–211（再入荷 RT）素材表沒有原廠標記，顯示 NULL。

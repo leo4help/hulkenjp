@@ -60,9 +60,10 @@ for c in CR:
 metaW = A[-1]['channels']['Meta']
 avgRoas = metaW['rev'] / metaW['cost']
 
+YTD = json.load(open(os.path.join(D, 'overview_ytd.json'), encoding='utf-8'))
 data = dict(weeks=weeks, labels=labels, A=A, B=BC['B'], C=BC['C'], amzSide=amzSide, amzEx=amzEx,
             creatives=CR, avgRoas=avgRoas, minSpend=5000, lic=LIC,
-            amzNote=BC['C'][-1]['platform'].get('note', ''))
+            amzNote=BC['C'][-1]['platform'].get('note', ''), ytd=YTD)
 
 # ---------- template pieces from the previous report ----------
 prev = sorted(f for f in os.listdir(ROOT) if re.fullmatch(r'2026W\d\d', f) and f < folder)[-1]
@@ -103,6 +104,22 @@ CSS2 = r"""
   .tf-box label.on{background:var(--tan-soft);border-color:var(--brand-gold);color:var(--brand-deep);font-weight:700;}
   .tf-box input{display:none;}
   .tf-box button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer;}
+  .rg-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 18px 12px;box-shadow:var(--shadow);margin-bottom:12px;}
+  .rg-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .rg-title{font-size:13.5px;font-weight:800;color:var(--brand-deep);}
+  .rg-label{font-size:13.5px;font-weight:800;color:var(--brand-gold);}
+  .rg-track{position:relative;height:22px;margin:0 9px;}
+  .rg-rail{position:absolute;left:0;right:0;top:9px;height:5px;border-radius:3px;background:var(--tan-soft);}
+  .rg-fill{position:absolute;top:9px;height:5px;border-radius:3px;background:var(--brand-gold);}
+  .rg-track input{position:absolute;left:-9px;width:calc(100% + 18px);top:0;height:22px;margin:0;background:none;pointer-events:none;-webkit-appearance:none;appearance:none;}
+  .rg-track input::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:18px;height:18px;border-radius:50%;background:var(--brand-gold);border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:grab;}
+  .rg-track input::-moz-range-thumb{pointer-events:auto;width:14px;height:14px;border-radius:50%;background:var(--brand-gold);border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:grab;}
+  .rg-track input::-webkit-slider-runnable-track{background:none;} .rg-track input::-moz-range-track{background:none;}
+  .rg-ticks{position:relative;height:16px;margin:4px 9px 8px;font-size:10.5px;color:var(--ink-faint);}
+  .rg-ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap;}
+  .rg-presets{display:flex;gap:6px;flex-wrap:wrap;}
+  .rg-preset{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font:inherit;font-size:12px;color:var(--ink-soft);cursor:pointer;}
+  .rg-preset.on{border-color:var(--brand-gold);background:var(--tan-soft);color:var(--brand-deep);font-weight:800;}
   .pub-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;margin-right:12px;}
   .pub-badge{font-size:12.5px;font-weight:800;color:#a3561c;background:#fff4e2;border:1px solid #e8c48a;border-radius:999px;padding:5px 12px;}
   .pub-badge.on{color:var(--good);background:#eaf6ef;border-color:#a9d8bd;}
@@ -187,7 +204,8 @@ html = f'''<!DOCTYPE html>
 <div class="wrap">
   {part('part1', 'Part 1 · Overview', '三通路整體表現')}
   <section id="overview">
-    <div class="sec-head"><h2>平台營收與廣告花費</h2><span class="sec-tag">8 週 · 每週四至週三</span></div>
+    <div class="sec-head"><h2>平台營收與廣告花費</h2><span class="sec-tag">2026 W1 起 · 每週四至週三 · 預設顯示近 8 週</span></div>
+    <div class="rg-box" id="ovRange"></div>
     <div class="big-chart" id="ovChart"></div>
     <div class="sub-h">本週成效（WoW，點組別可展開）</div>
     <div class="table-scroll"><table class="std" id="ovTable"></table></div>

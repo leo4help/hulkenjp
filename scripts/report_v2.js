@@ -38,28 +38,47 @@ function chart(el,o){
   let s=`<svg viewBox="0 0 ${W} ${H}">`;
   for(let k=0;k<=4;k++){const v=lmax*k/4,y=YL(v);s+=`<line x1="${L}" x2="${W-Rr}" y1="${y}" y2="${y}" stroke="#ece4d6"/><text x="${L-5}" y="${y+3.5}" text-anchor="end" font-size="9.5" fill="#9a9186">${fl(v)}</text>`;
     if(o.right)s+=`<text x="${W-Rr+5}" y="${YR(rmax*k/4)+3.5}" font-size="9.5" fill="#9a9186">${fr(rmax*k/4)}</text>`}
-  o.labels.forEach((lb,i)=>{const [a,b]=lb.split('\n');s+=`<text x="${X(i)}" y="${H-B+14}" text-anchor="middle" font-size="9.5" font-weight="${i===n-1?800:600}" fill="#6b6255">${a}</text><text x="${X(i)}" y="${H-B+26}" text-anchor="middle" font-size="8.5" fill="#9a9186">${b||''}</text>`});
-  (o.bars||[]).length&&o.labels.forEach((_,i)=>{let acc=0;o.bars.forEach(b=>{const v=b.values[i]||0;if(v>0){const y0=YL(acc),y1=YL(acc+v);s+=`<rect x="${X(i)-bw*.32}" y="${y1}" width="${bw*.64}" height="${Math.max(0,y0-y1)}" fill="${b.color}"><title>${b.name} ${o.labels[i].replace('\n',' ')}：${(o.tipL||fl)(v)}</title></rect>`}acc+=v});
-    if(o.barTotal&&acc>0)s+=`<text x="${X(i)}" y="${YL(acc)-4}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#3d3220" stroke="#fff" stroke-width="3" paint-order="stroke">${o.barTotal(acc)}</text>`});
+  o.labels.forEach((lb,i)=>{if(o.xEvery&&(n-1-i)%o.xEvery)return;const [a,b]=lb.split('\n');s+=`<text x="${X(i)}" y="${H-B+14}" text-anchor="middle" font-size="9.5" font-weight="${i===n-1?800:600}" fill="#6b6255">${a}</text><text x="${X(i)}" y="${H-B+26}" text-anchor="middle" font-size="8.5" fill="#9a9186">${b||''}</text>`});
+  const tops=[];(o.bars||[]).length&&o.labels.forEach((_,i)=>{let acc=0;o.bars.forEach(b=>{const v=b.values[i]||0;if(v>0){const y0=YL(acc),y1=YL(acc+v);s+=`<rect x="${X(i)-bw*.32}" y="${y1}" width="${bw*.64}" height="${Math.max(0,y0-y1)}" fill="${b.color}"><title>${b.name} ${o.labels[i].replace('\n',' ')}：${(o.tipL||fl)(v)}</title></rect>`}acc+=v});
+    const ty=YL(acc)-4,hit=(o.lines||[]).some(l=>l.values[i]!=null&&Math.abs((l.right?YR:YL)(l.values[i])-ty+3)<11);tops[i]=hit?null:ty;
+    if(o.barTotal&&acc>0)s+=hit?`<text x="${X(i)}" y="${YL(acc)+13}" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">${o.barTotal(acc)}</text>`:`<text x="${X(i)}" y="${ty}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#3d3220" stroke="#fff" stroke-width="3" paint-order="stroke">${o.barTotal(acc)}</text>`});
   (o.lines||[]).forEach(l=>{const Y=l.right?YR:YL;let d='',pen=false;l.values.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?'L':'M')+X(i)+','+Y(v);pen=true});
     s+=`<path d="${d}" fill="none" stroke="${l.color}" stroke-width="2.2" ${l.dash?'stroke-dasharray="5 4"':''} stroke-linejoin="round"/>`;
     l.values.forEach((v,i)=>{if(v==null)return;s+=`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${l.color}"><title>${l.name} ${o.labels[i].replace('\n',' ')}：${l.fmt(v)}</title></circle>`;
-      if(o.labelLast!==false&&(i===n-1||o.labelAll))s+=`<text x="${X(i)}" y="${Y(v)-7}" text-anchor="middle" font-size="9.5" font-weight="700" fill="${l.color}" stroke="#fff" stroke-width="3" paint-order="stroke">${l.fmt(v)}</text>`})});
+      if(o.labelLast!==false&&(i===n-1||o.labelAll)){const ly=(o.barTotal&&tops[i]!=null&&Math.abs(Y(v)-7-tops[i])<12)?(Y(v)-7<tops[i]?Y(v)-14:Y(v)+16):Y(v)-7;s+=`<text x="${X(i)}" y="${ly}" text-anchor="middle" font-size="9.5" font-weight="700" fill="${l.color}" stroke="#fff" stroke-width="3" paint-order="stroke">${l.fmt(v)}</text>`}})});
   s+='</svg>';
   const lg=[...(o.bars||[]).map(b=>`<span><i style="background:${b.color};height:10px"></i>${b.name}</span>`),...(o.lines||[]).map(l=>`<span><i style="background:${l.color}"></i>${l.name}${l.right?'（右軸）':''}</span>`)].join('');
   el.innerHTML=(o.title?`<h4>${o.title}</h4>`:'')+`<div class="lg">${lg}</div>`+s;
 }
 const man=v=>(v/1e4).toFixed(v>=1e6?0:1)+'萬',manAxis=v=>Math.round(v/1e4)+'';
 
-/* ---------- Overview chart ---------- */
+/* ---------- Overview chart（2026 W1 起，時間條選擇顯示週數，預設 8 週） ---------- */
 (function(){
-  const el=document.getElementById('ovChart'),plat=k=>GROUPS[k].src.map(w=>w.platform.sales);
-  const spend=R.labels.map((_,i)=>['A','B','C'].reduce((s,k)=>s+gWeek(GROUPS[k],i).cost,0));
-  chart(el,{w:1100,h:330,padL:50,right:true,labels:R.labels,labelAll:true,
-    bars:[{name:'Shopify 官網',color:'#3d6fb6',values:plat('A')},{name:'Amazon',color:'#e8a33d',values:plat('C')},{name:'樂天',color:'#c9473f',values:plat('B')}],
-    barTotal:v=>(v/1e4).toFixed(0),fmtL:manAxis,tipL:man,fmtR:manAxis,
-    lines:[{name:'廣告花費（三組合計，不含授權金）',color:'#1f2a44',right:true,values:spend,fmt:v=>(v/1e4).toFixed(1)}]});
-  el.insertAdjacentHTML('afterbegin','<h4 style="margin:0 0 4px;font-size:14px;color:var(--brand-deep)">平台營收（萬円，堆疊）與廣告花費（萬円，右軸）</h4>');
+  const Y=R.ytd,NY=Y.length,el=document.getElementById('ovChart'),box=document.getElementById('ovRange');
+  let lo=Math.max(0,NY-8),hi=NY-1;
+  const lab=r=>{const d=new Date(r.start+'T00:00:00');return `${r.week}\n${d.getMonth()+1}/${d.getDate()}`};
+  function draw(){
+    const ys=Y.slice(lo,hi+1),n=ys.length,dense=n>16;
+    chart(el,{w:1100,h:330,padL:50,right:true,labels:ys.map(lab),labelAll:!dense,labelLast:!dense,xEvery:n>26?4:(n>16?2:0),
+      bars:[{name:'Shopify 官網',color:'#3d6fb6',values:ys.map(r=>r.shopify)},{name:'Amazon',color:'#e8a33d',values:ys.map(r=>r.amazon)},{name:'樂天',color:'#c9473f',values:ys.map(r=>r.rakuten)}],
+      barTotal:dense?null:(v=>(v/1e4).toFixed(0)),fmtL:manAxis,tipL:man,fmtR:manAxis,
+      lines:[{name:'廣告花費（三通路合計，不含授權金）',color:'#1f2a44',right:true,values:ys.map(r=>r.spendA+r.spendB+r.spendC),fmt:v=>(v/1e4).toFixed(1)}]});
+    el.insertAdjacentHTML('afterbegin','<h4 style="margin:0 0 4px;font-size:14px;color:var(--brand-deep)">平台營收（萬円，堆疊）與廣告花費（萬円，右軸）</h4>');
+    document.getElementById('ovRangeLabel').textContent=`${Y[lo].week}（${Y[lo].start.slice(5).replace('-','/')}）— ${Y[hi].week}（共 ${n} 週）`;
+    const pct=i=>i/(NY-1)*100,fill=document.getElementById('ovRangeFill');fill.style.left=pct(lo)+'%';fill.style.width=(pct(hi)-pct(lo))+'%';
+    document.getElementById('ovLo').value=lo;document.getElementById('ovHi').value=hi;
+    box.querySelectorAll('.rg-preset').forEach(b=>b.classList.toggle('on',hi===NY-1&&(+b.dataset.n===n||(b.dataset.n==='all'&&lo===0))));
+  }
+  const ticks=Y.map((r,i)=>{const d=new Date(r.start+'T00:00:00'),p=i?new Date(Y[i-1].start+'T00:00:00'):null;return (!p||p.getMonth()!==d.getMonth())?`<span style="left:${i/(NY-1)*100}%">${d.getMonth()+1}月</span>`:''}).join('');
+  box.innerHTML=`<div class="rg-head"><span class="rg-title">📅 圖表顯示區間</span><span class="rg-label" id="ovRangeLabel"></span></div>
+    <div class="rg-track"><div class="rg-rail"></div><div class="rg-fill" id="ovRangeFill"></div>
+      <input type="range" id="ovLo" min="0" max="${NY-1}" step="1"><input type="range" id="ovHi" min="0" max="${NY-1}" step="1"></div>
+    <div class="rg-ticks">${ticks}</div>
+    <div class="rg-presets">${[['8','近 8 週'],['12','近 12 週'],['26','近 26 週'],['all','全部']].map(([k,t])=>`<button type="button" class="rg-preset" data-n="${k}">${t}</button>`).join('')}</div>`;
+  const L=document.getElementById('ovLo'),H=document.getElementById('ovHi');
+  L.oninput=()=>{lo=Math.min(+L.value,hi);draw()};H.oninput=()=>{hi=Math.max(+H.value,lo);draw()};
+  box.querySelectorAll('.rg-preset').forEach(b=>b.onclick=()=>{hi=NY-1;lo=b.dataset.n==='all'?0:Math.max(0,NY-(+b.dataset.n));draw()});
+  draw();
 })();
 
 /* ---------- standard table ---------- */
