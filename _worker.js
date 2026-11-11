@@ -9,6 +9,7 @@
  *   GET    /api/highlights         -> { me, canEdit, highlights: { "2026-10-29": {title, lead, bullets, _by, _at} } }   (W44+, 本週 Highlight 文字)
  *   PUT    /api/highlights         -> body { week, data: { title, lead, bullets: [..] } }   (ALLOWED_EDITORS only)
  *   DELETE /api/highlights?week=.. -> back to the built-in highlights.json text
+ *   GET/PUT /api/publish           -> 週報發佈／封存（W45 起，見 handlePublish）
  *   GET/POST/DELETE /api/links     -> short links for go.hulken.co.jp (see handleLinks at the bottom)
  *   anything else                  -> static files (env.ASSETS; clean URLs like /all keep working)
  *
@@ -48,9 +49,129 @@ export default {
         return json({ error: "server error: " + (e && e.message ? e.message : String(e)) }, 500);
       }
     }
+    if (url.pathname === "/api/publish") {
+      try {
+        return await handlePublish(request, env);
+      } catch (e) {
+        return json({ error: "server error: " + (e && e.message ? e.message : String(e)) }, 500);
+      }
+    }
+    try {
+      const gated = await gateStatic(request, env, url);
+      if (gated) return gated;
+    } catch (e) {
+      // fail closed for gated weeks only
+      const m = url.pathname.match(WEEK_PATH_RE);
+      if (m && m[1] >= GATE_FROM) return notPublished(m[1]);
+    }
     return env.ASSETS.fetch(request);
   },
 };
+
+/* ------------------------------------------------------------------ publish / archive (added 2026-11-11, W45)
+ * Weekly reports from GATE_FROM on start ARCHIVED (only ALLOWED_EDITORS can open them) until an editor
+ * presses 「發佈」. Editors can 「封存」 again at any time. Older weeks are always public.
+ *   GET /api/publish                     -> { me, canEdit, gateFrom, status: { "2026W45": "published"|"archived", ... } }
+ *   PUT /api/publish  body {folder, status}  (ALLOWED_EDITORS only)
+ * Enforced server side: archived week folders return a "尚未發佈" page to viewers, and
+ * /weeks.json + /manifest.json are filtered for viewers so archived weeks are not listed / not "latest".
+ */
+const GATE_FROM = "2026W45";
+const WEEK_PATH_RE = /^\/(\d{4}W\d{2})(\/|$)/;
+const FOLDER_RE = /^\d{4}W\d{2}$/;
+let publishSchemaReady = false;
+async function ensurePublishSchema(db) {
+  if (publishSchemaReady) return;
+  await db.batch([
+    db.prepare(`CREATE TABLE IF NOT EXISTS publish_state (
+      folder TEXT PRIMARY KEY, status TEXT NOT NULL, updated_by TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')))`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS publish_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT, folder TEXT NOT NULL, status TEXT NOT NULL, updated_by TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')))`),
+  ]);
+  publishSchemaReady = true;
+}
+async function publishMap(env) {
+  if (!env.DB) return {};
+  await ensurePublishSchema(env.DB);
+  const { results } = await env.DB.prepare("SELECT folder, status, updated_by, updated_at FROM publish_state").all();
+  const m = {};
+  for (const r of results || []) m[r.folder] = { status: r.status, by: r.updated_by, at: r.updated_at };
+  return m;
+}
+const statusOf = (folder, map) => (folder < GATE_FROM ? "published" : (map[folder] && map[folder].status === "published" ? "published" : "archived"));
+async function viewerIsEditor(request, env) {
+  try { const u = await getUser(request, env); return !u.error && u.canEdit; } catch (e) { return false; }
+}
+function notPublished(folder) {
+  const html = `<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>尚未發佈</title></head><body style="font-family:-apple-system,'Noto Sans TC',sans-serif;background:#f6f1e6;color:#3d3220;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0">
+<div style="text-align:center;padding:24px"><h1 style="font-size:22px">這一週的週報（${folder}）尚未發佈</h1><p style="color:#6b6255">發佈後即可查看。</p><p><a href="/" style="color:#a9822e;font-weight:700">回到最新週報 →</a></p></div></body></html>`;
+  return new Response(html, { status: 404, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
+}
+const noStore = (res) => { const r = new Response(res.body, res); r.headers.set("cache-control", "no-store"); return r; };
+
+async function gateStatic(request, env, url) {
+  const p = url.pathname;
+  const m = p.match(WEEK_PATH_RE);
+  if (m) {
+    const folder = m[1];
+    if (folder < GATE_FROM) return null;
+    if (await viewerIsEditor(request, env)) return noStore(await env.ASSETS.fetch(request));
+    const map = await publishMap(env);
+    if (statusOf(folder, map) !== "published") return notPublished(folder);
+    return noStore(await env.ASSETS.fetch(request));
+  }
+  if (p === "/weeks.json" || p === "/manifest.json") {
+    const editor = await viewerIsEditor(request, env);
+    const map = await publishMap(env);
+    const wr = await env.ASSETS.fetch(new Request(new URL("/weeks.json", url), request));
+    if (!wr.ok) return null;
+    let weeks = await wr.json();
+    weeks = weeks.map((w) => ({ ...w, status: statusOf(String(w.file).split("/")[0], map) }));
+    const visible = editor ? weeks : weeks.filter((w) => w.status === "published");
+    if (p === "/weeks.json") return json(visible);
+    const mr = await env.ASSETS.fetch(request);
+    const man = mr.ok ? await mr.json() : {};
+    const latest = visible[0];
+    if (latest) {
+      const [fold, file] = String(latest.file).split("/");
+      Object.assign(man, { latestFolder: fold, latestFile: file });
+    }
+    return json(man);
+  }
+  return null;
+}
+
+async function handlePublish(request, env) {
+  if (!env.DB) return json({ error: "server misconfigured: D1 binding DB missing" }, 500);
+  const user = await getUser(request, env);
+  if (user.error) return json({ error: user.error }, user.status);
+  const map = await publishMap(env);
+  if (request.method === "GET") {
+    const status = {};
+    for (const [k, v] of Object.entries(map)) status[k] = v.status;
+    return json({ me: user.email, canEdit: user.canEdit, gateFrom: GATE_FROM, status, detail: map });
+  }
+  if (request.method === "PUT") {
+    if (!user.canEdit) return json({ error: "沒有編輯權限" }, 403);
+    const body = await request.json().catch(() => null);
+    if (!body || !FOLDER_RE.test(body.folder || "")) return json({ error: "folder must be like 2026W45" }, 400);
+    if (body.folder < GATE_FROM) return json({ error: `${GATE_FROM} 以前的週報一律公開` }, 400);
+    if (!["published", "archived"].includes(body.status)) return json({ error: "status must be published or archived" }, 400);
+    const at = new Date().toISOString().replace(/\.\d+Z$/, "Z");
+    await env.DB.batch([
+      env.DB.prepare(`INSERT INTO publish_state (folder, status, updated_by, updated_at) VALUES (?1, ?2, ?3, ?4)
+        ON CONFLICT(folder) DO UPDATE SET status = excluded.status, updated_by = excluded.updated_by, updated_at = excluded.updated_at`)
+        .bind(body.folder, body.status, user.email, at),
+      env.DB.prepare("INSERT INTO publish_history (folder, status, updated_by, updated_at) VALUES (?1, ?2, ?3, ?4)")
+        .bind(body.folder, body.status, user.email, at),
+    ]);
+    return json({ ok: true, folder: body.folder, status: body.status, by: user.email, at });
+  }
+  return json({ error: "method not allowed" }, 405);
+}
 
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
@@ -130,7 +251,8 @@ async function ensureSchema(db) {
   schemaReady = true;
 }
 
-const BLOCK_KEYS = ["overall", "metaTest", "metaCreative", "kol", "shopify"];
+// W45+ (v2 format): groupC / groupB / groupA / recap (recap carries actions)
+const BLOCK_KEYS = ["overall", "metaTest", "metaCreative", "kol", "shopify", "groupC", "groupB", "groupA", "recap"];
 
 function validRows(rows) {
   if (!Array.isArray(rows)) return "rows must be an array";

@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HULKEN JP · Week 45 廣告成效週報</title>
+<style>
+  :root{
+    --ink:#2b2620;
+    --ink-soft:#6b6255;
+    --ink-faint:#9a9186;
+    --bg-page:#f6f1e6;
+    --bg-card:#ffffff;
+    --brand:#5b4a2f;
+    --brand-deep:#3d3220;
+    --brand-gold:#a9822e;
+    --tan:#e4d5b7;
+    --tan-soft:#f0e6d2;
+    --line:#e7ded0;
+    --good:#1e8e5a;
+    --bad:#c6402e;
+    --shadow: 0 1px 2px rgba(43,38,32,0.04), 0 4px 16px rgba(43,38,32,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family: -apple-system, "Hiragino Sans", "Noto Sans TC", "PingFang TC", "Segoe UI", sans-serif;
+    background:var(--bg-page);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px 64px;}
+
+  /* ---------- Header ---------- */
+  header.top{
+    background:var(--tan);
+    padding:28px 0 24px;
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{max-width:1180px;margin:0 auto;padding:0 24px;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+  .logo-row{display:flex;align-items:center;gap:14px;}
+  .logo-block{
+    background:#efeadf;border:1px solid #d9cba5;border-radius:6px;
+    padding:8px 14px;font-weight:800;font-size:22px;letter-spacing:0.5px;color:var(--brand-deep);
+  }
+  .logo-block sup{font-size:11px;}
+  .logo-jp{font-size:26px;font-weight:300;color:var(--ink-soft);}
+  .title-block h1{margin:10px 0 2px;font-size:26px;font-weight:800;color:var(--brand-deep);}
+  .title-block .sub{color:var(--ink-soft);font-size:14px;}
+  .meta-chip{
+    background:rgba(255,255,255,0.6);border:1px solid #d9cba5;border-radius:999px;
+    padding:6px 14px;font-size:13px;color:var(--brand-deep);font-weight:600;white-space:nowrap;
+  }
+  .week-picker{position:relative;display:inline-block;}
+  .week-picker .meta-chip{cursor:pointer;display:inline-flex;align-items:center;gap:6px;user-select:none;}
+  .week-picker .meta-chip:hover{background:rgba(255,255,255,0.85);}
+  .week-picker .caret{font-size:10px;transition:transform .15s ease;}
+  .week-picker.open .caret{transform:rotate(180deg);}
+  .week-menu{
+    display:none;position:absolute;top:calc(100% + 6px);right:0;min-width:240px;
+    background:#fffdf8;border:1px solid #d9cba5;border-radius:10px;
+    box-shadow:0 8px 24px rgba(60,45,20,0.18);overflow:hidden;z-index:30;
+  }
+  .week-picker.open .week-menu{display:block;}
+  .week-menu a{
+    display:block;padding:10px 16px;font-size:13px;color:var(--ink);text-decoration:none;
+    border-bottom:1px solid #f0e6cc;
+  }
+  .week-menu a:last-child{border-bottom:none;}
+  .week-menu a:hover{background:#f5ecd6;}
+  .week-menu a.current{background:#efe2ba;font-weight:700;color:var(--brand-deep);cursor:default;}
+  .week-menu .wm-date{display:block;font-size:11.5px;color:var(--ink-soft);font-weight:400;margin-top:2px;}
+  .beta-badge{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:0.4px;background:#f3d9a8;color:#8a5a10;border:1px solid #d9b370;vertical-align:middle;}
+
+  /* ---------- Section nav ---------- */
+  nav.secnav{
+    position:sticky;top:0;z-index:20;
+    background:rgba(246,241,230,0.92);backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.secnav .inner{max-width:1180px;margin:0 auto;padding:10px 24px;display:flex;gap:6px;overflow-x:auto;}
+  nav.secnav a{
+    white-space:nowrap;font-size:13px;font-weight:600;color:var(--ink-soft);
+    text-decoration:none;padding:8px 14px;border-radius:8px;transition:background .15s,color .15s;
+  }
+  nav.secnav a:hover{background:var(--tan-soft);color:var(--brand-deep);}
+
+  section{padding-top:40px;scroll-margin-top:64px;}
+  section:first-of-type{padding-top:32px;}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .sec-head h2{font-size:19px;margin:0;color:var(--brand-deep);font-weight:800;}
+  .sec-head .sec-tag{font-size:12px;color:var(--ink-faint);font-weight:600;}
+
+  /* ---------- KPI tiles ---------- */
+  .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;}
+  @media (max-width:960px){.kpi-grid{grid-template-columns:repeat(3,1fr);}}
+  @media (max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+  .kpi-card{
+    background:var(--bg-card);border:1px solid var(--line);border-radius:12px;
+    padding:16px 16px 14px;box-shadow:var(--shadow);
+  }
+  .kpi-card .kpi-label{font-size:12px;color:var(--ink-soft);font-weight:700;margin-bottom:8px;}
+  .kpi-card .kpi-value{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-0.2px;}
+  .delta{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;font-weight:700;margin-top:6px;}
+  .delta.up{color:var(--good);}
+  .delta.down{color:var(--bad);}
+  .delta.flat{color:var(--ink-faint);}
+  /* ROAS is the headline metric — its KPI tile gets a distinct filled treatment so it reads first */
+  .kpi-card.hero{
+    background:linear-gradient(135deg,var(--brand-gold),#7d5f22);
+    border-color:transparent;box-shadow:0 4px 14px rgba(169,130,46,0.35);
+    position:relative;
+  }
+  .kpi-card.hero::after{
+    content:'最重要指標';position:absolute;top:10px;right:12px;font-size:9.5px;font-weight:800;
+    color:rgba(255,255,255,0.75);letter-spacing:0.3px;
+  }
+  .kpi-card.hero .kpi-label{color:rgba(255,255,255,0.85);}
+  .kpi-card.hero .kpi-value{color:#fff;font-size:27px;}
+  .kpi-card.hero .delta.up{color:#cdf7bd;}
+  .kpi-card.hero .delta.down{color:#ffd3c4;}
+
+  /* ---------- Cards / generic ---------- */
+  .card{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:20px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:800px){.grid-2{grid-template-columns:1fr;}}
+
+  .split-card h3{margin:0 0 12px;font-size:14px;color:var(--brand-deep);font-weight:800;}
+  .split-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap;gap:10px;}
+  .split-row:last-child{border-bottom:none;}
+  .split-name{font-size:13px;font-weight:700;color:var(--ink);}
+  .split-bar-wrap{flex:1;margin:0 4px;height:8px;background:var(--tan-soft);border-radius:6px;overflow:hidden;min-width:40px;}
+  .split-bar{height:100%;background:linear-gradient(90deg,var(--brand-gold),var(--brand));border-radius:6px;}
+  .split-metrics{display:flex;gap:14px;font-size:12px;color:var(--ink-soft);margin-top:2px;flex-wrap:wrap;}
+  .split-metrics b{color:var(--ink);font-weight:800;}
+
+  /* ROAS hero pill — ROAS is the headline metric, so it always gets the loudest treatment */
+  .roas-hero{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--brand-gold),#7d5f22);
+    color:#fff;border-radius:10px;padding:7px 16px;min-width:78px;flex:0 0 auto;
+    box-shadow:0 3px 8px rgba(169,130,46,0.35);
+  }
+  .roas-hero .roas-label{font-size:9.5px;font-weight:800;letter-spacing:0.6px;text-transform:uppercase;opacity:0.88;}
+  .roas-hero .roas-num{font-size:21px;font-weight:800;line-height:1.15;letter-spacing:-0.3px;}
+  .roas-hero .roas-delta{font-size:10.5px;font-weight:700;margin-top:2px;}
+  .roas-hero .roas-delta.up{color:#cdf7bd;}
+  .roas-hero .roas-delta.down{color:#ffd3c4;}
+  .roas-hero .roas-delta.flat{color:rgba(255,255,255,0.7);}
+  .roas-hero.sm{padding:4px 12px;min-width:60px;}
+  .roas-hero.sm .roas-num{font-size:16px;}
+
+  /* ---------- Creative thumbnails ---------- */
+  .thumb{width:34px;height:60px;object-fit:cover;border-radius:5px;border:1px solid var(--line);flex:0 0 auto;}
+  .thumb-card{width:120px;height:auto;border-radius:8px;border:1px solid var(--line);flex:0 0 auto;display:block;}
+  .thumb-missing{
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    background:repeating-linear-gradient(45deg,#f2ece0,#f2ece0 6px,#e9e1d1 6px,#e9e1d1 12px);
+    color:var(--ink-faint);font-size:9px;font-weight:700;line-height:1.3;border:1px dashed #cdbf9c;
+  }
+  .thumb.thumb-missing{width:34px;height:60px;border-radius:5px;}
+  .thumb-card.thumb-missing{width:120px;height:210px;border-radius:8px;}
+  .thumb-slot{display:contents;}
+  .gallery{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;}
+  .gallery-card{background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:10px;box-shadow:var(--shadow);width:148px;}
+  .gallery-card .cap{margin-top:8px;font-size:11.5px;color:var(--ink-soft);}
+  .gallery-card .cap b{color:var(--ink);display:block;font-size:12px;margin-bottom:2px;}
+  img.js-zoom{cursor:zoom-in;transition:transform .12s;}
+  img.js-zoom:hover{transform:scale(1.06);box-shadow:0 2px 8px rgba(0,0,0,0.25);}
+
+  /* ---------- Lightbox ---------- */
+  #lightbox{
+    position:fixed;inset:0;background:rgba(20,16,10,0.82);display:none;
+    align-items:center;justify-content:center;z-index:100;cursor:zoom-out;padding:32px;
+  }
+  #lightbox.open{display:flex;}
+  #lightbox img{max-width:min(420px,90vw);max-height:85vh;border-radius:10px;box-shadow:0 12px 40px rgba(0,0,0,0.5);}
+  #lightbox .lb-cap{position:absolute;bottom:28px;left:0;right:0;text-align:center;color:#f6f1e6;font-size:13px;font-weight:700;}
+  #lightbox .lb-close{position:absolute;top:20px;right:26px;color:#f6f1e6;font-size:28px;font-weight:300;cursor:pointer;line-height:1;}
+
+  /* ---------- Insight callout ---------- */
+  .callout{
+    background:linear-gradient(135deg,#3d3220,#5b4a2f);
+    color:#f6f1e6;border-radius:12px;padding:18px 22px;margin-top:16px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .callout .row{display:flex;align-items:baseline;gap:10px;font-size:14px;}
+  .callout .row::before{content:'•';color:#e8cf8a;flex:0 0 auto;font-weight:700;}
+  .callout .row .figure{font-size:17px;font-weight:800;color:#e8cf8a;}
+  .callout.note{background:#fff8ea;color:var(--ink);border:1px solid #e9d9ac;}
+  .callout.note .row{font-size:13.5px;color:var(--ink-soft);}
+  .callout.note .row.strong{color:var(--ink);font-weight:700;}
+
+  /* ---------- Tables ---------- */
+  .table-scroll{overflow-x:auto;border-radius:12px;border:1px solid var(--line);}
+  .table-scroll-v{overflow-y:auto;max-height:700px;}
+  .table-scroll-v thead th{position:sticky;top:0;background:var(--bg-card);z-index:2;box-shadow:0 1px 0 var(--line);}
+  th.sortable{cursor:pointer;user-select:none;}
+  th.sortable:hover{color:var(--brand-gold);}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--bg-card);}
+  thead th{
+    background:var(--tan-soft);color:var(--brand-deep);text-align:right;font-weight:800;
+    padding:10px 12px;white-space:nowrap;position:sticky;top:0;font-size:12px;border-bottom:1px solid var(--line);
+    cursor:default;
+  }
+  thead th.sortable{cursor:pointer;user-select:none;}
+  thead th.sortable:hover{background:#e9dcb9;}
+  thead th:first-child, td:first-child{text-align:left;}
+  tbody td{padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line);}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr.highlight{background:#fdf3ea;}
+  tbody tr.cat-row, tbody tr.month-row{cursor:pointer;}
+  tbody tr.cat-row:hover, tbody tr.month-row:hover{background:#f7f0de;}
+  tbody tr.cat-row.expanded, tbody tr.month-row.expanded{background:#f2e6c8;}
+  .cat-chevron{display:inline-block;width:14px;color:var(--brand-gold);font-weight:800;transition:transform .15s ease;}
+  tbody tr.cat-row.expanded .cat-chevron, tbody tr.month-row.expanded .cat-chevron{transform:rotate(90deg);}
+  tbody tr.cat-detail-row td{padding:10px 12px 16px;background:#fbf8f1;}
+  tbody tr.cat-detail-row .table-scroll table td:first-child{text-align:left;font-weight:600;}
+  tbody tr.pending{background:#f7f5f1;}
+  tbody tr.pending td{color:var(--ink-faint);}
+  .pending-badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;background:#eee6d6;color:#9a6a1c;border:1px dashed #cdb98a;}
+  tbody tr.grand td{background:var(--tan-soft);font-weight:800;color:var(--brand-deep);border-top:2px solid var(--brand-gold);}
+  .name-cell{font-weight:700;color:var(--ink);}
+  .tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;margin-left:6px;white-space:nowrap;}
+  .tag.kol{background:#eadfc4;color:#7a5c1e;}
+  .tag.origin{background:#e2e6df;color:#4c5a44;}
+  .tag.null{background:#eee;color:#999;border:1px solid #ddd;}
+  .heat-val{border-radius:6px;padding:4px 8px;display:inline-block;min-width:52px;}
+  .stack-cell{display:flex;flex-direction:column;align-items:flex-end;gap:1px;}
+  .stack-cell .dsub{margin-left:0;}
+  .lic-note{margin-top:4px;font-size:10.5px;font-weight:600;color:#a9822e;white-space:nowrap;}
+  .lic-note.muted{color:var(--ink-faint);font-weight:500;font-style:italic;}
+  .dsub{font-size:10.5px;font-weight:700;margin-left:6px;}
+  .dsub.up{color:var(--good);} .dsub.down{color:var(--bad);} .dsub.flat{color:var(--ink-faint);}
+  .muted{color:var(--ink-faint);}
+
+  footer{margin-top:56px;padding:24px 0;border-top:1px solid var(--line);color:var(--ink-faint);font-size:12px;text-align:center;}
+  footer a{color:var(--brand);}
+
+  .hint{font-size:12px;color:var(--ink-faint);margin-top:8px;}
+
+  /* ---- KOL license-fee calculator ---- */
+  .calc-card{margin-bottom:18px;}
+  .calc-step-title{margin:0 0 4px;font-size:15px;color:var(--brand-deep);display:flex;align-items:center;gap:8px;}
+  .calc-num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--brand-gold);color:#fff;font-size:11px;font-weight:700;flex-shrink:0;}
+  .calc-desc{font-size:12.5px;color:var(--ink-faint);margin:0 0 16px;}
+  .calc-field-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;}
+  .calc-field{flex:1 1 200px;min-width:160px;}
+  .calc-field label{display:block;font-size:12px;color:var(--ink-soft);font-weight:600;margin-bottom:6px;letter-spacing:.2px;}
+  .calc-field input{width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;color:var(--ink);background:#fdfbf7;transition:border-color .15s;}
+  .calc-field input:focus{outline:none;border-color:var(--brand-gold);}
+  .calc-hint{font-size:11px;color:var(--ink-faint);margin-top:5px;}
+  .calc-btn{padding:11px 22px;border-radius:10px;border:none;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .1s, box-shadow .15s;}
+  .calc-btn-primary{background:linear-gradient(135deg, var(--brand-gold), #c79b3f);color:#fff;box-shadow:0 3px 10px rgba(169,130,46,0.35);}
+  .calc-btn-primary:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(169,130,46,0.42);}
+  .calc-lookup-status{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:12.5px;line-height:1.7;display:none;}
+  .calc-lookup-status.ok{background:#eef7f0;color:#1e6b47;border:1px solid #cfe9d6;display:block;}
+  .calc-lookup-status.err{background:#fbebe9;color:#a2352a;border:1px solid #f2c9c4;display:block;}
+  .calc-lookup-status b{color:inherit;}
+  .calc-badge{display:inline-block;padding:1px 8px;border-radius:20px;font-size:10.5px;font-weight:700;margin-left:6px;}
+  .calc-badge-recent{background:#dff1e4;color:#1e6b47;}
+  .calc-badge-alltime{background:#fbe9d3;color:#9a6a1c;}
+  .calc-divider{height:1px;background:var(--line);margin:20px 0;}
+  .calc-result-wrap{display:none;}
+  .calc-result-wrap.show{display:block;}
+  .calc-result-hero{background:linear-gradient(135deg, var(--brand-gold), #c79b3f);border-radius:14px;padding:22px 26px;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;box-shadow:0 6px 18px rgba(169,130,46,0.3);}
+  .calc-result-hero.warn{background:linear-gradient(135deg, #b5442f, #c6402e);box-shadow:0 6px 18px rgba(198,64,46,0.3);}
+  .calc-result-label{font-size:13px;opacity:.92;font-weight:600;letter-spacing:.3px;}
+  .calc-result-value{font-size:36px;font-weight:800;margin-top:2px;}
+  .calc-result-value small{font-size:16px;font-weight:600;opacity:.85;margin-left:4px;}
+  .calc-result-sub{font-size:12px;opacity:.85;margin-top:4px;}
+  .calc-steps{margin-top:18px;}
+  .calc-step{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line);font-size:13.5px;}
+  .calc-step:last-child{border-bottom:none;}
+  .calc-step-num{width:20px;height:20px;border-radius:50%;background:var(--tan-soft);color:var(--brand-deep);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .calc-step-label{color:var(--ink-soft);flex:1;}
+  .calc-step-formula{color:var(--ink-faint);font-size:12px;font-family:ui-monospace,Menlo,monospace;}
+  .calc-step-value{font-weight:700;color:var(--brand-deep);white-space:nowrap;}
+  .calc-verify-row{margin-top:14px;padding:12px 14px;background:var(--tan-soft);border-radius:10px;font-size:12.5px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .calc-verify-row .calc-ok-dot{width:8px;height:8px;border-radius:50%;background:var(--good);flex-shrink:0;}
+  .calc-compare-row{margin-top:12px;padding:14px 16px;background:#fff;border:1.5px solid var(--line);border-radius:10px;font-size:12.5px;color:var(--ink-soft);display:none;}
+  .calc-compare-row.show{display:block;}
+  .calc-compare-title{font-size:12px;font-weight:700;color:var(--brand-deep);margin-bottom:8px;}
+  .calc-compare-grid{display:flex;gap:20px;flex-wrap:wrap;align-items:baseline;}
+  .calc-compare-item .calc-compare-label{font-size:11px;color:var(--ink-faint);}
+  .calc-compare-item .calc-compare-value{font-size:17px;font-weight:800;color:var(--brand-deep);}
+  .calc-diff-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;margin-left:6px;}
+  .calc-diff-easy{background:#dff1e4;color:#1e6b47;}
+  .calc-diff-medium{background:#fbe9d3;color:#9a6a1c;}
+  .calc-diff-hard{background:#fbebe9;color:#a2352a;}
+  .calc-formula-box{background:var(--brand-deep);color:var(--tan-soft);border-radius:10px;padding:14px 18px;font-size:13px;font-family:ui-monospace,Menlo,monospace;line-height:1.8;margin-top:16px;}
+  .calc-comment{color:#b8a888;font-size:11.5px;}
+  @media (max-width:640px){.calc-result-hero{flex-direction:column;align-items:flex-start;}}
+  .kol-header-btn{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;padding:10px 18px;border-radius:10px;background:linear-gradient(135deg, var(--brand-gold), #c79b3f);color:#fff;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 3px 10px rgba(169,130,46,0.3);transition:transform .1s, box-shadow .15s;align-self:center;}
+  .kol-header-btn:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(169,130,46,0.38);}
+  @media (max-width:640px){.kol-header-btn{align-self:flex-start;}}
+
+  /* ---------- Cursor spotlight ----------
+     一個金黃色光暈跟著滑鼠在頁面背景移動的裝飾效果。純視覺，不影響任何資料或版面。
+     實作重點：#cursorGlow 放在 <body> 最前面、position:fixed、z-index:60（蓋過一般卡片
+     z-index:30、sticky 表頭等，但低於 lightbox 的 100，所以打開圖片燈箱時不會被光暈蓋住），
+     並用 mix-blend-mode:multiply 讓它用「相乘」而非直接覆蓋的方式跟底下內容混色——效果像
+     螢光筆畫在紙上：淺色背景會被染黃變明顯，深色文字/深色徽章仍保持深色可讀，不會被完全
+     遮住。觸控裝置（沒有真正的滑鼠游標）用 @media (hover:none) 直接隱藏。 */
+  #cursorGlow{
+    position:fixed;top:0;left:0;width:72px;height:72px;
+    border-radius:50%;pointer-events:none;
+    z-index:60;
+    mix-blend-mode:multiply;
+    background:radial-gradient(circle, rgba(255,213,0,0.62) 0%, rgba(255,213,0,0.42) 35%, rgba(255,213,0,0.16) 60%, rgba(255,213,0,0) 78%);
+    transform:translate(-50%,-50%);
+    opacity:0;transition:opacity .25s ease;
+    will-change:transform;
+  }
+  @media (hover:none){ #cursorGlow{display:none;} }
+
+  /* ---------- Shopify weekly section (W39+) ---------- */
+  .shop-chart-card{padding:16px 16px 10px;}
+  .shop-chart-title{font-size:13.5px;font-weight:800;color:var(--brand-deep);margin-bottom:6px;}
+  .shop-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-soft);margin-bottom:6px;}
+  .shop-legend span{display:inline-flex;align-items:center;gap:6px;}
+  .shop-legend .sw{display:inline-block;flex:0 0 auto;}
+  .shop-legend .sw.bar{width:10px;height:10px;border-radius:2px;}
+  .shop-legend .sw.line{width:16px;height:2px;border-radius:1px;}
+  .shop-legend .sw.line.dash{height:0;background:none !important;border-top:2px dashed;}
+  .shop-chart{position:relative;width:100%;}
+  .shop-chart svg{display:block;width:100%;height:auto;overflow:visible;}
+  .shop-chart .axis text{font-size:10px;fill:var(--ink-faint);}
+  .shop-chart .grid line{stroke:var(--line);stroke-width:1;}
+  .shop-tip{position:absolute;pointer-events:none;background:var(--brand-deep);color:#fff;font-size:11.5px;line-height:1.5;
+    padding:7px 10px;border-radius:8px;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,0.18);opacity:0;transition:opacity .1s;z-index:5;}
+  .shop-tip b{font-weight:800;}
+  .shop-tip .sw{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle;}
+
+  /* ---------- Shopify 本週增量 card (2026-10-14) ---------- */
+  .shop-delta{margin-top:12px;padding:16px 20px;}
+  .shop-delta .sd-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .shop-delta .sd-head h4{margin:0;font-size:14px;font-weight:800;color:var(--brand-deep);}
+  .shop-delta .sd-badge{font-size:12px;font-weight:800;padding:2px 10px;border-radius:999px;}
+  .shop-delta .sd-badge.good{background:#e3f3ea;color:var(--good);} .shop-delta .sd-badge.bad{background:#fbe7e3;color:var(--bad);}
+  .shop-delta .sd-row{display:grid;grid-template-columns:200px 1fr 150px;align-items:center;gap:12px;margin:6px 0;font-size:13px;}
+  .shop-delta .sd-label{font-weight:700;color:var(--ink-soft);}
+  .shop-delta .sd-track{position:relative;height:14px;background:var(--tan-soft);border-radius:7px;}
+  .shop-delta .sd-zero{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--ink-faint);}
+  .shop-delta .sd-bar{position:absolute;top:0;height:100%;border-radius:7px;}
+  .shop-delta .sd-val{font-size:16px;font-weight:800;text-align:right;}
+  .shop-delta .sd-foot{font-size:12.5px;color:var(--ink-soft);margin-top:8px;}
+  @media (max-width:640px){.shop-delta .sd-row{grid-template-columns:1fr;}.shop-delta .sd-val{text-align:left;}}
+
+  /* ---------- Insight & Suggestion (W41+) ---------- */
+  .ins-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  .ins-table th{background:var(--tan-soft);color:var(--brand-deep);font-weight:800;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);}
+  .ins-table td{vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--line);line-height:1.7;text-align:left;white-space:normal;}
+  .ins-table td:first-child{width:58%;}
+  .ins-table tr:last-child td{border-bottom:none;}
+  .ins-ch{display:inline-block;font-size:11px;font-weight:800;color:var(--brand-deep);background:var(--tan-soft);border:1px solid var(--tan);padding:1px 8px;border-radius:6px;margin-bottom:4px;}
+  .ins-empty{color:var(--ink-faint);text-align:center!important;padding:22px!important;}
+  .ins-actions{margin:0;padding-left:22px;line-height:1.9;font-size:13.5px;}
+  .ins-sub{font-size:14px;font-weight:800;color:var(--brand-deep);margin:22px 0 10px;}
+  .ins-bar{display:flex;align-items:center;gap:10px;margin:-4px 0 14px;flex-wrap:wrap;min-height:4px;}
+  .ins-btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;}
+  .ins-btn:hover{border-color:var(--brand-gold);color:var(--brand-deep);}
+  .ins-btn.primary{background:linear-gradient(135deg,var(--brand-gold),#c79b3f);border-color:transparent;color:#fff;}
+  .ins-btn.primary.on{background:#fff;color:var(--brand-deep);border-color:var(--brand-gold);}
+  .ins-btn.danger{color:var(--bad);}
+  .ins-btn.sm{padding:2px 7px;font-size:12px;margin:0 1px 3px;}
+  .ins-status{font-size:12px;color:var(--ink-soft);}
+  .ins-status .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e0a100;margin-right:6px;}
+  .ins-status .dot.ok{background:var(--good);} .ins-status .dot.err{background:var(--bad);}
+  .ins-in,.ins-ta{width:100%;font:inherit;font-size:13.5px;color:var(--ink);border:1px solid var(--tan);border-radius:8px;padding:7px 9px;background:#fffdf8;}
+  .ins-in:focus,.ins-ta:focus{outline:2px solid #e8cf8a;border-color:var(--brand-gold);}
+  .ins-ta{min-height:78px;resize:vertical;line-height:1.6;margin-top:6px;}
+  .ins-line{display:flex;gap:6px;} .ins-line .ins-ch-in{max-width:120px;} .ins-line .ins-title{font-weight:700;}
+  .ins-ops{text-align:center!important;white-space:nowrap;width:44px;}
+  .ins-act-ed{margin:0;padding-left:22px;} .ins-act-ed li{display:flex;gap:4px;align-items:center;margin:5px 0;}
+  body.ins-editing #insight .card{box-shadow:0 0 0 2px #e8cf8a;}
+  .ins-block{margin:22px 0 8px;}
+  .ins-block-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .ins-block-head h3{margin:0;font-size:15px;font-weight:800;color:var(--brand-deep);}
+  .ins-block-head .ins-tag{font-size:12px;color:var(--ink-faint);font-weight:600;}
+  body.ins-editing .ins-block .card{box-shadow:0 0 0 2px #e8cf8a;}
+
+  /* ---------- cost anomaly badge (2026-10-21) ---------- */
+  .anom-badge{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:6px;font-size:10.5px;font-weight:800;color:#a14a00;background:#fff1d6;border:1px solid #f0c674;white-space:nowrap;vertical-align:middle;cursor:help;}
+/* special-reports card */
+  .sr-card{background:var(--card,#fff);border:1px solid var(--line);border-left:5px solid var(--brand-gold,#a9822e);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;}
+  .sr-meta{font-size:12.5px;color:var(--ink-soft);}
+  .sr-card h3{margin:0;font-size:18px;font-weight:800;color:var(--brand-deep);}
+  .sr-lead{margin:0;font-size:14px;line-height:1.75;}
+  .sr-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;}
+  .sr-list li{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:start;font-size:13.5px;line-height:1.7;}
+  .sr-chip{display:inline-block;text-align:center;font-size:11.5px;font-weight:800;padding:2px 0;border-radius:999px;white-space:nowrap;}
+  .sr-chip.find{background:#f8e3dd;color:#b4442f;}
+  .sr-chip.out{background:#e2f0e7;color:#2e7a55;}
+  .sr-chip.open{background:#f6eedb;color:#9a6a12;}
+  .sr-foot{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;}
+  .sr-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:10px;background:linear-gradient(135deg,var(--brand-gold,#a9822e),#c79b3f);color:#fff;font-size:13.5px;font-weight:700;text-decoration:none;box-shadow:0 3px 10px rgba(169,130,46,.3);}
+  .sr-btn:hover{transform:translateY(-1px);}
+  .sr-note{font-size:12px;color:var(--ink-soft);}
+/* row-notes + tag-filter */
+  .note-badge{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:800;background:#e8efe2;color:#4c6a3c;white-space:nowrap;vertical-align:middle;}
+  .tag-filter{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:10px 0 8px;font-size:12.5px;}
+  .tag-filter .tf-label{font-weight:800;color:var(--ink-soft);margin-right:2px;}
+  .tag-filter label{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:#fff;cursor:pointer;user-select:none;}
+  .tag-filter label.on{border-color:var(--brand-gold);background:#fbf5e8;color:var(--brand-deep);font-weight:700;}
+  .tag-filter input{margin:0;accent-color:var(--brand-gold);}
+  .tag-filter .tf-all{border:none;background:none;color:var(--brand-gold);font:inherit;font-weight:700;cursor:pointer;padding:3px 4px;}
+/* week-highlight */
+  .hl-card{background:#fff;border:1px solid var(--line);border-left:5px solid var(--brand-gold,#a9822e);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px;}
+  .hl-card h3{margin:0;font-size:19px;font-weight:800;color:var(--brand-deep);}
+  .hl-lead{margin:0;font-size:14px;line-height:1.8;}
+  .hl-chart{border:1px solid var(--line);border-radius:10px;padding:12px 10px 4px;background:#fffdf9;}
+  .hl-chart-title{font-size:13px;font-weight:700;color:var(--ink-soft);margin:0 4px 6px;}
+  .hl-legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--ink-soft);margin:0 4px 4px;}
+  .hl-legend i{display:inline-block;width:22px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px;}
+  .hl-chart{overflow-x:auto;}
+  .hl-chart svg{width:100%;min-width:560px;height:auto;display:block;}
+  .hl-list{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.75;}
+  .hl-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-4px 0 8px;}
+  .hl-status{font-size:12px;color:var(--ink-soft);}
+  .hl-form{display:flex;flex-direction:column;gap:8px;}
+  .hl-form label{font-size:12px;font-weight:700;color:var(--ink-soft);}
+  .hl-form input,.hl-form textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:13.5px;line-height:1.6;}
+  .hl-form .hl-brow{display:flex;gap:6px;align-items:flex-start;}
+  .hl-form .hl-note{font-size:12px;color:var(--ink-soft);}
+/* week-highlight end */
+
+  .part-head{margin:44px 0 0;padding:14px 18px;border-radius:12px;background:linear-gradient(135deg,var(--brand-deep),#5b4a2f);color:#fff;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+  .part-head h2{margin:0;font-size:20px;font-weight:800;color:#fff;}
+  .part-head span{font-size:12.5px;color:rgba(255,255,255,.75);font-weight:600;}
+  .grp-badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;background:var(--brand-gold);color:#fff;font-weight:800;font-size:14px;margin-right:8px;vertical-align:2px;}
+  .chart-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media (max-width:980px){.chart-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:640px){.chart-grid{grid-template-columns:1fr;}}
+  .mini{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 12px 6px;box-shadow:var(--shadow);}
+  .mini h4{margin:0 0 2px;font-size:13px;color:var(--brand-deep);font-weight:800;}
+  .mini .lg{font-size:11px;color:var(--ink-soft);display:flex;gap:10px;flex-wrap:wrap;min-height:16px;}
+  .mini .lg i{display:inline-block;width:12px;height:3px;border-radius:2px;margin-right:4px;vertical-align:middle;}
+  .mini svg,.big-chart svg{display:block;width:100%;height:auto;overflow:visible;}
+  .big-chart{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);}
+  .big-chart .lg{font-size:12px;color:var(--ink-soft);display:flex;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
+  .big-chart .lg i{display:inline-block;width:12px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;}
+  table.std td .sub{display:block;font-size:10.5px;color:var(--ink-faint);font-weight:600;margin-top:1px;}
+  table.std td .dl{display:block;font-size:10.5px;font-weight:700;margin-top:1px;}
+  table.std td .dl.up{color:var(--good);} table.std td .dl.down{color:var(--bad);} table.std td .dl.flat{color:var(--ink-faint);}
+  table.std tr.lvl1 td:first-child{padding-left:30px;} table.std tr.lvl2 td:first-child{padding-left:52px;}
+  table.std tr.lvl1 td,table.std tr.lvl2 td{background:#fbf8f1;}
+  table.std tr.grp td{font-weight:700;}
+  table.std td.na{color:var(--ink-faint);}
+  .sub-h{font-size:14.5px;font-weight:800;color:var(--brand-deep);margin:26px 0 10px;}
+  .cr-cnt{font-size:12px;color:var(--ink-faint);font-weight:600;margin-left:6px;}
+  .lic-s{display:block;font-size:10.5px;color:var(--ink-faint);font-weight:600;}
+  .tf-box{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px;font-size:12px;}
+  .tf-box .tf-label{font-weight:800;color:var(--brand-deep);margin-right:4px;}
+  .tf-box label{border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:#fff;cursor:pointer;color:var(--ink-soft);}
+  .tf-box label.on{background:var(--tan-soft);border-color:var(--brand-gold);color:var(--brand-deep);font-weight:700;}
+  .tf-box input{display:none;}
+  .tf-box button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer;}
+  .pub-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;margin-right:12px;}
+  .pub-badge{font-size:12.5px;font-weight:800;color:#a3561c;background:#fff4e2;border:1px solid #e8c48a;border-radius:999px;padding:5px 12px;}
+  .pub-badge.on{color:var(--good);background:#eaf6ef;border-color:#a9d8bd;}
+  .pub-meta{font-size:11.5px;color:var(--ink-soft);}
+  .beta-badge.arch{background:#fde3d7;color:#a3401c;border-color:#e9a98c;}
+  .type-pill{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:6px;background:var(--tan-soft);color:var(--brand-deep);}
+  .tag-pill{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:6px;border:1px solid var(--tan);color:var(--ink-soft);background:#fff;}
+</style>
+</head>
+<body>
+<div id="cursorGlow"></div>
+<header class="top">
+  <div class="header-inner">
+    <div class="logo-row"><div class="logo-block">HULKEN<sup>®</sup></div><div class="logo-jp">JP</div></div>
+    <div class="week-picker" id="weekPicker">
+      <div class="meta-chip" id="weekPickerToggle">Week 45 · 2026/11/05 – 2026/11/11 <span class="caret">▼</span></div>
+      <div class="week-menu" id="weekMenu"></div>
+    </div>
+  </div>
+  <div class="header-inner" style="margin-top:6px;">
+    <div class="title-block">
+      <h1>廣告成效週報</h1>
+      <div class="sub">整理人：Leo · 更新日期 2026/11/11 · 資料來源：Meta／Google／Shopify MCP、ChatGPT Ads API、樂天 RMS／R-Karte／RPP・TDA 報表、Amazon Seller Central／SP 搜尋字詞報表</div>
+    </div>
+    <div class="pub-bar" id="pubBar" hidden></div>
+    <a class="kol-header-btn" href="https://hulkenjp.pages.dev/all" target="_blank" rel="noopener">完整成效 & KOL 授權計算機 ↗</a>
+  </div>
+</header>
+<nav class="secnav"><div class="inner">
+  <a href="#overview">Part 1 · Overview</a>
+  <a href="#grpC">(C) Amazon</a>
+  <a href="#grpB">(B) 樂天</a>
+  <a href="#grpA">(A) 官網</a>
+  <a href="#recap">Part 3 · Recap &amp; Action Plan</a>
+</div></nav>
+<div class="wrap">
+  <div class="part-head" id="part1"><h2>Part 1 · Overview</h2><span>三通路整體表現</span></div>
+  <section id="overview">
+    <div class="sec-head"><h2>平台營收與廣告花費</h2><span class="sec-tag">8 週 · 每週四至週三</span></div>
+    <div class="big-chart" id="ovChart"></div>
+    <div class="sub-h">本週成效（WoW，點組別可展開）</div>
+    <div class="table-scroll"><table class="std" id="ovTable"></table></div>
+    <div class="hint">廣告 ROAS = 廣告平台歸因營收 ÷ 廣告花費；平台 ROAS = 平台營收 ÷ 該組廣告花費。平台營收與平台 CVR 只放在組別層級：平台營收是全店合計，各廣告平台的歸因互相重疊，拆到渠道會重複計算。(A) 花費不含 KOL 授權金，含授權金的 ROAS 以小字顯示。<span id="ovNote"></span></div>
+  </section>
+  <div class="part-head" id="part2"><h2>Part 2 · 各通路</h2><span>(C) Amazon → (B) 樂天 → (A) 官網</span></div>
+  
+  <section id="grpC">
+    <div class="sec-head"><h2><span class="grp-badge">C</span>Amazon</h2><span class="sec-tag">平台：Amazon（Seller Central 已訂購商品銷售額） · 8 週趨勢（W38–W45）</span></div>
+    <div class="chart-grid" id="chartsC"></div>
+    <div class="sub-h">本週成效（WoW）</div>
+    <div class="table-scroll"><table class="std" id="tblC"></table></div>
+    <div class="hint" id="hintC"></div>
+    
+    <div class="sub-h">Amazon 品牌 / 非品牌（本週 vs 上週）</div>
+    <div class="table-scroll"><table class="std" id="tblAmzSide"></table></div>
+    <div class="hint">品牌 = 品牌字（hulken／ハルケン…）＋自家 ASIN；其餘為非品牌。資料為 SP 搜尋字詞報表（主控台匯出上限 300 列，極小字詞不在內）。</div>
+    <div class="sub-h">建議排除清單（非品牌，累計花費 > ¥5,000 且 0 單，或 > ¥10,000 且 ≤ 1 單）</div>
+    <div class="table-scroll"><table class="std" id="tblAmzEx"></table></div>
+    <div class="ins-block" data-ins-block="groupC"><div class="ins-block-head"><h3>核心洞察 / 執行建議</h3><span class="ins-tag">(C) Amazon</span></div><div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span></div><div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="groupC"></table></div></div></div>
+  </section>
+  
+  <section id="grpB">
+    <div class="sec-head"><h2><span class="grp-badge">B</span>樂天</h2><span class="sec-tag">平台：樂天（R-Karte 売上） · 8 週趨勢（W38–W45）</span></div>
+    <div class="chart-grid" id="chartsB"></div>
+    <div class="sub-h">本週成效（WoW）</div>
+    <div class="table-scroll"><table class="std" id="tblB"></table></div>
+    <div class="hint" id="hintB"></div>
+    
+    <div class="ins-block" data-ins-block="groupB"><div class="ins-block-head"><h3>核心洞察 / 執行建議</h3><span class="ins-tag">(B) 樂天</span></div><div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span></div><div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="groupB"></table></div></div></div>
+  </section>
+  
+  <section id="grpA">
+    <div class="sec-head"><h2><span class="grp-badge">A</span>官網</h2><span class="sec-tag">平台：Shopify（總銷售額） · 8 週趨勢（W38–W45）</span></div>
+    <div class="chart-grid" id="chartsA"></div>
+    <div class="sub-h">本週成效（WoW）</div>
+    <div class="table-scroll"><table class="std" id="tblA"></table></div>
+    <div class="hint" id="hintA"></div>
+    
+    <div class="sub-h">Meta 素材表現（本週）<span class="cr-cnt" id="crAvgNote"></span></div>
+    <div class="tf-box" id="crTagFilter"></div>
+    <div class="sub-h" style="margin-top:12px">ROAS 高於平均<span class="cr-cnt" id="cntHi"></span></div>
+    <div class="table-scroll"><table class="std" id="tblCrHi"></table></div>
+    <div class="sub-h">ROAS 低於平均<span class="cr-cnt" id="cntLo"></span></div>
+    <div class="table-scroll"><table class="std" id="tblCrLo"></table></div>
+    <div class="sub-h">樣本不足（本週花費 &lt; ¥5,000）<span class="cr-cnt" id="cntSm"></span></div>
+    <div class="table-scroll"><table class="std" id="tblCrSm"></table></div>
+    <div class="hint">平均 = 本週 Meta 帳戶媒體 ROAS（不含 KOL 授權金）。ROAS 下方小字為含本週授權金攤提的 ROAS（僅有授權金的 KOL 素材）。WoW 以同一 Row 上週全部 Meta 媒體花費為基準。</div>
+    <div class="ins-block" data-ins-block="groupA"><div class="ins-block-head"><h3>核心洞察 / 執行建議</h3><span class="ins-tag">(A) 官網</span></div><div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span></div><div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="groupA"></table></div></div></div>
+  </section>
+  <div class="part-head" id="part3"><h2>Part 3 · Recap &amp; Action Plan</h2><span>本週總結與下週行動</span></div>
+  <section id="recap" data-ins-v="2">
+    <div class="ins-block" data-ins-block="recap"><div class="ins-block-head"><h3>Recap</h3><span class="ins-tag">本週總結</span></div><div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span></div><div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="recap"></table></div></div></div>
+    <div class="ins-sub">下週 Action Plan</div>
+    <div class="card" id="insActions"></div>
+  </section>
+</div>
+<div id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" alt=""></div>
+<script>
+const THIS_REPORT_FILE = '2026W45/hulken_week45_report.html';
+const R = {"weeks": ["W38", "W39", "W40", "W41", "W42", "W43", "W44", "W45"], "labels": ["W38\n9/17", "W39\n9/24", "W40\n10/1", "W41\n10/8", "W42\n10/15", "W43\n10/22", "W44\n10/29", "W45\n11/5"], "A": [{"week": "W38", "start": "2026-09-17", "channels": {"Meta": {"cost": 1951175, "imp": 684559, "clicks": 22041, "conv": 408, "rev": 6960174}, "Google 非品牌": {"cost": 107576, "imp": 154991, "clicks": 2512, "conv": 45.32, "rev": 668334}, "Google 品牌": {"cost": 142734, "imp": 138540, "clicks": 1723, "conv": 53.68, "rev": 841541}, "ChatGPT": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 8350678, "orders": 481, "sessions": 31834}}, {"week": "W39", "start": "2026-09-24", "channels": {"Meta": {"cost": 1739313, "imp": 557315, "clicks": 17111, "conv": 331, "rev": 5566168}, "Google 非品牌": {"cost": 102448, "imp": 153751, "clicks": 1483, "conv": 41.63, "rev": 606155}, "Google 品牌": {"cost": 125839, "imp": 90321, "clicks": 1187, "conv": 37.37, "rev": 623338}, "ChatGPT": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 6535035, "orders": 408, "sessions": 24809}}, {"week": "W40", "start": "2026-10-01", "channels": {"Meta": {"cost": 1192987, "imp": 454195, "clicks": 13352, "conv": 261, "rev": 4442312}, "Google 非品牌": {"cost": 105617, "imp": 204881, "clicks": 1975, "conv": 40.36, "rev": 641274}, "Google 品牌": {"cost": 146496, "imp": 124123, "clicks": 1450, "conv": 44.64, "rev": 791408}, "ChatGPT": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 5934191, "orders": 361, "sessions": 21911}}, {"week": "W41", "start": "2026-10-08", "channels": {"Meta": {"cost": 1415493, "imp": 574628, "clicks": 15590, "conv": 308, "rev": 5236036}, "Google 非品牌": {"cost": 141014, "imp": 253332, "clicks": 5725, "conv": 31.26, "rev": 489939}, "Google 品牌": {"cost": 140977, "imp": 117109, "clicks": 2469, "conv": 38.74, "rev": 695859}, "ChatGPT": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 6674702, "orders": 396, "sessions": 28301}}, {"week": "W42", "start": "2026-10-15", "channels": {"Meta": {"cost": 1525553, "imp": 561155, "clicks": 16263, "conv": 316, "rev": 5611151}, "Google 非品牌": {"cost": 110896, "imp": 178071, "clicks": 4489, "conv": 52.94, "rev": 938778}, "Google 品牌": {"cost": 141701, "imp": 107070, "clicks": 2195, "conv": 50.06, "rev": 908957}, "ChatGPT": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 6798062, "orders": 400, "sessions": 27211}}, {"week": "W43", "start": "2026-10-22", "channels": {"Meta": {"cost": 2074666, "imp": 652396, "clicks": 20394, "conv": 336, "rev": 5956700}, "Google 非品牌": {"cost": 104691, "imp": 190932, "clicks": 5595, "conv": 31.32, "rev": 511240}, "Google 品牌": {"cost": 135461, "imp": 121463, "clicks": 2408, "conv": 33.68, "rev": 588327}, "ChatGPT": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 7489792, "orders": 421, "sessions": 33446}}, {"week": "W44", "start": "2026-10-29", "channels": {"Meta": {"cost": 1796916, "imp": 530540, "clicks": 13829, "conv": 311, "rev": 5364790}, "Google 非品牌": {"cost": 56480, "imp": 141920, "clicks": 9172, "conv": 27.33, "rev": 311901}, "Google 品牌": {"cost": 86845, "imp": 106198, "clicks": 4362, "conv": 22.67, "rev": 381508}, "ChatGPT": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 6554358, "orders": 380, "sessions": 36064}}, {"week": "W45", "start": "2026-11-05", "channels": {"Meta": {"cost": 1923946, "imp": 561921, "clicks": 13872, "conv": 284, "rev": 5022351}, "Google 非品牌": {"cost": 38290, "imp": 88200, "clicks": 5742, "conv": 5.11, "rev": 68646}, "Google 品牌": {"cost": 78826, "imp": 90634, "clicks": 3481, "conv": 21.89, "rev": 396200}, "ChatGPT": {"cost": 34859, "imp": 27736, "clicks": 304, "conv": 2, "rev": 37199}}, "platform": {"sales": 5687402, "orders": 335, "sessions": 26984}}], "B": [{"week": "W38", "channels": {"樂天 RPP": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}, "樂天 TDA": {"cost": 50038.0, "imp": 23375.0, "clicks": 306.0, "conv": 42.0, "rev": 779958.0}}, "platform": {"sales": 2327763, "sessions": 4158, "orders": 124}}, {"week": "W39", "channels": {"樂天 RPP": {"cost": 12923.0, "imp": 1905, "clicks": 225.0, "conv": 11.0, "rev": 199989.0}, "樂天 TDA": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 1839400, "sessions": 3725, "orders": 97}}, {"week": "W40", "channels": {"樂天 RPP": {"cost": 17077.0, "imp": 108500, "clicks": 281.0, "conv": 15.0, "rev": 316983.0}, "樂天 TDA": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 2873734, "sessions": 5144, "orders": 150}}, {"week": "W41", "channels": {"樂天 RPP": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}, "樂天 TDA": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 2040888, "sessions": 4740, "orders": 111}}, {"week": "W42", "channels": {"樂天 RPP": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}, "樂天 TDA": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 2304864, "sessions": 3432, "orders": 125}}, {"week": "W43", "channels": {"樂天 RPP": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}, "樂天 TDA": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 1935395, "sessions": 3298, "orders": 106}}, {"week": "W44", "channels": {"樂天 RPP": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}, "樂天 TDA": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}}, "platform": {"sales": 1487919, "sessions": 2763, "orders": 76}}, {"week": "W45", "channels": {"樂天 RPP": {"cost": 0, "imp": 0, "clicks": 0, "conv": 0, "rev": 0}, "樂天 TDA": {"cost": 49766.0, "imp": 23471.0, "clicks": 345.0, "conv": 13.0, "rev": 237987.0}}, "platform": {"sales": 2115775, "sessions": 3382, "orders": 114}}], "C": [{"week": "W38", "channels": {"Amazon AD": {"cost": 123334, "imp": 133553, "clicks": 2327, "conv": 81, "rev": 1347219}}, "platform": {"sales": 3320818, "sessions": 9042, "orders": 181, "orders_cvr": 181}}, {"week": "W39", "channels": {"Amazon AD": {"cost": 104126, "imp": 103794, "clicks": 2018, "conv": 60, "rev": 987234}}, "platform": {"sales": 2456865, "sessions": 8149, "orders": 134, "orders_cvr": 134}}, {"week": "W40", "channels": {"Amazon AD": {"cost": 134333, "imp": 127579, "clicks": 2288, "conv": 36, "rev": 589067}}, "platform": {"sales": 1391923, "sessions": 6906, "orders": 77, "orders_cvr": 77}}, {"week": "W41", "channels": {"Amazon AD": {"cost": 78350, "imp": 41830, "clicks": 1461, "conv": 18, "rev": 297261}}, "platform": {"sales": 1055942, "sessions": 9510, "orders": 58, "orders_cvr": 58}}, {"week": "W42", "channels": {"Amazon AD": {"cost": 56112, "imp": 21527, "clicks": 1019, "conv": 21, "rev": 349077}}, "platform": {"sales": 1070941, "sessions": 6248, "orders": 59, "orders_cvr": 59}}, {"week": "W43", "channels": {"Amazon AD": {"cost": 83724, "imp": 54352, "clicks": 1420, "conv": 57, "rev": 948144}}, "platform": {"sales": 2212879, "sessions": 6560, "orders": 121, "orders_cvr": 121}}, {"week": "W44", "channels": {"Amazon AD": {"cost": 90901, "imp": 75419, "clicks": 1539, "conv": 64, "rev": 1072684}}, "platform": {"sales": 2955839, "sessions": 7836, "orders": 161, "orders_cvr": 161}}, {"week": "W45", "channels": {"Amazon AD": {"cost": 93134, "imp": 53573, "clicks": 1257, "conv": 70, "rev": 1163590}}, "platform": {"sales": 2847844, "sessions": 5872, "orders": 156, "orders_cvr": 140, "note": "11/11 工作階段尚未更新，平台 CVR 以 11/5–11/10 六天計算"}}], "amzSide": {"品牌": [{"cost": 22278, "rev": 1130864, "imp": 19502, "clicks": 1107, "conv": 68}, {"cost": 14315, "rev": 806332, "imp": 13296, "clicks": 885, "conv": 49}, {"cost": 17932, "rev": 474526, "imp": 10747, "clicks": 852, "conv": 29}, {"cost": 18903, "rev": 280898, "imp": 8414, "clicks": 772, "conv": 17}, {"cost": 26385, "rev": 264535, "imp": 5207, "clicks": 672, "conv": 16}, {"cost": 20620, "rev": 730880, "imp": 10778, "clicks": 649, "conv": 44}, {"cost": 19035, "rev": 754515, "imp": 12599, "clicks": 648, "conv": 45}, {"cost": 23607, "rev": 1031777, "imp": 6070, "clicks": 476, "conv": 62}], "非品牌": [{"cost": 101056, "rev": 216355, "imp": 114051, "clicks": 1220, "conv": 13}, {"cost": 89811, "rev": 180902, "imp": 90498, "clicks": 1133, "conv": 11}, {"cost": 116401, "rev": 114541, "imp": 116832, "clicks": 1436, "conv": 7}, {"cost": 59447, "rev": 16363, "imp": 33416, "clicks": 689, "conv": 1}, {"cost": 29727, "rev": 84542, "imp": 16320, "clicks": 347, "conv": 5}, {"cost": 63104, "rev": 217264, "imp": 43574, "clicks": 771, "conv": 13}, {"cost": 71866, "rev": 318169, "imp": 62820, "clicks": 891, "conv": 19}, {"cost": 69527, "rev": 131813, "imp": 47503, "clicks": 781, "conv": 8}]}, "amzEx": [{"term": "b0dztts6dh", "seg": "非品牌ASIN", "cost": 8137, "orders": 0, "weeks": 12, "cur": 248, "action": "排除產品"}, {"term": "b0h4t1r4h2", "seg": "非品牌ASIN", "cost": 7410, "orders": 0, "weeks": 10, "cur": 0, "action": "排除產品"}, {"term": "b088thltcl", "seg": "非品牌ASIN", "cost": 6920, "orders": 0, "weeks": 3, "cur": 0, "action": "排除產品"}, {"term": "b0d8q4794h", "seg": "非品牌ASIN", "cost": 6863, "orders": 0, "weeks": 11, "cur": 113, "action": "排除產品"}, {"term": "b0gvs19clb", "seg": "非品牌ASIN", "cost": 6570, "orders": 0, "weeks": 10, "cur": 1186, "action": "排除產品"}, {"term": "キャスター付きショッピングバッグ", "seg": "非品牌字", "cost": 5504, "orders": 0, "weeks": 13, "cur": 381, "action": "排除關鍵字"}, {"term": "b06wp2r1h6", "seg": "非品牌ASIN", "cost": 5375, "orders": 0, "weeks": 5, "cur": 0, "action": "排除產品"}, {"term": "b0fsrvctj7", "seg": "非品牌ASIN", "cost": 5130, "orders": 0, "weeks": 9, "cur": 0, "action": "排除產品"}], "creatives": [{"row": 114, "name": "KOL-hira", "flags": ["G"], "cost": 241341, "imp": 63973, "clicks": 2012, "pur": 41, "rev": 763896, "kol": true, "tag": "KOL", "lic": 0, "prev_cost": 177199, "prev_rev": 648694, "nameRow": "A:KOL-hira-114", "type": "General"}, {"row": 116, "name": "KOL-yukko", "flags": ["G"], "cost": 217700, "imp": 82340, "clicks": 2362, "pur": 41, "rev": 673998, "kol": true, "tag": "KOL", "lic": 0, "prev_cost": 355642, "prev_rev": 1256780, "nameRow": "A:KOL-yukko-116", "type": "General"}, {"row": 212, "name": "KOL-pon", "flags": ["G"], "cost": 116479, "imp": 33371, "clicks": 750, "pur": 18, "rev": 307797, "kol": true, "tag": "KOL", "lic": 58331, "prev_cost": 4425, "prev_rev": 0, "nameRow": "A:KOL-pon-212", "type": "General"}, {"row": 205, "name": "KOL-yukko", "flags": ["G"], "cost": 104625, "imp": 24768, "clicks": 603, "pur": 20, "rev": 351997, "kol": true, "tag": "KOL", "lic": 38500, "prev_cost": 57191, "prev_rev": 116700, "nameRow": "A:KOL-yukko-205", "type": "General"}, {"row": 136, "name": "原廠", "flags": ["T"], "cost": 98346, "imp": 32398, "clicks": 587, "pur": 13, "rev": 220598, "kol": false, "tag": "原廠", "lic": 0, "nameRow": "A:原廠-136", "type": "TEST"}, {"row": 90, "name": "KOL-risa", "flags": ["G"], "cost": 91296, "imp": 25743, "clicks": 858, "pur": 16, "rev": 263700, "kol": true, "tag": "KOL", "lic": 0, "prev_cost": 164123, "prev_rev": 516997, "nameRow": "A:KOL-risa-90", "type": "General"}, {"row": 119, "name": "原廠", "flags": ["G"], "cost": 88652, "imp": 28842, "clicks": 215, "pur": 17, "rev": 285398, "kol": false, "tag": "wakazo-kol", "lic": 0, "prev_cost": 11662, "prev_rev": 48600, "nameRow": "A:原廠-119", "type": "General"}, {"row": 202, "name": "KOL-eriko", "flags": ["G"], "cost": 75011, "imp": 31336, "clicks": 726, "pur": 9, "rev": 153299, "kol": true, "tag": "KOL", "lic": 51331, "prev_cost": 72730, "prev_rev": 233999, "nameRow": "A:KOL-eriko-202", "type": "General"}, {"row": 129, "name": "原廠", "flags": ["T"], "cost": 74677, "imp": 20933, "clicks": 341, "pur": 12, "rev": 233998, "kol": false, "tag": "原廠", "lic": 0, "nameRow": "A:原廠-129", "type": "TEST"}, {"row": 189, "name": "KOL-Kato", "flags": ["T"], "cost": 72346, "imp": 15572, "clicks": 412, "pur": 10, "rev": 162900, "kol": true, "tag": "KOL", "lic": 0, "prev_cost": 89159, "prev_rev": 239945, "nameRow": "A:KOL-Kato-189", "type": "TEST"}, {"row": 92, "name": "原廠", "flags": ["T"], "cost": 72222, "imp": 16221, "clicks": 410, "pur": 14, "rev": 234796, "kol": false, "tag": "原廠", "lic": 0, "nameRow": "A:原廠-92", "type": "TEST"}, {"row": 89, "name": "原廠", "flags": ["G"], "cost": 65248, "imp": 17940, "clicks": 433, "pur": 7, "rev": 208893, "kol": false, "tag": "wakazo", "lic": 0, "prev_cost": 10485, "prev_rev": 48899, "nameRow": "A:原廠-89", "type": "General"}, {"row": 190, "name": "原廠", "flags": ["T"], "cost": 62339, "imp": 14127, "clicks": 517, "pur": 12, "rev": 205996, "kol": false, "tag": "日廠-Wack", "lic": 0, "prev_cost": 102908, "prev_rev": 305096, "nameRow": "A:原廠-190", "type": "TEST"}, {"row": 204, "name": "原廠", "flags": ["G"], "cost": 53619, "imp": 11748, "clicks": 353, "pur": 4, "rev": 70197, "kol": false, "tag": null, "lic": 0, "prev_cost": 53006, "prev_rev": 202498, "nameRow": "A:原廠-204", "type": "General"}, {"row": 20, "name": "KOL-hira", "flags": ["G"], "cost": 39370, "imp": 10303, "clicks": 292, "pur": 4, "rev": 67499, "kol": true, "tag": "KOL", "lic": 0, "prev_cost": 79821, "prev_rev": 168899, "nameRow": "A:KOL-hira-20", "type": "General"}, {"row": 213, "name": "KOL-runa", "flags": ["G"], "cost": 36712, "imp": 9138, "clicks": 401, "pur": 3, "rev": 52200, "kol": true, "tag": "KOL", "lic": 0, "prev_cost": 3595, "prev_rev": 0, "nameRow": "A:KOL-runa-213", "type": "General"}, {"row": 88, "name": "原廠", "flags": ["T"], "cost": 35143, "imp": 12754, "clicks": 409, "pur": 4, "rev": 66398, "kol": false, "tag": "日廠-COCO", "lic": 0, "prev_cost": 60988, "prev_rev": 200898, "nameRow": "A:原廠-88", "type": "TEST"}, {"row": 206, "name": "原廠", "flags": ["RT"], "cost": 35080, "imp": 9161, "clicks": 171, "pur": 5, "rev": 81900, "kol": false, "tag": "wakazo", "lic": 0, "prev_cost": 5554, "prev_rev": 20999, "nameRow": "A:原廠-206", "type": "再入荷 RT"}, {"row": 188, "name": "KOL-amisa", "flags": ["T"], "cost": 34649, "imp": 18137, "clicks": 267, "pur": 3, "rev": 71197, "kol": true, "tag": "KOL", "lic": 0, "prev_cost": 182447, "prev_rev": 486694, "nameRow": "A:KOL-amisa-188", "type": "TEST"}, {"row": 201, "name": "KOL-misa", "flags": ["T"], "cost": 34424, "imp": 8684, "clicks": 306, "pur": 2, "rev": 34200, "kol": true, "tag": "KOL", "lic": 5131, "prev_cost": 23336, "prev_rev": 36600, "nameRow": "A:KOL-misa-201", "type": "TEST"}, {"row": 9, "name": "原廠", "flags": ["G"], "cost": 32397, "imp": 10297, "clicks": 160, "pur": 0, "rev": 0, "kol": false, "tag": "原廠", "lic": 0, "nameRow": "A:原廠-9", "type": "General"}, {"row": 207, "name": "原廠", "flags": ["RT"], "cost": 30580, "imp": 7947, "clicks": 162, "pur": 2, "rev": 32400, "kol": false, "tag": "wakazo", "lic": 0, "prev_cost": 15220, "prev_rev": 98100, "nameRow": "A:原廠-207", "type": "再入荷 RT"}, {"row": 214, "name": "原廠", "flags": ["G"], "cost": 29473, "imp": 8324, "clicks": 178, "pur": 4, "rev": 84300, "kol": false, "tag": "日廠-Wack", "lic": 0, "nameRow": "A:原廠-214", "type": "General"}, {"row": 134, "name": "原廠", "flags": ["T"], "cost": 26498, "imp": 5422, "clicks": 135, "pur": 1, "rev": 16200, "kol": false, "tag": "wakazo", "lic": 0, "nameRow": "A:原廠-134", "type": "TEST"}, {"row": 203, "name": "KOL-yui", "flags": ["G"], "cost": 25442, "imp": 4469, "clicks": 141, "pur": 3, "rev": 49198, "kol": true, "tag": "KOL", "lic": 20531, "prev_cost": 41920, "prev_rev": 66600, "nameRow": "A:KOL-yui-203", "type": "General"}, {"row": 216, "name": "KOL-mai", "flags": ["G"], "cost": 25283, "imp": 8358, "clicks": 171, "pur": 2, "rev": 37899, "kol": true, "tag": "KOL", "lic": 73332, "nameRow": "A:KOL-mai-216", "type": "General"}, {"row": 186, "name": "KOL-mone", "flags": ["T"], "cost": 24312, "imp": 7868, "clicks": 150, "pur": 1, "rev": 16200, "kol": true, "tag": "KOL", "lic": 11000, "prev_cost": 36206, "prev_rev": 68400, "nameRow": "A:KOL-mone-186", "type": "TEST"}, {"row": 210, "name": "原廠", "flags": ["RT"], "cost": 24142, "imp": 5177, "clicks": 87, "pur": 7, "rev": 118899, "kol": false, "tag": null, "lic": 0, "prev_cost": 3607, "prev_rev": 0, "nameRow": "A:原廠-210", "type": "再入荷 RT"}, {"row": 215, "name": "KOL-mican", "flags": ["G"], "cost": 23573, "imp": 7874, "clicks": 129, "pur": 2, "rev": 35199, "kol": true, "tag": "KOL", "lic": 20898, "nameRow": "A:KOL-mican-215", "type": "General"}, {"row": 191, "name": "KOL-oto", "flags": ["T"], "cost": 17332, "imp": 5390, "clicks": 95, "pur": 2, "rev": 34199, "kol": true, "tag": "KOL", "lic": 23331, "prev_cost": 19412, "prev_rev": 71197, "nameRow": "A:KOL-oto-191", "type": "TEST"}, {"row": 211, "name": "原廠", "flags": ["RT"], "cost": 8712, "imp": 1603, "clicks": 15, "pur": 1, "rev": 16200, "kol": false, "tag": null, "lic": 0, "prev_cost": 2716, "prev_rev": 0, "nameRow": "A:原廠-211", "type": "再入荷 RT"}, {"row": 208, "name": "原廠", "flags": ["RT"], "cost": 2850, "imp": 595, "clicks": 8, "pur": 1, "rev": 19500, "kol": false, "tag": "wakazo", "lic": 0, "prev_cost": 1422, "prev_rev": 0, "nameRow": "A:原廠-208", "type": "再入荷 RT"}, {"row": 209, "name": "原廠", "flags": ["RT"], "cost": 1495, "imp": 381, "clicks": 11, "pur": 2, "rev": 35100, "kol": false, "tag": null, "lic": 0, "prev_cost": 25802, "prev_rev": 53198, "nameRow": "A:原廠-209", "type": "再入荷 RT"}, {"row": 120, "name": "原廠", "flags": ["T"], "cost": 959, "imp": 224, "clicks": 2, "pur": 1, "rev": 16200, "kol": false, "tag": null, "lic": 0, "prev_cost": 23613, "prev_rev": 0, "nameRow": "A:原廠-120", "type": "TEST"}, {"row": 218, "name": "KOL-toku", "flags": ["G"], "cost": 848, "imp": 322, "clicks": 2, "pur": 0, "rev": 0, "kol": true, "tag": "KOL", "lic": 1833, "nameRow": "A:KOL-toku-218", "type": "General"}, {"row": 217, "name": "原廠", "flags": ["G"], "cost": 781, "imp": 183, "clicks": 1, "pur": 0, "rev": 0, "kol": false, "tag": "日廠-Wack", "lic": 0, "nameRow": "A:原廠-217", "type": "General"}], "avgRoas": 2.6104428086858986, "minSpend": 5000, "lic": {"total": 344988, "byRow": {"184": 1100, "185": 3999, "186": 11000, "187": 10002, "191": 23331, "193": 15400, "194": 10269, "201": 5131, "202": 51331, "203": 20531, "205": 38500, "212": 58331, "215": 20898, "216": 73332, "218": 1833}}, "amzNote": "11/11 工作階段尚未更新，平台 CVR 以 11/5–11/10 六天計算"};
+/* ===== Hulken weekly report v2 renderer (W45+) — data in const R ===== */
+(function(){const g=document.getElementById('cursorGlow');if(!g)return;let raf=null,mx=0,my=0;
+  addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;g.style.opacity='1';if(!raf)raf=requestAnimationFrame(()=>{g.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;raf=null})},{passive:true});
+  document.addEventListener('mouseleave',()=>g.style.opacity='0')})();
+(function(){const p=document.getElementById('weekPicker'),t=document.getElementById('weekPickerToggle'),m=document.getElementById('weekMenu');if(!p)return;
+  fetch('../weeks.json').then(r=>r.json()).then(W=>{m.innerHTML=W.map(w=>w.file===THIS_REPORT_FILE?`<a class="current">${w.label}${w.status==='archived'?'<span class="beta-badge arch">封存</span>':''}<span class="wm-date">目前檢視中</span></a>`:`<a href="../${w.file}">${w.label}${w.isBeta?'<span class="beta-badge">BETA</span>':''}${w.status==='archived'?'<span class="beta-badge arch">封存</span>':''}</a>`).join('')}).catch(()=>m.innerHTML='<a class="current">週次清單載入失敗</a>');
+  t.onclick=e=>{e.stopPropagation();p.classList.toggle('open')};document.addEventListener('click',e=>{if(!p.contains(e.target))p.classList.remove('open')})})();
+
+const fInt=n=>n==null||!isFinite(n)?'–':Math.round(n).toLocaleString('en-US');
+const fYen=n=>n==null||!isFinite(n)?'–':'¥'+fInt(n);
+const f2=n=>n==null||!isFinite(n)?'–':Number(n).toFixed(2);
+const fPct=n=>n==null||!isFinite(n)?'–':Number(n).toFixed(2)+'%';
+const div=(a,b)=>b?a/b:null;
+const N=R.weeks.length, CUR=N-1, PRV=N-2;
+const sum=(arr)=>arr.reduce((o,x)=>{for(const k of ['cost','imp','clicks','conv','rev'])o[k]=(o[k]||0)+(x[k]||0);return o},{});
+function met(x,plat){const o={cost:x.cost,rev:x.rev,roas:div(x.rev,x.cost),cpm:x.imp?x.cost/x.imp*1000:null,ctr:x.imp?x.clicks/x.imp*100:null,cvr:x.clicks?x.conv/x.clicks*100:null,conv:x.conv,clicks:x.clicks,imp:x.imp};
+  if(plat){o.prev=plat.sales;o.proas=div(plat.sales,x.cost);const ord=plat.orders_cvr!=null?plat.orders_cvr:plat.orders;o.pcvr=plat.sessions?ord/plat.sessions*100:null;o.orders=plat.orders;o.sessions=plat.sessions}
+  if(!x.cost){o.roas=null;o.proas=null;o.cpm=x.imp?0:null}return o}
+/* group series */
+const GROUPS={
+  A:{name:'(A) 官網',plat:'Shopify',color:'#3d6fb6',src:R.A,ch:[['Meta','#3d6fb6'],['Google 品牌','#5aa469'],['Google 非品牌','#97c98f'],['ChatGPT','#7a5fb0']]},
+  B:{name:'(B) 樂天',plat:'樂天',color:'#c9473f',src:R.B,ch:[['樂天 RPP','#c9473f'],['樂天 TDA','#e8928b']]},
+  C:{name:'(C) Amazon',plat:'Amazon',color:'#e8a33d',src:R.C,ch:[['Amazon AD','#e8a33d']]}};
+const gWeek=(G,i)=>sum(G.ch.map(c=>G.src[i].channels[c[0]]));
+const gMet=(G,i)=>met(gWeek(G,i),G.src[i].platform);
+const LIC=R.lic.total;
+
+/* ---------- SVG chart ---------- */
+function niceMax(v){if(!(v>0))return 1;const p=Math.pow(10,Math.floor(Math.log10(v)));for(const m of [1,1.2,1.5,2,2.5,3,4,5,6,8,10])if(m*p>=v)return m*p;return 10*p}
+function chart(el,o){
+  const W=o.w||380,H=o.h||210,L=o.padL||44,Rr=o.right?46:12,T=18,B=34,iw=W-L-Rr,ih=H-T-B,n=o.labels.length,bw=iw/n;
+  const X=i=>L+bw*(i+.5);
+  let lmax=0;(o.bars||[]).length&&o.labels.forEach((_,i)=>{lmax=Math.max(lmax,o.bars.reduce((s,b)=>s+(b.values[i]||0),0))});
+  (o.lines||[]).filter(l=>!l.right).forEach(l=>l.values.forEach(v=>{if(v!=null)lmax=Math.max(lmax,v)}));
+  let rmax=0;(o.lines||[]).filter(l=>l.right).forEach(l=>l.values.forEach(v=>{if(v!=null)rmax=Math.max(rmax,v)}));
+  lmax=niceMax(lmax*1.08);rmax=niceMax(rmax*1.08);
+  const YL=v=>T+ih-(v/lmax)*ih,YR=v=>T+ih-(v/rmax)*ih,fl=o.fmtL||(v=>v),fr=o.fmtR||(v=>v);
+  let s=`<svg viewBox="0 0 ${W} ${H}">`;
+  for(let k=0;k<=4;k++){const v=lmax*k/4,y=YL(v);s+=`<line x1="${L}" x2="${W-Rr}" y1="${y}" y2="${y}" stroke="#ece4d6"/><text x="${L-5}" y="${y+3.5}" text-anchor="end" font-size="9.5" fill="#9a9186">${fl(v)}</text>`;
+    if(o.right)s+=`<text x="${W-Rr+5}" y="${YR(rmax*k/4)+3.5}" font-size="9.5" fill="#9a9186">${fr(rmax*k/4)}</text>`}
+  o.labels.forEach((lb,i)=>{const [a,b]=lb.split('\n');s+=`<text x="${X(i)}" y="${H-B+14}" text-anchor="middle" font-size="9.5" font-weight="${i===n-1?800:600}" fill="#6b6255">${a}</text><text x="${X(i)}" y="${H-B+26}" text-anchor="middle" font-size="8.5" fill="#9a9186">${b||''}</text>`});
+  (o.bars||[]).length&&o.labels.forEach((_,i)=>{let acc=0;o.bars.forEach(b=>{const v=b.values[i]||0;if(v>0){const y0=YL(acc),y1=YL(acc+v);s+=`<rect x="${X(i)-bw*.32}" y="${y1}" width="${bw*.64}" height="${Math.max(0,y0-y1)}" fill="${b.color}"><title>${b.name} ${o.labels[i].replace('\n',' ')}：${(o.tipL||fl)(v)}</title></rect>`}acc+=v});
+    if(o.barTotal&&acc>0)s+=`<text x="${X(i)}" y="${YL(acc)-4}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#3d3220" stroke="#fff" stroke-width="3" paint-order="stroke">${o.barTotal(acc)}</text>`});
+  (o.lines||[]).forEach(l=>{const Y=l.right?YR:YL;let d='',pen=false;l.values.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?'L':'M')+X(i)+','+Y(v);pen=true});
+    s+=`<path d="${d}" fill="none" stroke="${l.color}" stroke-width="2.2" ${l.dash?'stroke-dasharray="5 4"':''} stroke-linejoin="round"/>`;
+    l.values.forEach((v,i)=>{if(v==null)return;s+=`<circle cx="${X(i)}" cy="${Y(v)}" r="3" fill="${l.color}"><title>${l.name} ${o.labels[i].replace('\n',' ')}：${l.fmt(v)}</title></circle>`;
+      if(o.labelLast!==false&&(i===n-1||o.labelAll))s+=`<text x="${X(i)}" y="${Y(v)-7}" text-anchor="middle" font-size="9.5" font-weight="700" fill="${l.color}" stroke="#fff" stroke-width="3" paint-order="stroke">${l.fmt(v)}</text>`})});
+  s+='</svg>';
+  const lg=[...(o.bars||[]).map(b=>`<span><i style="background:${b.color};height:10px"></i>${b.name}</span>`),...(o.lines||[]).map(l=>`<span><i style="background:${l.color}"></i>${l.name}${l.right?'（右軸）':''}</span>`)].join('');
+  el.innerHTML=(o.title?`<h4>${o.title}</h4>`:'')+`<div class="lg">${lg}</div>`+s;
+}
+const man=v=>(v/1e4).toFixed(v>=1e6?0:1)+'萬',manAxis=v=>Math.round(v/1e4)+'';
+
+/* ---------- Overview chart ---------- */
+(function(){
+  const el=document.getElementById('ovChart'),plat=k=>GROUPS[k].src.map(w=>w.platform.sales);
+  const spend=R.labels.map((_,i)=>['A','B','C'].reduce((s,k)=>s+gWeek(GROUPS[k],i).cost,0));
+  chart(el,{w:1100,h:330,padL:50,right:true,labels:R.labels,labelAll:true,
+    bars:[{name:'Shopify 官網',color:'#3d6fb6',values:plat('A')},{name:'Amazon',color:'#e8a33d',values:plat('C')},{name:'樂天',color:'#c9473f',values:plat('B')}],
+    barTotal:v=>(v/1e4).toFixed(0),fmtL:manAxis,tipL:man,fmtR:manAxis,
+    lines:[{name:'廣告花費（三組合計，不含授權金）',color:'#1f2a44',right:true,values:spend,fmt:v=>(v/1e4).toFixed(1)}]});
+  el.insertAdjacentHTML('afterbegin','<h4 style="margin:0 0 4px;font-size:14px;color:var(--brand-deep)">平台營收（萬円，堆疊）與廣告花費（萬円，右軸）</h4>');
+})();
+
+/* ---------- standard table ---------- */
+const COLS=[['cost','廣告花費',fYen,'pct'],['rev','廣告營收',fYen,'pct'],['prev','平台營收',fYen,'pct'],['roas','廣告 ROAS',f2,'pct'],['proas','平台 ROAS',f2,'pct'],['cpm','CPM',fYen,'pct'],['ctr','CTR',fPct,'pp'],['cvr','廣告 CVR',fPct,'pp'],['pcvr','平台 CVR',fPct,'pp']];
+function dl(a,b,mode,inverse){if(a==null||b==null||(mode==='pct'&&!b))return '<span class="dl flat">–</span>';
+  const d=mode==='pct'?(a/b-1)*100:a-b,cls=Math.abs(d)<0.05?'flat':((d>0)!==!!inverse?'up':'down');
+  return `<span class="dl ${cls}">${d>0?'▲':d<0?'▼':''}${Math.abs(d).toFixed(mode==='pct'?1:2)}${mode==='pct'?'%':'pt'}</span>`}
+function cells(c,p,opt={}){return COLS.map(([k,_,f,mode])=>{const plat=['prev','proas','pcvr'].includes(k);
+  if(plat&&opt.noPlat)return '<td class="na">—</td>';
+  let extra='';if(k==='proas'&&opt.licPlat)extra=`<span class="sub">含授權金 ${f2(opt.licPlat)}</span>`;if(k==='roas'&&opt.licAd)extra=`<span class="sub">含授權金 ${f2(opt.licAd)}</span>`;if(k==='pcvr'&&opt.cvrNote)extra=`<span class="sub">${opt.cvrNote}</span>`;
+  return `<td>${f(c[k])}${extra}${p?dl(c[k],p[k],mode,k==='cpm'):''}</td>`}).join('')}
+const HEAD='<thead><tr><th>通路</th>'+COLS.map(c=>`<th>${c[1]}</th>`).join('')+'</tr></thead>';
+function chRow(G,name,cls,id,parent){const c=met(G.src[CUR].channels[name]),p=met(G.src[PRV].channels[name]);
+  return `<tr class="${cls}" data-parent="${parent||''}" ${parent?'hidden':''}><td>${id?`<span class="cat-chevron">›</span> `:''}${name}</td>${cells(c,p,{noPlat:true})}</tr>`}
+function aOpts(i){const g=gWeek(GROUPS.A,i);return {licPlat:div(R.A[i].platform.sales,g.cost+LIC),licAd:div(g.rev,g.cost+LIC)}}
+function groupRows(k,expand){const G=GROUPS[k],c=gMet(G,CUR),p=gMet(G,PRV);
+  const opt=k==='A'?aOpts(CUR):k==='C'&&R.amzNote?{cvrNote:'11/5–11/10'}:{};
+  let s=`<tr class="grp cat-row" data-g="${k}"><td><span class="cat-chevron">›</span> ${G.name} <span class="sub" style="display:inline">｜${G.plat}</span></td>${cells(c,p,opt)}</tr>`;
+  G.ch.forEach(([n])=>{if(k==='A'&&n.startsWith('Google'))return;s+=chRow(G,n,'lvl1','',k)});
+  if(k==='A'){const gg=i=>sum([R.A[i].channels['Google 品牌'],R.A[i].channels['Google 非品牌']]);
+    s=s.replace(/(<tr class="lvl1" data-parent="A" hidden><td>ChatGPT)/,`<tr class="lvl1 cat-row" data-parent="A" data-g="G" hidden><td><span class="cat-chevron">›</span> Google</td>${cells(met(gg(CUR)),met(gg(PRV)),{noPlat:true})}</tr>`+chRow(G,'Google 品牌','lvl2','',  'G')+chRow(G,'Google 非品牌','lvl2','','G')+'$1')}
+  return s}
+function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=>{const g=r.dataset.g,open=!r.classList.contains('expanded');r.classList.toggle('expanded',open);
+  const hide=id=>t.querySelectorAll(`tr[data-parent="${id}"]`).forEach(x=>{x.hidden=!open;if(!open&&x.dataset.g){x.classList.remove('expanded');hide(x.dataset.g)}});
+  if(open)t.querySelectorAll(`tr[data-parent="${g}"]`).forEach(x=>x.hidden=false);else hide(g)})}
+(function(){const t=document.getElementById('ovTable');let s=HEAD+'<tbody>';['A','B','C'].forEach(k=>s+=groupRows(k));
+  const tot=i=>{const x=sum(['A','B','C'].map(k=>gWeek(GROUPS[k],i)));const m=met(x);m.prev=['A','B','C'].reduce((a,k)=>a+GROUPS[k].src[i].platform.sales,0);m.proas=div(m.prev,x.cost);m.pcvr=null;return m};
+  const tc=tot(CUR),tp=tot(PRV),tl=sum(['A','B','C'].map(k=>gWeek(GROUPS[k],CUR)));
+  s+=`<tr class="grand"><td>三通路合計</td>${cells(tc,tp,{licPlat:div(tc.prev,tl.cost+LIC),licAd:div(tl.rev,tl.cost+LIC)})}</tr>`;
+  t.innerHTML=s+'</tbody>';bindExpand(t);
+  document.getElementById('ovNote').textContent=` 本週 KOL 授權金攤提 ¥${fInt(LIC)}。合計列的平台 CVR 不計算（三平台工作階段定義不同）。`+(R.amzNote?` Amazon：${R.amzNote}。`:'')})();
+
+/* ---------- group sections ---------- */
+['C','B','A'].forEach(k=>{
+  const G=GROUPS[k],M=R.labels.map((_,i)=>gMet(G,i)),el=document.getElementById('charts'+k);
+  const box=()=>{const d=document.createElement('div');d.className='mini';el.appendChild(d);return d};
+  chart(box(),{title:'Cost 廣告花費',labels:R.labels,bars:G.ch.map(([n,c])=>({name:n,color:c,values:G.src.map(w=>w.channels[n].cost)})),fmtL:manAxis,tipL:fYen,barTotal:v=>(v/1e4).toFixed(1)});
+  chart(box(),{title:'廣告營收 ＋ 平台營收（萬円）',labels:R.labels,fmtL:manAxis,lines:[{name:'廣告營收',color:G.color,values:M.map(m=>m.rev),fmt:v=>(v/1e4).toFixed(0)},{name:'平台營收',color:'#3d3220',dash:true,values:M.map(m=>m.prev),fmt:v=>(v/1e4).toFixed(0)}]});
+  chart(box(),{title:'廣告 ROAS ＋ 平台 ROAS',labels:R.labels,fmtL:v=>v.toFixed(v<10?1:0),lines:[{name:'廣告 ROAS',color:G.color,values:M.map(m=>m.roas),fmt:f2},{name:'平台 ROAS',color:'#3d3220',dash:true,values:M.map(m=>m.proas),fmt:f2}]});
+  chart(box(),{title:'CPM（円）',labels:R.labels,fmtL:v=>fInt(v),lines:[{name:'CPM',color:G.color,values:M.map(m=>m.cpm||null),fmt:fInt}]});
+  chart(box(),{title:'CTR（%）',labels:R.labels,fmtL:v=>v.toFixed(1),lines:[{name:'CTR',color:G.color,values:M.map(m=>m.ctr),fmt:v=>v.toFixed(2)}]});
+  chart(box(),{title:'廣告 CVR ＋ 平台 CVR（%）',labels:R.labels,fmtL:v=>v.toFixed(1),lines:[{name:'廣告 CVR',color:G.color,values:M.map(m=>m.cvr),fmt:v=>v.toFixed(2)},{name:'平台 CVR',color:'#3d3220',dash:true,values:M.map(m=>m.pcvr),fmt:v=>v.toFixed(2)}]});
+  const t=document.getElementById('tbl'+k);t.innerHTML=HEAD+'<tbody>'+groupRows(k)+'</tbody>';bindExpand(t);t.querySelector('tr.cat-row').click();
+  t.querySelectorAll('tr.cat-row').forEach(r=>{if(r.dataset.g==='G')r.click()});
+  const hints={A:`平台 = Shopify 總銷售額、CVR = 訂單數 ÷ 工作階段。花費不含 KOL 授權金（本週 ¥${fInt(LIC)}），含授權金 ROAS 以小字顯示。ChatGPT 廣告 11/8 開始投放（30 天點擊＋1 天瀏覽歸因，花費約延遲 7–8 小時）。Google 轉換以轉換日計，之後幾天仍會回補。`,
+    B:'平台 = R-Karte 売上／アクセス人数，平台 CVR = R-Karte 転換率（訂單數 = アクセス人数 × 転換率）。RPP 採 720 小時歸因；TDA 照報表（曝光為可視曝光）。RPP 曝光由點擊 ÷ CTR 推算。本週 RPP 未投放，TDA 11/6 起投放。',
+    C:'平台 = Seller Central 已訂購商品銷售額，CVR = 訂單商品數 ÷ 工作階段。廣告 = SP 搜尋字詞報表（主控台匯出上限 300 列）。'+(R.amzNote?R.amzNote+'；11/11 營收取自銷售儀表板「昨天」全天。':'')};
+  document.getElementById('hint'+k).textContent=hints[k];
+});
+
+/* ---------- Amazon brand / non-brand + exclusion ---------- */
+(function(){const t=document.getElementById('tblAmzSide');let s='<thead><tr><th>類別</th>'+COLS.filter(c=>!['prev','proas','pcvr'].includes(c[0])).map(c=>`<th>${c[1]}</th>`).join('')+'</tr></thead><tbody>';
+  ['品牌','非品牌'].forEach(side=>{const c=met(R.amzSide[side][CUR]),p=met(R.amzSide[side][PRV]);
+    s+=`<tr><td>${side}</td>`+COLS.filter(x=>!['prev','proas','pcvr'].includes(x[0])).map(([k,_,f,mode])=>`<td>${f(c[k])}${dl(c[k],p[k],mode,k==='cpm')}</td>`).join('')+'</tr>'});
+  t.innerHTML=s+'</tbody>';
+  const e=document.getElementById('tblAmzEx');
+  e.innerHTML='<thead><tr><th>搜尋字詞 / ASIN</th><th>分類</th><th>累計花費</th><th>累計訂單</th><th>出現週數</th><th>本週花費</th><th>建議</th></tr></thead><tbody>'+
+    (R.amzEx.length?R.amzEx.map(x=>`<tr><td>${x.term}</td><td>${x.seg}</td><td>${fYen(x.cost)}</td><td>${x.orders}</td><td>${x.weeks}</td><td>${fYen(x.cur)}</td><td>${x.action}${x.cur>0?'（本週仍在花）':''}</td></tr>`).join(''):'<tr><td colspan="7" class="na">無</td></tr>')+'</tbody>'})();
+
+/* ---------- Meta creatives ---------- */
+const AD_IMG_DIR='../AD Images/';
+function thumb(r){return `<span class="thumb-slot"><img src="${AD_IMG_DIR}${r}.jpg" class="thumb js-zoom" data-row="${r}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="thumb thumb-missing" style="display:none">缺圖<br>#${r}</div></span>`}
+document.addEventListener('click',e=>{const im=e.target.closest('.js-zoom');if(!im)return;const lb=document.getElementById('lightbox');document.getElementById('lightboxImg').src=im.src;lb.style.display='flex'});
+const tagOf=c=>c.tag||'NULL';const TAGS=[...new Set(R.creatives.map(tagOf))].sort((a,b)=>(a==='NULL')-(b==='NULL')||a.localeCompare(b));const TSEL=new Set(TAGS);
+const CRH='<thead><tr><th>Name-Row</th><th>原廠標記</th><th>類型</th><th>花費</th><th>營收</th><th>ROAS</th><th>購買</th><th>CPA</th><th>CTR</th><th>CVR</th><th>CPM</th><th>上週花費</th><th>上週 ROAS</th></tr></thead>';
+function crRow(c){const roas=div(c.rev,c.cost),pr=c.prev_cost?div(c.prev_rev,c.prev_cost):null;
+  return `<tr><td><div style="display:flex;align-items:center;gap:8px">${thumb(c.row)}<span>${c.nameRow}</span></div></td><td>${c.tag?`<span class="tag-pill">${c.tag}</span>`:'<span class="na">NULL</span>'}</td><td><span class="type-pill">${c.type}</span></td>
+  <td>${fYen(c.cost)}${c.prev_cost?dl(c.cost,c.prev_cost,'pct'):'<span class="dl flat">上週無花費</span>'}</td><td>${fYen(c.rev)}</td>
+  <td><b>${f2(roas)}</b>${c.lic?`<span class="lic-s">含授權金 ${f2(div(c.rev,c.cost+c.lic))}（¥${fInt(c.lic)}）</span>`:''}${pr!=null?dl(roas,pr,'pct'):''}</td>
+  <td>${fInt(c.pur)}</td><td>${c.pur?fYen(c.cost/c.pur):'–'}</td><td>${fPct(div(c.clicks,c.imp)*100)}</td><td>${fPct(div(c.pur,c.clicks)*100)}</td><td>${fYen(div(c.cost,c.imp)*1000)}</td>
+  <td>${c.prev_cost?fYen(c.prev_cost):'–'}</td><td>${pr!=null?f2(pr):'–'}</td></tr>`}
+function crTotal(rs){const x=rs.reduce((o,c)=>{o.cost+=c.cost;o.rev+=c.rev;o.pur+=c.pur;o.imp+=c.imp;o.clicks+=c.clicks;o.lic+=c.lic||0;return o},{cost:0,rev:0,pur:0,imp:0,clicks:0,lic:0});
+  return `<tr class="grand"><td>小計（${rs.length}）</td><td></td><td></td><td>${fYen(x.cost)}</td><td>${fYen(x.rev)}</td><td>${f2(div(x.rev,x.cost))}${x.lic?`<span class="lic-s">含授權金 ${f2(div(x.rev,x.cost+x.lic))}</span>`:''}</td><td>${fInt(x.pur)}</td><td>${x.pur?fYen(x.cost/x.pur):'–'}</td><td>${fPct(div(x.clicks,x.imp)*100)}</td><td>${fPct(div(x.pur,x.clicks)*100)}</td><td>${fYen(div(x.cost,x.imp)*1000)}</td><td></td><td></td></tr>`}
+function renderCr(){const rs=R.creatives.filter(c=>TSEL.has(tagOf(c)));
+  const sm=rs.filter(c=>c.cost<R.minSpend),big=rs.filter(c=>c.cost>=R.minSpend),hi=big.filter(c=>c.rev/c.cost>=R.avgRoas),lo=big.filter(c=>c.rev/c.cost<R.avgRoas);
+  [['tblCrHi',hi,'cntHi'],['tblCrLo',lo,'cntLo'],['tblCrSm',sm,'cntSm']].forEach(([id,arr,cid])=>{arr.sort((a,b)=>b.cost-a.cost);
+    document.getElementById(id).innerHTML=CRH+'<tbody>'+(arr.length?arr.map(crRow).join('')+crTotal(arr):'<tr><td colspan="13" class="na">無</td></tr>')+'</tbody>';
+    document.getElementById(cid).textContent=`${arr.length} 支`})}
+function drawTF(){const box=document.getElementById('crTagFilter'),all=TSEL.size===TAGS.length;
+  box.innerHTML='<span class="tf-label">原廠標記</span>'+TAGS.map(t=>`<label class="${TSEL.has(t)?'on':''}"><input type="checkbox" data-t="${t}" ${TSEL.has(t)?'checked':''}>${t}</label>`).join('')+`<button type="button">${all?'全部取消':'全選'}</button>`;
+  box.querySelectorAll('input').forEach(cb=>cb.onchange=()=>{cb.checked?TSEL.add(cb.dataset.t):TSEL.delete(cb.dataset.t);drawTF();renderCr()});
+  box.querySelector('button').onclick=()=>{if(all)TSEL.clear();else TAGS.forEach(t=>TSEL.add(t));drawTF();renderCr()}}
+document.getElementById('crAvgNote').textContent=`平均 ROAS ${f2(R.avgRoas)}（本週 Meta 帳戶，不含授權金）`;
+drawTF();renderCr();
+
+/* ---------- 發佈 / 封存（W45+，只有編輯者看得到按鈕；權限由 _worker.js 在伺服器端控管） ---------- */
+(function(){const bar=document.getElementById('pubBar');if(!bar||!location.protocol.startsWith('http'))return;
+  const folder=THIS_REPORT_FILE.split('/')[0];
+  const fmt=t=>{if(!t)return '';const d=new Date(t),z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}/${z(d.getMonth()+1)}/${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`};
+  function draw(st,info){const pub=st==='published';
+    bar.innerHTML=`<span class="pub-badge ${pub?'on':''}">${pub?'● 已發佈：檢視者可見':'● 封存中：只有編輯者看得到'}</span>`+
+      (info&&info.by?`<span class="pub-meta">${pub?'發佈':'封存'}：${info.by} · ${fmt(info.at)}</span>`:'')+
+      `<button class="ins-btn ${pub?'danger':'primary'}" id="pubBtn">${pub?'封存（對檢視者隱藏）':'發佈（讓檢視者可見）'}</button>`;
+    bar.hidden=false;
+    document.getElementById('pubBtn').onclick=async()=>{const next=pub?'archived':'published';
+      if(!confirm(pub?`封存 ${folder}？檢視者將看不到這一週的週報。`:`發佈 ${folder}？所有檢視者都能看到這一週的週報。`))return;
+      try{const r=await fetch('/api/publish',{method:'PUT',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({folder,status:next})});
+        const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||('HTTP '+r.status));draw(j.status,{by:j.by,at:j.at})}catch(e){alert('操作失敗：'+e.message)}}}
+  fetch('/api/publish',{cache:'no-store',credentials:'same-origin'}).then(r=>r.ok?r.json():Promise.reject(r.status)).then(j=>{
+    if(!j.canEdit)return;const info=(j.detail||{})[folder];draw(info&&info.status==='published'?'published':'archived',info)}).catch(()=>{});
+})();
+
+/* ---------------- Insight & Suggestion v2 (5 blocks, editable via Cloudflare D1) ---------------- */
+const INSIGHT_WEEK = '2026-11-05';
+const INSIGHTS_BUILTIN = {};
+(function(){
+  const API='/api/insights', KEYS=['groupC','groupB','groupA','recap'];
+  const $i=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const md=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
+  const nrow=r=>({channel:r.channel||'',title:r.title||'',insight:r.insight||'',suggestion:r.suggestion||''});
+  function norm(o){o=o||{};let b=o.blocks;if(!b)b={recap:{rows:o.rows||[],actions:o.actions||[]}};
+    const out={blocks:{}};KEYS.forEach(k=>{const x=b[k]||{};out.blocks[k]={rows:(x.rows||[]).map(nrow)};if(k==='recap')out.blocks[k].actions=(x.actions||[]).slice()});return out}
+  let remote=null,work=null,apiOK=false,canEdit=false,editing=false,state='',timer=null;
+  const cur=()=>work||remote||norm(INSIGHTS_BUILTIN);
+  const ed=()=>{if(!work)work=JSON.parse(JSON.stringify(norm(cur())));return work};
+  const clean=d=>{const o={blocks:{}};KEYS.forEach(k=>{const x=d.blocks[k];o.blocks[k]={rows:x.rows.filter(r=>(r.title+r.insight+r.suggestion).trim())};if(x.actions)o.blocks[k].actions=x.actions.filter(a=>a&&a.trim())});return o};
+  const grow=el=>{el.style.height='auto';el.style.height=(el.scrollHeight+2)+'px'};
+  function queue(){state='pending';bar();clearTimeout(timer);timer=setTimeout(save,900)}
+  async function save(){
+    clearTimeout(timer);if(!work)return;state='saving';bar();
+    try{const r=await fetch(API,{method:'PUT',headers:{'content-type':'application/json'},credentials:'same-origin',body:JSON.stringify({week:INSIGHT_WEEK,data:clean(work)})});
+      const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||('HTTP '+r.status));remote=Object.assign(norm(j.item),{_by:j.item._by,_at:j.item._at});state='saved'}
+    catch(e){state='error:'+e.message}
+    bar();
+  }
+  const fmtAt=t=>{if(!t)return '';const d=new Date(t);if(isNaN(d))return t;const z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}/${z(d.getMonth()+1)}/${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`};
+  function bar(){
+    let m='';
+    if(state==='pending'||state==='saving')m='<span class="dot"></span>儲存中…';
+    else if(state.startsWith('error:'))m=`<span class="dot err"></span>儲存失敗：${esc(state.slice(6))}（內容仍在畫面上，再改一下即可重試）`;
+    else if(state==='saved')m='<span class="dot ok"></span>已儲存，其他人重新整理即可看到';
+    else if(remote&&remote._by)m=`最後編輯：${esc(remote._by)} · ${fmtAt(remote._at)}`;
+    else if(editing)m='修改會自動儲存';
+    document.querySelectorAll('.ins-status').forEach(s=>s.innerHTML=m);
+    document.querySelectorAll('.ins-edit').forEach(b=>{b.style.display=(apiOK&&canEdit)?'':'none';b.textContent=editing?'✓ 完成編輯':'✎ 編輯';b.classList.toggle('on',editing)});
+    const rv=$i('insRevertBtn');if(rv)rv.style.display=(apiOK&&canEdit&&remote)?'':'none';
+    document.body.classList.toggle('ins-editing',editing);
+  }
+  const move=(X,i,op)=>{if(op==='del'){const v=X[i];if((typeof v==='string'?v:(v.title+v.insight+v.suggestion)).trim()&&!confirm('確定刪除這一列？'))return false;X.splice(i,1)}
+    if(op==='up'&&i>0)[X[i-1],X[i]]=[X[i],X[i-1]];if(op==='down'&&i<X.length-1)[X[i+1],X[i]]=[X[i],X[i+1]];return true};
+  function renderBlock(k){
+    const t=document.querySelector(`[data-ins-table="${k}"]`);if(!t)return;
+    const rows=(editing?ed():cur()).blocks[k].rows;
+    let s='<thead><tr><th>核心洞察 (Insight)</th><th>執行建議 (Suggestion)</th>'+(editing?'<th></th>':'')+'</tr></thead><tbody>';
+    if(editing){
+      rows.forEach((r,i)=>s+=`<tr data-i="${i}"><td><div class="ins-line"><input list="insChOpts" class="ins-in ins-ch-in" data-f="channel" value="${esc(r.channel)}" placeholder="分類"><input class="ins-in ins-title" data-f="title" value="${esc(r.title)}" placeholder="洞察標題（粗體）"></div><textarea class="ins-ta" data-f="insight" placeholder="洞察內容（**文字** = 粗體）">${esc(r.insight)}</textarea></td><td><textarea class="ins-ta" data-f="suggestion" placeholder="執行建議">${esc(r.suggestion)}</textarea></td><td class="ins-ops"><button class="ins-btn sm" data-op="up">↑</button><button class="ins-btn sm" data-op="down">↓</button><button class="ins-btn sm danger" data-op="del">✕</button></td></tr>`);
+      s+='<tr><td colspan="3"><button class="ins-btn ins-add">＋ 新增一列</button></td></tr>';
+    }else if(rows.length)rows.forEach(r=>s+=`<tr><td>${r.channel?`<span class="ins-ch">${esc(r.channel)}</span><br>`:''}${r.title?`<b>${esc(r.title)}</b>：`:''}${md(r.insight)}</td><td>${md(r.suggestion)}</td></tr>`);
+    else s+='<tr><td colspan="2" class="ins-empty">本週尚未填寫</td></tr>';
+    t.innerHTML=s+'</tbody>';
+    if(!editing)return;
+    t.querySelectorAll('textarea').forEach(grow);
+    t.querySelectorAll('[data-f]').forEach(el=>el.addEventListener('input',()=>{ed().blocks[k].rows[+el.closest('tr').dataset.i][el.dataset.f]=el.value;if(el.tagName==='TEXTAREA')grow(el);queue()}));
+    t.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>{if(move(ed().blocks[k].rows,+b.closest('tr').dataset.i,b.dataset.op)){queue();renderBlock(k)}});
+    t.querySelector('.ins-add').onclick=()=>{ed().blocks[k].rows.push(nrow({}));queue();renderBlock(k);const l=[...t.querySelectorAll('.ins-title')].pop();l&&l.focus()};
+  }
+  function renderActions(){
+    const box=$i('insActions');if(!box)return;const acts=(editing?ed():cur()).blocks.recap.actions||[];
+    if(editing){
+      box.innerHTML=`<ol class="ins-act-ed">${acts.map((a,i)=>`<li data-i="${i}"><input class="ins-in" value="${esc(a)}" placeholder="下週執行重點"><button class="ins-btn sm" data-op="up">↑</button><button class="ins-btn sm" data-op="down">↓</button><button class="ins-btn sm danger" data-op="del">✕</button></li>`).join('')}</ol><button class="ins-btn" id="insAddAct" style="margin-top:8px">＋ 新增一項</button>`;
+      box.querySelectorAll('li input').forEach(el=>el.addEventListener('input',()=>{ed().blocks.recap.actions[+el.closest('li').dataset.i]=el.value;queue()}));
+      box.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>{if(move(ed().blocks.recap.actions,+b.closest('li').dataset.i,b.dataset.op)){queue();renderActions()}});
+      $i('insAddAct').onclick=()=>{ed().blocks.recap.actions.push('');queue();renderActions();const l=[...box.querySelectorAll('li input')].pop();l&&l.focus()};
+    }else box.innerHTML=acts.length?`<ol class="ins-actions">${acts.map(a=>`<li>${md(a)}</li>`).join('')}</ol>`:'<div class="ins-empty">本週尚未填寫 Action Plan</div>';
+  }
+  function render(){KEYS.forEach(renderBlock);renderActions();bar()}
+  document.querySelectorAll('.ins-edit').forEach(b=>b.onclick=async()=>{if(editing){if(state==='pending')await save();editing=false;if(!state.startsWith('error:')){work=null;state=''}}else editing=true;render()});
+  const rv=$i('insRevertBtn');if(rv)rv.onclick=async()=>{
+    if(!confirm('把本週全部 Insight & Suggestion 區塊還原成建置時的原始版本？（所有人都會看到還原後的內容）'))return;
+    try{const r=await fetch(API+'?week='+encodeURIComponent(INSIGHT_WEEK),{method:'DELETE',credentials:'same-origin'});if(!r.ok)throw new Error('HTTP '+r.status);
+      remote=null;work=null;state='';editing=false;render()}catch(e){alert('還原失敗：'+e.message)}};
+  addEventListener('beforeunload',e=>{if(state==='pending'||state==='saving'){e.preventDefault();e.returnValue=''}});
+  render();
+  if(location.protocol.startsWith('http'))fetch(API,{cache:'no-store',credentials:'same-origin'}).then(r=>r.ok?r.json():Promise.reject(r.status)).then(j=>{
+    apiOK=true;canEdit=!!j.canEdit;const o=(j.insights||{})[INSIGHT_WEEK];if(o){const n=norm(o);if(!o.blocks){const bi=norm(INSIGHTS_BUILTIN);KEYS.forEach(k=>{if(k!=='recap')n.blocks[k]=bi.blocks[k]})}remote=Object.assign(n,{_by:o._by,_at:o._at})}else remote=null;render()}).catch(()=>{apiOK=false;bar()});
+})();
+
+</script>
+</body>
+</html>

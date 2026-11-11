@@ -392,3 +392,14 @@ Hulken Weekly Report/
 
 **ChatGPT 廣告（OpenAI Ads，2026-11-08 開始投放，導 Shopify）：** `scripts/openai_ads.py <起日> <迄日> [--json]` 抓每日 impressions／clicks／spend／conversions／sales（唯讀）。金鑰 `.secrets/openai_ads.env`（gitignored，絕不印出）；允許清單已加 `api.ads.openai.com`。API 細節：GET `/v1/ad_account/insights`（time_granularity=daily、aggregation_level=ad_account、date_range+timezone=Asia/Tokyo）；銷售額要 POST `/v1/conversions/insights`，aggregation_level 只能 campaign/ad_group/ad 且**必須帶 entity_ids**（先用 insights aggregation_level=campaign 取 campaign_id）；`order_created_attributed_sales` 是字串。urllib 預設 UA 會被 Cloudflare 擋（error 1010），要帶自訂 User-Agent。2026-11-10 與 Ads Manager 核對一致（點擊 163、轉換 1、¥20,999、花費 ¥19,802、ROAS 1.06）。歸因預設點擊 30 天＋瀏覽 1 天（Meta 是 7 天點擊＋1 天瀏覽），兩者 ROAS 不可直接比較。花費約延遲 7–8 小時、轉換至少延遲 1 天。
 **週報待辦（W45 起）：** 全渠道表新增「ChatGPT」列（花費／回報營收／ROAS／點擊）；Shopify ROAS 分母改為 Meta＋Google＋ChatGPT 花費；Overview 花費合計納入 ChatGPT；Insight 註明歸因口徑差異。build_weekly_report.py／build_shopify_section.py 尚未改，W45 製作時一併實作並核對。
+
+## 週報 v2 格式（W45 起，2026-11-11 使用者指定，取代舊版面）
+- 建置：`python3 scripts/build_weekly_report_v2.py <週資料夾> <週起始日>`（渲染 JS 在 `scripts/report_v2.js`，CSS 沿用上一週報告的 `<style>`）。舊的 `build_weekly_report.py`／`build_shopify_section.py`／Highlight 不再用於週報本體；all.html 三支腳本照舊（需先跑 `build_mcp_bridge.py` 產生 `_mcp.xlsx`，快取推進流程不變）。
+- 組別：(A) Meta＋Google（品牌＝Shopping-260621＋Pmax-260622、非品牌＝Pmax-260530）＋ChatGPT｜Shopify；(B) 樂天 RPP（720h）＋TDA（照報表）｜R-Karte；(C) Amazon SP｜Seller Central。
+- Part 1：8 週平台營收堆疊＋廣告花費線、可展開標準表（Google 再展開品牌／非品牌）。Part 2 依 C→B→A：6 張 8 週趨勢圖＋標準表＋空白洞察表；C 含 Amazon 品牌／非品牌＋排除清單；A 含 Meta 素材表（平均＝本週 Meta 帳戶媒體 ROAS，花費 < ¥5,000 歸「樣本不足」，原廠標記篩選，含授權金 ROAS 小字）。Part 3：Recap＋Action Plan（空白，線上編輯）。
+- 平台營收／平台 CVR 只放組別層級（全店合計，各廣告平台歸因互相重疊）。(A) 花費不含 KOL 授權金（授權金＝KOL_cost_data 本週列）。
+- 洞察 key：groupC／groupB／groupA／recap（recap 帶 actions）；`_worker.js` BLOCK_KEYS 已加入。
+- `<週>/_data/`：groupA_weekly.json、groupBC_weekly.json、meta_ads_w<NN>.txt、meta_creatives_w<NN>.json、kol_license_week.json、amazon_platform_daily.json、rakuten_rkarte_daily.txt、rakuten_ads_daily.json（都是原始資料，不 push）。
+- 時區：device 的檔案時間是 UTC，寫給使用者前一律換算日本時間（W45 曾把 TDA 下載時間 UTC 22:31 誤寫成當天，實為 JST 11/12 07:31）。
+- **發佈／封存（2026-11-11 使用者要求，W45 起每週）：** `_worker.js` 的 `GATE_FROM = "2026W45"`，此週起的資料夾預設「封存」，只有 ALLOWED_EDITORS 能開；檢視者開到會得到「尚未發佈」頁，`/weeks.json`、`/manifest.json` 也會對檢視者濾掉封存週（首頁自動跳到最新已發佈週）。報告標題列的「發佈／封存」按鈕（只有編輯者看得到）呼叫 `PUT /api/publish {folder, status}`，狀態存在 D1 `publish_state`，每次操作寫 `publish_history`。新週推上線後一律是封存，使用者自己按發佈；不要替他發佈。
+- W45 待補：Amazon 11/11 工作階段（業務報告更新後補，目前平台 CVR 用 11/5–11/10）；新 Row 209–211（再入荷 RT）素材表沒有原廠標記，顯示 NULL。
