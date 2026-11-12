@@ -107,7 +107,7 @@ const denseOpts=n=>({labelAll:n<=16,labelLast:n<=16,xEvery:n>26?4:(n>16?2:0)});
     const tag=gs.map(g=>g[0]).join('＋');
     const spend=ys.map(r=>gs.reduce((a,g)=>a+r[g[4]],0));
     const line=!gs.length?[]:LINE==='roas'
-      ?[{name:`廣告 ROAS（${tag}，廣告營收 ÷ 廣告花費，不含授權金）`,color:'#2e7d4f',right:true,values:ys.map((r,j)=>{const i=lo+j,rev=gs.reduce((a,g)=>a+adRev(g[0],i),0);return spend[j]?rev/spend[j]:null}),fmt:f2}]
+      ?[{name:`廣告 ROAS（${tag}，廣告營收 ÷ 廣告花費，不含授權金）`,color:'#22c55e',right:true,values:ys.map((r,j)=>{const i=lo+j,rev=gs.reduce((a,g)=>a+adRev(g[0],i),0);return spend[j]?rev/spend[j]:null}),fmt:f2}]
       :[{name:`廣告花費（${tag}，不含授權金）`,color:'#1f2a44',right:true,values:spend,fmt:v=>(v/1e4).toFixed(1),tip:fYen}];
     chart(el,{w:1100,h:330,padL:50,right:true,labels:ys.map(wkLabel),...denseOpts(n),
       bars:gs.map(g=>({name:g[1],color:g[2],values:ys.map(r=>r[g[3]])})),
