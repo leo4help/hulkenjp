@@ -96,21 +96,28 @@ function rangeBox(box,onChange,extraHtml){
   const api={redraw:()=>onChange(lo,hi)};setTimeout(upd);return api}
 const denseOpts=n=>({labelAll:n<=16,labelLast:n<=16,xEvery:n>26?4:(n>16?2:0)});
 
-/* ---------- Overview chart（2026 W1 起；組別篩選 A／B／C 可複選） ---------- */
+/* ---------- Overview chart（2026 W1 起；組別篩選 A／B／C 可複選；曲線可切換 廣告花費／廣告 ROAS） ---------- */
 (function(){
   const Y=R.ytd,el=document.getElementById('ovChart'),box=document.getElementById('ovRange');
   const GS=[['A','(A) 官網｜Shopify','#3d6fb6','shopify','spendA'],['B','(B) 樂天','#c9473f','rakuten','spendB'],['C','(C) Amazon','#e8a33d','amazon','spendC']];
-  const SEL=new Set(['A','B','C']);let LO=0,HI=0;
+  const adRev=(k,i)=>Object.values(R.G[k][i].channels).reduce((a,c)=>a+(c.rev||0),0);
+  const SEL=new Set(['A','B','C']);let LO=0,HI=0,LINE='spend';
   function draw(lo,hi){LO=lo;HI=hi;const ys=Y.slice(lo,hi+1),n=ys.length,gs=GS.filter(g=>SEL.has(g[0])),dense=n>16;
     const order=['A','C','B'];gs.sort((a,b)=>order.indexOf(a[0])-order.indexOf(b[0]));
+    const tag=gs.map(g=>g[0]).join('＋');
+    const spend=ys.map(r=>gs.reduce((a,g)=>a+r[g[4]],0));
+    const line=!gs.length?[]:LINE==='roas'
+      ?[{name:`廣告 ROAS（${tag}，廣告營收 ÷ 廣告花費，不含授權金）`,color:'#2e7d4f',right:true,values:ys.map((r,j)=>{const i=lo+j,rev=gs.reduce((a,g)=>a+adRev(g[0],i),0);return spend[j]?rev/spend[j]:null}),fmt:f2}]
+      :[{name:`廣告花費（${tag}，不含授權金）`,color:'#1f2a44',right:true,values:spend,fmt:v=>(v/1e4).toFixed(1),tip:fYen}];
     chart(el,{w:1100,h:330,padL:50,right:true,labels:ys.map(wkLabel),...denseOpts(n),
       bars:gs.map(g=>({name:g[1],color:g[2],values:ys.map(r=>r[g[3]])})),
-      barTotal:dense?null:(v=>(v/1e4).toFixed(0)),fmtL:manAxis,tipL:fYen,fmtR:manAxis,
-      lines:gs.length?[{name:`廣告花費（${gs.map(g=>g[0]).join('＋')}，不含授權金）`,color:'#1f2a44',right:true,values:ys.map(r=>gs.reduce((a,g)=>a+r[g[4]],0)),fmt:v=>(v/1e4).toFixed(1),tip:fYen}]:[]});
-    el.insertAdjacentHTML('afterbegin','<h4 style="margin:0 0 4px;font-size:14px;color:var(--brand-deep)">平台營收（萬円，堆疊）與廣告花費（萬円，右軸）</h4>')}
-  const extra=chipHtml('組別',[['A','A · Shopify','#3d6fb6'],['B','B · 樂天','#c9473f'],['C','C · Amazon','#e8a33d']]);
+      barTotal:dense?null:(v=>(v/1e4).toFixed(0)),fmtL:manAxis,tipL:fYen,fmtR:LINE==='roas'?(v=>v.toFixed(v<10?1:0)):manAxis,lines:line});
+    el.insertAdjacentHTML('afterbegin',`<h4 style="margin:0 0 4px;font-size:14px;color:var(--brand-deep)">平台營收（萬円，堆疊）與${LINE==='roas'?'廣告 ROAS（倍，右軸）':'廣告花費（萬円，右軸）'}</h4>`)}
+  const extra=chipHtml('組別',[['A','A · Shopify','#3d6fb6'],['B','B · 樂天','#c9473f'],['C','C · Amazon','#e8a33d']])+
+    `<span class="rg-sep"></span><span class="rg-gl">曲線</span><span class="seg"><button type="button" class="seg-b on" data-l="spend">廣告花費</button><button type="button" class="seg-b" data-l="roas">廣告 ROAS</button></span>`;
   rangeBox(box,draw,extra);
   chipFilter(box,['A','B','C'],SEL,()=>draw(LO,HI));
+  box.querySelectorAll('.seg-b').forEach(b=>b.onclick=()=>{LINE=b.dataset.l;box.querySelectorAll('.seg-b').forEach(x=>x.classList.toggle('on',x===b));draw(LO,HI)});
 })();
 
 /* ---------- standard table ---------- */

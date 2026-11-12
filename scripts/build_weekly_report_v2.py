@@ -146,6 +146,19 @@ CSS2 = r"""
   nav.secnav a.nav-sub{font-size:12px;padding:8px 9px;color:var(--ink-faint);}
   nav.secnav a.nav-sub:hover{color:var(--brand-deep);}
   .part-head{scroll-margin-top:64px;}
+  .appx{margin-top:28px;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:var(--shadow);}
+  .appx-sum{list-style:none;cursor:pointer;padding:14px 18px;font-size:14.5px;font-weight:800;color:var(--brand-deep);display:flex;align-items:center;gap:8px;user-select:none;}
+  .appx-sum::-webkit-details-marker{display:none;}
+  .appx-sum:hover{background:#fbf8f1;border-radius:12px;}
+  .appx-tw{display:inline-block;color:var(--brand-gold);font-size:12px;transition:transform .15s;}
+  .appx[open] .appx-tw{transform:rotate(90deg);}
+  .appx-hint{margin-left:auto;font-size:12px;font-weight:600;color:var(--ink-faint);}
+  .appx[open] .appx-hint::after{content:'（點擊收合）';} .appx[open] .appx-hint{font-size:0;} .appx[open] .appx-hint::after{font-size:12px;}
+  .appx-body{padding:0 18px 16px;}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff;}
+  .seg-b{font:inherit;font-size:12px;border:0;background:none;padding:4px 12px;cursor:pointer;color:var(--ink-soft);}
+  .seg-b+.seg-b{border-left:1px solid var(--line);}
+  .seg-b.on{background:var(--tan-soft);color:var(--brand-deep);font-weight:800;}
   .pub-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;margin-right:12px;}
   .pub-badge{font-size:12.5px;font-weight:800;color:#a3561c;background:#fff4e2;border:1px solid #e8c48a;border-radius:999px;padding:5px 12px;}
   .pub-badge.on{color:var(--good);background:#eaf6ef;border-color:#a9d8bd;}
@@ -184,7 +197,9 @@ extraC = '''
     <div class="hint">「已執行」= 已加到 Amazon - AUTO Campaign 廣告活動層級的負面關鍵字（排除確切文字）／負面產品（紀錄在 scripts/amazon_excluded.json）。排除後，花費仍可能因報表延遲在下週出現少量。</div>'''
 
 extraA = '''
-    <div class="sub-h">附錄：Meta 素材表現（本週）<span class="cr-cnt" id="crAvgNote"></span></div>
+    <details class="appx" id="crAppx">
+    <summary class="appx-sum"><span class="appx-tw">▶</span>附錄：Meta 素材表現（本週）<span class="cr-cnt" id="crAvgNote"></span><span class="appx-hint">點擊展開</span></summary>
+    <div class="appx-body">
     <div class="tf-box" id="crTagFilter"></div>
     <div class="sub-h" style="margin-top:12px">ROAS 高於平均<span class="cr-cnt" id="cntHi"></span></div>
     <div class="table-scroll"><table class="std" id="tblCrHi"></table></div>
@@ -192,7 +207,9 @@ extraA = '''
     <div class="table-scroll"><table class="std" id="tblCrLo"></table></div>
     <div class="sub-h">樣本不足（本週花費 &lt; ¥5,000）<span class="cr-cnt" id="cntSm"></span></div>
     <div class="table-scroll"><table class="std" id="tblCrSm"></table></div>
-    <div class="hint">平均 = 本週 Meta 帳戶媒體 ROAS（不含 KOL 授權金）。ROAS 下方小字為含本週授權金攤提的 ROAS（僅有授權金的 KOL 素材）。每個數值下方為 WoW（以同一 Row 上週全部 Meta 媒體成效為基準；小計列的上週只加總本週也有花費的素材）。</div>'''
+    <div class="hint">平均 = 本週 Meta 帳戶媒體 ROAS（不含 KOL 授權金）。ROAS 下方小字為含本週授權金攤提的 ROAS（僅有授權金的 KOL 素材）。每個數值下方為 WoW（以同一 Row 上週全部 Meta 媒體成效為基準；小計列的上週只加總本週也有花費的素材）。</div>
+    </div>
+    </details>'''
 
 html = f'''<!DOCTYPE html>
 <html lang="zh-Hant">
@@ -232,7 +249,7 @@ html = f'''<!DOCTYPE html>
 <div class="wrap">
   {part('part1', 'Part 1 · Overview', '三通路整體表現')}
   <section id="overview">
-    <div class="sec-head"><h2>平台營收與廣告花費</h2><span class="sec-tag">2026 W1 起 · 每週四至週三 · 預設顯示近 8 週</span></div>
+    <div class="sec-head"><h2>平台營收與廣告花費／ROAS</h2><span class="sec-tag">2026 W1 起 · 每週四至週三 · 預設顯示近 8 週</span></div>
     <div class="rg-box" id="ovRange"></div>
     <div class="big-chart" id="ovChart"></div>
     <div class="sub-h">本週成效（WoW，點組別可展開）</div>
