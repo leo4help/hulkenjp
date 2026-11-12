@@ -160,7 +160,8 @@ def part(pid, title, tag):
 
 def ins_block(key, title, tag):
     return (f'<div class="ins-block" data-ins-block="{key}"><div class="ins-block-head"><h3>{title}</h3><span class="ins-tag">{tag}</span></div>'
-            '<div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span></div>'
+            '<div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span>'
+            f'<button class="ins-btn danger ins-reset" data-k="{key}" style="display:none" title="把這個區塊換回建置時的預設內容（其他區塊不受影響）">↺ 還原預設內容</button></div>'
             f'<div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="{key}"></table></div></div></div>')
 
 def group_section(g, badge, title, platform, extra=''):
@@ -260,6 +261,9 @@ js = js.replace("k==='overall'", "k==='recap'").replace("blocks.overall", "block
 js = js.replace("k!=='overall'", "k!=='recap'").replace("全部五個", "全部")
 js = js.replace("function render(){KEYS.forEach(renderBlock);renderActions();bar()}", "function render(){KEYS.forEach(renderBlock);renderActions();bar();hideEmpty()}\n  function hideEmpty(){const d=cur().blocks,show=canEdit||editing;KEYS.forEach(k=>{const el=document.querySelector(`[data-ins-block=\"${k}\"]`);const empty=!d[k].rows.length&&!(d[k].actions||[]).length;if(el&&k!=='recap')el.style.display=(empty&&!show)?'none':''});const rc=!d.recap.rows.length&&!(d.recap.actions||[]).length&&!show;['recap','part3'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=rc?'none':''});const nl=document.querySelector('nav.secnav a[href=\"#recap\"]');if(nl)nl.style.display=rc?'none':''}")
 assert 'hideEmpty()' in js
+js = js.replace("document.body.classList.toggle('ins-editing',editing);", "document.querySelectorAll('.ins-reset').forEach(b=>b.style.display=(apiOK&&canEdit&&editing)?'':'none');document.body.classList.toggle('ins-editing',editing);", 1)
+js = js.replace("  render();\n  if(location.protocol", "  document.querySelectorAll('.ins-reset').forEach(b=>b.onclick=()=>{const k=b.dataset.k,def=norm(INSIGHTS_BUILTIN).blocks[k];if(!confirm('把這個區塊換回建置時的預設內容？目前這個區塊的線上內容會被覆蓋（其他區塊不受影響）。'))return;ed().blocks[k]=JSON.parse(JSON.stringify(def));queue();render()});\n  render();\n  if(location.protocol", 1)
+assert "ins-reset').forEach(b=>b.onclick" in js and "ins-reset').forEach(b=>b.style" in js
 js = js.replace("const INSIGHT_WEEK = '';", f"const INSIGHT_WEEK = '{wstart.isoformat()}';")
 builtin = json.load(open(os.path.join(ROOT, 'insights.json'), encoding='utf-8')).get(wstart.isoformat(), {})
 js = js.replace("const INSIGHTS_BUILTIN = {};", "const INSIGHTS_BUILTIN = " + json.dumps(builtin, ensure_ascii=False) + ";")
