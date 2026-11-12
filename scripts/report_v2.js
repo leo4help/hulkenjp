@@ -67,6 +67,16 @@ const man=v=>(v/1e4).toFixed(v>=1e6?0:1)+'萬',manAxis=v=>Math.round(v/1e4)+'';
 /* ---------- 時間條（雙把手＋快速鍵；Part 1 與 Part 2 各組各自獨立） ---------- */
 const WK=R.ytd.map(r=>({week:r.week,start:r.start}));
 const wkLabel=r=>{const d=new Date(r.start+'T00:00:00');return `${r.week}\n${d.getMonth()+1}/${d.getDate()}`};
+/* 篩選鈕：預設全選；全選狀態下點某一個 = 只看那一個；之後點擊為加選／取消；全部取消時自動回到全選；「全選」鈕一鍵回全選 */
+function chipFilter(box,keys,sel,onChange){
+  const chips=[...box.querySelectorAll('.rg-grp[data-k]')],allBtn=box.querySelector('.rg-all');
+  const paint=()=>{const all=sel.size===keys.length;chips.forEach(c=>c.classList.toggle('on',!all&&sel.has(c.dataset.k)));chips.forEach(c=>c.classList.toggle('dim',!all&&!sel.has(c.dataset.k)));if(allBtn)allBtn.classList.toggle('on',all)};
+  chips.forEach(c=>c.onclick=()=>{const k=c.dataset.k;
+    if(sel.size===keys.length){sel.clear();sel.add(k)}else if(sel.has(k)){sel.delete(k);if(!sel.size)keys.forEach(x=>sel.add(x))}else sel.add(k);
+    paint();onChange()});
+  if(allBtn)allBtn.onclick=()=>{keys.forEach(x=>sel.add(x));paint();onChange()};
+  paint()}
+const chipHtml=(label,items)=>`<span class="rg-sep"></span><span class="rg-gl">${label}</span><button type="button" class="rg-all">全選</button>`+items.map(([k,txt,c])=>`<button type="button" class="rg-grp" data-k="${k}"><i style="background:${c}"></i>${txt}</button>`).join('');
 function rangeBox(box,onChange,extraHtml){
   const NY=WK.length,id=box.id;let lo=Math.max(0,NY-8),hi=NY-1;
   const ticks=WK.map((r,i)=>{const d=new Date(r.start+'T00:00:00'),p=i?new Date(WK[i-1].start+'T00:00:00'):null;return (!p||p.getMonth()!==d.getMonth())?`<span style="left:${i/(NY-1)*100}%">${d.getMonth()+1}月</span>`:''}).join('');
@@ -98,9 +108,9 @@ const denseOpts=n=>({labelAll:n<=16,labelLast:n<=16,xEvery:n>26?4:(n>16?2:0)});
       barTotal:dense?null:(v=>(v/1e4).toFixed(0)),fmtL:manAxis,tipL:fYen,fmtR:manAxis,
       lines:gs.length?[{name:`廣告花費（${gs.map(g=>g[0]).join('＋')}，不含授權金）`,color:'#1f2a44',right:true,values:ys.map(r=>gs.reduce((a,g)=>a+r[g[4]],0)),fmt:v=>(v/1e4).toFixed(1),tip:fYen}]:[]});
     el.insertAdjacentHTML('afterbegin','<h4 style="margin:0 0 4px;font-size:14px;color:var(--brand-deep)">平台營收（萬円，堆疊）與廣告花費（萬円，右軸）</h4>')}
-  const extra=`<span class="rg-sep"></span><span class="rg-gl">組別</span>`+GS.map(g=>`<label class="rg-grp on"><input type="checkbox" data-g="${g[0]}" checked><i style="background:${g[2]}"></i>${g[0]}</label>`).join('');
+  const extra=chipHtml('組別',[['A','A · Shopify','#3d6fb6'],['B','B · 樂天','#c9473f'],['C','C · Amazon','#e8a33d']]);
   rangeBox(box,draw,extra);
-  box.querySelectorAll('.rg-grp input').forEach(cb=>cb.onchange=()=>{cb.checked?SEL.add(cb.dataset.g):SEL.delete(cb.dataset.g);cb.parentNode.classList.toggle('on',cb.checked);draw(LO,HI)});
+  chipFilter(box,['A','B','C'],SEL,()=>draw(LO,HI));
 })();
 
 /* ---------- standard table ---------- */
@@ -147,7 +157,7 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
   const CSEL=new Set(G0.ch.map(c=>c[0]));let G=G0,MF=null;
   const calcMF=()=>{G={...G0,ch:G0.ch.filter(c=>CSEL.has(c[0]))};MF=FG.map(w=>{const m=met(sum(G.ch.map(c=>w.channels[c[0]])),w.platform);if(!m.cost)m.rev=null;if(!w.platform.sales&&!w.platform.sessions){m.prev=null;m.pcvr=null}return m})};calcMF();
   const boxes=[...Array(k==='A'?7:6)].map(()=>{const d=document.createElement('div');d.className='mini';el.appendChild(d);return d});
-  const extra=k==='A'?`<span class="rg-sep"></span><span class="rg-gl">廣告渠道</span>`+G0.ch.map(([n,c])=>`<label class="rg-grp on"><input type="checkbox" data-c="${n}" checked><i style="background:${c}"></i>${n}</label>`).join(''):'';
+  const extra=k==='A'?chipHtml('廣告渠道',G0.ch.map(([n,c])=>[n,n,c])):'';
   const t=document.getElementById('tbl'+k);
   const drawTable=()=>{const open=[...t.querySelectorAll('tr.cat-row.expanded')].map(r=>r.dataset.g);const first=!t.tBodies.length;
     t.innerHTML=HEAD+'<tbody>'+groupRows(k,G)+'</tbody>';bindExpand(t);
@@ -168,9 +178,7 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
       boxes[6].classList.add('mini-wide')}
   },extra);
   drawTable();
-  if(k==='A')document.getElementById('rgA').querySelectorAll('input[data-c]').forEach(cb=>cb.onchange=()=>{
-    if(!cb.checked&&CSEL.size===1){cb.checked=true;return}
-    cb.checked?CSEL.add(cb.dataset.c):CSEL.delete(cb.dataset.c);cb.parentNode.classList.toggle('on',cb.checked);calcMF();RB.redraw();drawTable()});
+  if(k==='A')chipFilter(document.getElementById('rgA'),G0.ch.map(c=>c[0]),CSEL,()=>{calcMF();RB.redraw();drawTable()});
   const hints={A:`平台 = Shopify 總銷售額、CVR = 訂單數 ÷ 工作階段。花費不含 KOL 授權金（本週 ¥${fInt(LIC)}），含授權金 ROAS 以小字顯示。ChatGPT 廣告 11/8 開始投放（30 天點擊＋1 天瀏覽歸因，花費約延遲 7–8 小時）。Google 轉換以轉換日計，之後幾天仍會回補。`,
     B:'平台 = R-Karte 売上／アクセス人数，平台 CVR = R-Karte 転換率（訂單數 = アクセス人数 × 転換率）。RPP 採 720 小時歸因；TDA 照報表（曝光為可視曝光）。RPP 曝光由點擊 ÷ CTR 推算。本週 RPP 未投放，TDA 11/6 起投放。',
     C:'平台 = Seller Central 已訂購商品銷售額，CVR = 訂單商品數 ÷ 工作階段。Amazon AD 可展開為品牌（品牌字 hulken／ハルケン…＋自家 ASIN）／非品牌。廣告 = SP 搜尋字詞報表（主控台匯出上限 300 列）。'+(R.amzNote?R.amzNote+'；11/11 營收取自銷售儀表板「昨天」全天。':'')};

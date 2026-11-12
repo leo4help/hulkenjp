@@ -133,8 +133,12 @@ CSS2 = r"""
   .rg-gl{font-size:12px;font-weight:800;color:var(--brand-deep);}
   .rg-grp{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-size:12px;cursor:pointer;color:var(--ink-faint);background:#fff;}
   .rg-grp.on{border-color:var(--brand-gold);color:var(--brand-deep);font-weight:800;background:var(--tan-soft);}
+  .rg-grp,.rg-all{font:inherit;font-size:12px;}
+  .rg-grp.dim{color:var(--ink-faint);} .rg-grp.dim i{opacity:.3;}
+  .rg-grp:not(.on):not(.dim){color:var(--ink);}
+  .rg-all{border:1px solid var(--line);border-radius:999px;padding:4px 11px;background:#fff;color:var(--ink-soft);cursor:pointer;}
+  .rg-all.on{border-color:var(--brand-gold);background:var(--tan-soft);color:var(--brand-deep);font-weight:800;}
   .rg-grp input{display:none;} .rg-grp i{width:10px;height:10px;border-radius:2px;display:inline-block;}
-  .rg-grp:not(.on) i{opacity:.3;}
   .rg-presets{align-items:center;}
   table.std th.sortable{cursor:pointer;user-select:none;white-space:nowrap;}
   .done-pill{display:inline-block;font-size:11.5px;font-weight:800;color:var(--good);background:#eaf6ef;border:1px solid #a9d8bd;border-radius:999px;padding:2px 9px;white-space:nowrap;}
