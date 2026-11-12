@@ -139,6 +139,9 @@ CSS2 = r"""
   table.std th.sortable{cursor:pointer;user-select:none;white-space:nowrap;}
   .done-pill{display:inline-block;font-size:11.5px;font-weight:800;color:var(--good);background:#eaf6ef;border:1px solid #a9d8bd;border-radius:999px;padding:2px 9px;white-space:nowrap;}
   .mini.mini-wide{grid-column:1/-1;}
+  nav.secnav a.nav-sub{font-size:12px;padding:8px 9px;color:var(--ink-faint);}
+  nav.secnav a.nav-sub:hover{color:var(--brand-deep);}
+  .part-head{scroll-margin-top:64px;}
   .pub-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;margin-right:12px;}
   .pub-badge{font-size:12.5px;font-weight:800;color:#a3561c;background:#fff4e2;border:1px solid #e8c48a;border-radius:999px;padding:5px 12px;}
   .pub-badge.on{color:var(--good);background:#eaf6ef;border-color:#a9d8bd;}
@@ -165,8 +168,9 @@ def group_section(g, badge, title, platform, extra=''):
     <div class="sub-h">本週成效（WoW）</div>
     <div class="table-scroll"><table class="std" id="tbl{g}"></table></div>
     <div class="hint" id="hint{g}"></div>
+    {ins_block('group' + g, '核心洞察 / 執行建議', f'({badge}) {title}') if g == 'A' else ''}
     {extra}
-    {ins_block('group' + g, '核心洞察 / 執行建議', f'({badge}) {title}')}
+    {ins_block('group' + g, '核心洞察 / 執行建議', f'({badge}) {title}') if g != 'A' else ''}
   </section>'''
 
 extraC = '''
@@ -175,7 +179,7 @@ extraC = '''
     <div class="hint">「已執行」= 已加到 Amazon - AUTO Campaign 廣告活動層級的負面關鍵字（排除確切文字）／負面產品（紀錄在 scripts/amazon_excluded.json）。排除後，花費仍可能因報表延遲在下週出現少量。</div>'''
 
 extraA = '''
-    <div class="sub-h">Meta 素材表現（本週）<span class="cr-cnt" id="crAvgNote"></span></div>
+    <div class="sub-h">附錄：Meta 素材表現（本週）<span class="cr-cnt" id="crAvgNote"></span></div>
     <div class="tf-box" id="crTagFilter"></div>
     <div class="sub-h" style="margin-top:12px">ROAS 高於平均<span class="cr-cnt" id="cntHi"></span></div>
     <div class="table-scroll"><table class="std" id="tblCrHi"></table></div>
@@ -214,9 +218,10 @@ html = f'''<!DOCTYPE html>
 </header>
 <nav class="secnav"><div class="inner">
   <a href="#overview">Part 1 · Overview</a>
-  <a href="#grpC">(C) Amazon</a>
-  <a href="#grpB">(B) 樂天</a>
-  <a href="#grpA">(A) 官網</a>
+  <a href="#part2">Part 2 · 各通路</a>
+  <a href="#grpC" class="nav-sub">C · Amazon</a>
+  <a href="#grpB" class="nav-sub">B · 樂天</a>
+  <a href="#grpA" class="nav-sub">A · 官網</a>
   <a href="#recap">Part 3 · Recap &amp; Action Plan</a>
 </div></nav>
 <div class="wrap">

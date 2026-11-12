@@ -490,6 +490,9 @@
   table.std th.sortable{cursor:pointer;user-select:none;white-space:nowrap;}
   .done-pill{display:inline-block;font-size:11.5px;font-weight:800;color:var(--good);background:#eaf6ef;border:1px solid #a9d8bd;border-radius:999px;padding:2px 9px;white-space:nowrap;}
   .mini.mini-wide{grid-column:1/-1;}
+  nav.secnav a.nav-sub{font-size:12px;padding:8px 9px;color:var(--ink-faint);}
+  nav.secnav a.nav-sub:hover{color:var(--brand-deep);}
+  .part-head{scroll-margin-top:64px;}
   .pub-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;margin-right:12px;}
   .pub-badge{font-size:12.5px;font-weight:800;color:#a3561c;background:#fff4e2;border:1px solid #e8c48a;border-radius:999px;padding:5px 12px;}
   .pub-badge.on{color:var(--good);background:#eaf6ef;border-color:#a9d8bd;}
@@ -512,7 +515,7 @@
   <div class="header-inner" style="margin-top:6px;">
     <div class="title-block">
       <h1>廣告成效週報</h1>
-      <div class="sub">整理人：Leo · 更新日期 2026/11/11 · 資料來源：Meta／Google／Shopify MCP、ChatGPT Ads API、樂天 RMS／R-Karte／RPP・TDA 報表、Amazon Seller Central／SP 搜尋字詞報表</div>
+      <div class="sub">整理人：Leo · 更新日期 2026/11/12 · 資料來源：Meta／Google／Shopify MCP、ChatGPT Ads API、樂天 RMS／R-Karte／RPP・TDA 報表、Amazon Seller Central／SP 搜尋字詞報表</div>
     </div>
     <div class="pub-bar" id="pubBar" hidden></div>
     <a class="kol-header-btn" href="https://hulkenjp.pages.dev/all" target="_blank" rel="noopener">完整成效 & KOL 授權計算機 ↗</a>
@@ -520,9 +523,10 @@
 </header>
 <nav class="secnav"><div class="inner">
   <a href="#overview">Part 1 · Overview</a>
-  <a href="#grpC">(C) Amazon</a>
-  <a href="#grpB">(B) 樂天</a>
-  <a href="#grpA">(A) 官網</a>
+  <a href="#part2">Part 2 · 各通路</a>
+  <a href="#grpC" class="nav-sub">C · Amazon</a>
+  <a href="#grpB" class="nav-sub">B · 樂天</a>
+  <a href="#grpA" class="nav-sub">A · 官網</a>
   <a href="#recap">Part 3 · Recap &amp; Action Plan</a>
 </div></nav>
 <div class="wrap">
@@ -545,6 +549,7 @@
     <div class="table-scroll"><table class="std" id="tblC"></table></div>
     <div class="hint" id="hintC"></div>
     
+    
     <div class="sub-h">建議排除清單（非品牌，累計花費 > ¥5,000 且 0 單，或 > ¥10,000 且 ≤ 1 單）</div>
     <div class="table-scroll"><table class="std" id="tblAmzEx"></table></div>
     <div class="hint">「已執行」= 已加到 Amazon - AUTO Campaign 廣告活動層級的負面關鍵字（排除確切文字）／負面產品（紀錄在 scripts/amazon_excluded.json）。排除後，花費仍可能因報表延遲在下週出現少量。</div>
@@ -559,6 +564,7 @@
     <div class="table-scroll"><table class="std" id="tblB"></table></div>
     <div class="hint" id="hintB"></div>
     
+    
     <div class="ins-block" data-ins-block="groupB"><div class="ins-block-head"><h3>核心洞察 / 執行建議</h3><span class="ins-tag">(B) 樂天</span></div><div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span></div><div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="groupB"></table></div></div></div>
   </section>
   
@@ -569,8 +575,9 @@
     <div class="sub-h">本週成效（WoW）</div>
     <div class="table-scroll"><table class="std" id="tblA"></table></div>
     <div class="hint" id="hintA"></div>
+    <div class="ins-block" data-ins-block="groupA"><div class="ins-block-head"><h3>核心洞察 / 執行建議</h3><span class="ins-tag">(A) 官網</span></div><div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span></div><div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="groupA"></table></div></div></div>
     
-    <div class="sub-h">Meta 素材表現（本週）<span class="cr-cnt" id="crAvgNote"></span></div>
+    <div class="sub-h">附錄：Meta 素材表現（本週）<span class="cr-cnt" id="crAvgNote"></span></div>
     <div class="tf-box" id="crTagFilter"></div>
     <div class="sub-h" style="margin-top:12px">ROAS 高於平均<span class="cr-cnt" id="cntHi"></span></div>
     <div class="table-scroll"><table class="std" id="tblCrHi"></table></div>
@@ -579,7 +586,7 @@
     <div class="sub-h">樣本不足（本週花費 &lt; ¥5,000）<span class="cr-cnt" id="cntSm"></span></div>
     <div class="table-scroll"><table class="std" id="tblCrSm"></table></div>
     <div class="hint">平均 = 本週 Meta 帳戶媒體 ROAS（不含 KOL 授權金）。ROAS 下方小字為含本週授權金攤提的 ROAS（僅有授權金的 KOL 素材）。每個數值下方為 WoW（以同一 Row 上週全部 Meta 媒體成效為基準；小計列的上週只加總本週也有花費的素材）。</div>
-    <div class="ins-block" data-ins-block="groupA"><div class="ins-block-head"><h3>核心洞察 / 執行建議</h3><span class="ins-tag">(A) 官網</span></div><div class="ins-bar"><button class="ins-btn primary ins-edit" style="display:none">✎ 編輯</button><span class="ins-status"></span><span style="flex:1"></span></div><div class="card" style="padding:0;overflow:hidden;"><div class="table-scroll" style="border:none;border-radius:0;"><table class="ins-table" data-ins-table="groupA"></table></div></div></div>
+    
   </section>
   <div class="part-head" id="part3"><h2>Part 3 · Recap &amp; Action Plan</h2><span>本週總結與下週行動</span></div>
   <section id="recap" data-ins-v="2">
@@ -709,13 +716,18 @@ function cells(c,p,opt={}){return COLS.map(([k,_,f,mode])=>{const plat=['prev','
 const HEAD='<thead><tr><th>通路</th>'+COLS.map(c=>`<th>${c[1]}</th>`).join('')+'</tr></thead>';
 function chRow(G,name,cls,id,parent){const c=met(G.src[CUR].channels[name]),p=met(G.src[PRV].channels[name]);
   return `<tr class="${cls}" data-parent="${parent||''}" ${parent?'hidden':''}><td>${id?`<span class="cat-chevron">›</span> `:''}${name}</td>${cells(c,p,{noPlat:true})}</tr>`}
-function aOpts(i){const g=gWeek(GROUPS.A,i);return {licPlat:div(R.A[i].platform.sales,g.cost+LIC),licAd:div(g.rev,g.cost+LIC)}}
-function groupRows(k,expand){const G=GROUPS[k],c=gMet(G,CUR),p=gMet(G,PRV);
-  const opt=k==='A'?aOpts(CUR):k==='C'&&R.amzNote?{cvrNote:'11/5–11/10'}:{};
+function aOpts(i,G){G=G||GROUPS.A;if(!G.ch.some(c=>c[0]==='Meta'))return {};const g=gWeek(G,i);return {licPlat:div(R.A[i].platform.sales,g.cost+LIC),licAd:div(g.rev,g.cost+LIC)}}
+function groupRows(k,Gx){const G=Gx||GROUPS[k],c=gMet(G,CUR),p=gMet(G,PRV);
+  const opt=k==='A'?aOpts(CUR,G):k==='C'&&R.amzNote?{cvrNote:'11/5–11/10'}:{};
   let s=`<tr class="grp cat-row" data-g="${k}"><td><span class="cat-chevron">›</span> ${G.name} <span class="sub" style="display:inline">｜${G.plat}</span></td>${cells(c,p,opt)}</tr>`;
-  G.ch.forEach(([n])=>{if(k==='A'&&n.startsWith('Google'))return;s+=chRow(G,n,'lvl1','',k)});
-  if(k==='A'){const gg=i=>sum([R.A[i].channels['Google 品牌'],R.A[i].channels['Google 非品牌']]);
-    s=s.replace(/(<tr class="lvl1" data-parent="A" hidden><td>ChatGPT)/,`<tr class="lvl1 cat-row" data-parent="A" data-g="G" hidden><td><span class="cat-chevron">›</span> Google</td>${cells(met(gg(CUR)),met(gg(PRV)),{noPlat:true})}</tr>`+chRow(G,'Google 品牌','lvl2','',  'G')+chRow(G,'Google 非品牌','lvl2','','G')+'$1')}
+  const names=G.ch.map(x=>x[0]);
+  if(k==='A'){
+    if(names.includes('Meta'))s+=chRow(G,'Meta','lvl1','',k);
+    const gs=names.filter(n=>n.startsWith('Google'));
+    if(gs.length){const gg=i=>sum(gs.map(n=>R.A[i].channels[n]));
+      s+=`<tr class="lvl1 cat-row" data-parent="A" data-g="G" hidden><td><span class="cat-chevron">›</span> Google</td>${cells(met(gg(CUR)),met(gg(PRV)),{noPlat:true})}</tr>`+gs.map(n=>chRow(G,n,'lvl2','','G')).join('')}
+    if(names.includes('ChatGPT'))s+=chRow(G,'ChatGPT','lvl1','',k);
+  }else names.forEach(n=>{s+=chRow(G,n,'lvl1','',k)});
   if(k==='C'){const rx='<tr class="lvl1" data-parent="C" hidden><td>Amazon AD</td>';if(s.includes(rx)){
     s=s.replace(rx,'<tr class="lvl1 cat-row" data-parent="C" data-g="AMZ" hidden><td><span class="cat-chevron">›</span> Amazon AD</td>');
     s+=['品牌','非品牌'].map(n=>`<tr class="lvl2" data-parent="AMZ" hidden><td>Amazon AD ${n}</td>${cells(met(R.amzSide[n][CUR]),met(R.amzSide[n][PRV]),{noPlat:true})}</tr>`).join('')}}
@@ -732,10 +744,17 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
 
 /* ---------- group sections ---------- */
 ['C','B','A'].forEach(k=>{
-  const G=GROUPS[k],FG=R.G[k],el=document.getElementById('charts'+k);
-  const MF=FG.map(w=>{const m=met(sum(G.ch.map(c=>w.channels[c[0]])),w.platform);if(!m.cost)m.rev=null;if(!w.platform.sales&&!w.platform.sessions){m.prev=null;m.pcvr=null}return m});
+  const G0=GROUPS[k],FG=R.G[k],el=document.getElementById('charts'+k);
+  const CSEL=new Set(G0.ch.map(c=>c[0]));let G=G0,MF=null;
+  const calcMF=()=>{G={...G0,ch:G0.ch.filter(c=>CSEL.has(c[0]))};MF=FG.map(w=>{const m=met(sum(G.ch.map(c=>w.channels[c[0]])),w.platform);if(!m.cost)m.rev=null;if(!w.platform.sales&&!w.platform.sessions){m.prev=null;m.pcvr=null}return m})};calcMF();
   const boxes=[...Array(k==='A'?7:6)].map(()=>{const d=document.createElement('div');d.className='mini';el.appendChild(d);return d});
-  rangeBox(document.getElementById('rg'+k),(lo,hi)=>{
+  const extra=k==='A'?`<span class="rg-sep"></span><span class="rg-gl">廣告渠道</span>`+G0.ch.map(([n,c])=>`<label class="rg-grp on"><input type="checkbox" data-c="${n}" checked><i style="background:${c}"></i>${n}</label>`).join(''):'';
+  const t=document.getElementById('tbl'+k);
+  const drawTable=()=>{const open=[...t.querySelectorAll('tr.cat-row.expanded')].map(r=>r.dataset.g);const first=!t.tBodies.length;
+    t.innerHTML=HEAD+'<tbody>'+groupRows(k,G)+'</tbody>';bindExpand(t);
+    (first?[k,'G','AMZ']:open).forEach(g=>{const r=t.querySelector(`tr.cat-row[data-g="${g}"]`);if(r&&!r.hidden)r.click()});
+    if(!first)sortable(t)};
+  const RB=rangeBox(document.getElementById('rg'+k),(lo,hi)=>{
     const M=MF.slice(lo,hi+1),W=FG.slice(lo,hi+1),L=WK.slice(lo,hi+1).map(wkLabel),D=denseOpts(M.length),dense=M.length>16;
     chart(boxes[0],{title:'Cost 廣告花費',labels:L,...D,bars:G.ch.map(([n,c])=>({name:n,color:c,values:W.map(w=>w.channels[n].cost)})),fmtL:manAxis,tipL:fYen,barTotal:dense?null:(v=>(v/1e4).toFixed(1))});
     chart(boxes[1],{title:'廣告營收 ＋ 平台營收（萬円）',labels:L,...D,fmtL:manAxis,lines:[{name:'廣告營收',color:G.color,values:M.map(m=>m.rev),fmt:v=>(v/1e4).toFixed(0),tip:fYen},{name:'平台營收',color:'#3d3220',dash:true,values:M.map(m=>m.prev),fmt:v=>(v/1e4).toFixed(0),tip:fYen}]});
@@ -748,9 +767,11 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
         {name:'加入購物車率（加購工作階段 ÷ 工作階段）',color:'#3d6fb6',right:true,values:P.map(p=>p.sessions&&p.cart!=null?p.cart/p.sessions*100:null),fmt:v=>v.toFixed(2),tip:fPct},
         {name:'加購→結帳完成率（完成結帳 ÷ 加購工作階段）',color:'#c9473f',values:P.map(p=>p.cart?p.comp/p.cart*100:null),fmt:v=>v.toFixed(1),tip:fPct}]});
       boxes[6].classList.add('mini-wide')}
-  });
-  const t=document.getElementById('tbl'+k);t.innerHTML=HEAD+'<tbody>'+groupRows(k)+'</tbody>';bindExpand(t);t.querySelector('tr.cat-row').click();
-  t.querySelectorAll('tr.cat-row').forEach(r=>{if(r.dataset.g==='G'||r.dataset.g==='AMZ')r.click()});
+  },extra);
+  drawTable();
+  if(k==='A')document.getElementById('rgA').querySelectorAll('input[data-c]').forEach(cb=>cb.onchange=()=>{
+    if(!cb.checked&&CSEL.size===1){cb.checked=true;return}
+    cb.checked?CSEL.add(cb.dataset.c):CSEL.delete(cb.dataset.c);cb.parentNode.classList.toggle('on',cb.checked);calcMF();RB.redraw();drawTable()});
   const hints={A:`平台 = Shopify 總銷售額、CVR = 訂單數 ÷ 工作階段。花費不含 KOL 授權金（本週 ¥${fInt(LIC)}），含授權金 ROAS 以小字顯示。ChatGPT 廣告 11/8 開始投放（30 天點擊＋1 天瀏覽歸因，花費約延遲 7–8 小時）。Google 轉換以轉換日計，之後幾天仍會回補。`,
     B:'平台 = R-Karte 売上／アクセス人数，平台 CVR = R-Karte 転換率（訂單數 = アクセス人数 × 転換率）。RPP 採 720 小時歸因；TDA 照報表（曝光為可視曝光）。RPP 曝光由點擊 ÷ CTR 推算。本週 RPP 未投放，TDA 11/6 起投放。',
     C:'平台 = Seller Central 已訂購商品銷售額，CVR = 訂單商品數 ÷ 工作階段。Amazon AD 可展開為品牌（品牌字 hulken／ハルケン…＋自家 ASIN）／非品牌。廣告 = SP 搜尋字詞報表（主控台匯出上限 300 列）。'+(R.amzNote?R.amzNote+'；11/11 營收取自銷售儀表板「昨天」全天。':'')};

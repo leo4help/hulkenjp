@@ -115,13 +115,18 @@ function cells(c,p,opt={}){return COLS.map(([k,_,f,mode])=>{const plat=['prev','
 const HEAD='<thead><tr><th>通路</th>'+COLS.map(c=>`<th>${c[1]}</th>`).join('')+'</tr></thead>';
 function chRow(G,name,cls,id,parent){const c=met(G.src[CUR].channels[name]),p=met(G.src[PRV].channels[name]);
   return `<tr class="${cls}" data-parent="${parent||''}" ${parent?'hidden':''}><td>${id?`<span class="cat-chevron">›</span> `:''}${name}</td>${cells(c,p,{noPlat:true})}</tr>`}
-function aOpts(i){const g=gWeek(GROUPS.A,i);return {licPlat:div(R.A[i].platform.sales,g.cost+LIC),licAd:div(g.rev,g.cost+LIC)}}
-function groupRows(k,expand){const G=GROUPS[k],c=gMet(G,CUR),p=gMet(G,PRV);
-  const opt=k==='A'?aOpts(CUR):k==='C'&&R.amzNote?{cvrNote:'11/5–11/10'}:{};
+function aOpts(i,G){G=G||GROUPS.A;if(!G.ch.some(c=>c[0]==='Meta'))return {};const g=gWeek(G,i);return {licPlat:div(R.A[i].platform.sales,g.cost+LIC),licAd:div(g.rev,g.cost+LIC)}}
+function groupRows(k,Gx){const G=Gx||GROUPS[k],c=gMet(G,CUR),p=gMet(G,PRV);
+  const opt=k==='A'?aOpts(CUR,G):k==='C'&&R.amzNote?{cvrNote:'11/5–11/10'}:{};
   let s=`<tr class="grp cat-row" data-g="${k}"><td><span class="cat-chevron">›</span> ${G.name} <span class="sub" style="display:inline">｜${G.plat}</span></td>${cells(c,p,opt)}</tr>`;
-  G.ch.forEach(([n])=>{if(k==='A'&&n.startsWith('Google'))return;s+=chRow(G,n,'lvl1','',k)});
-  if(k==='A'){const gg=i=>sum([R.A[i].channels['Google 品牌'],R.A[i].channels['Google 非品牌']]);
-    s=s.replace(/(<tr class="lvl1" data-parent="A" hidden><td>ChatGPT)/,`<tr class="lvl1 cat-row" data-parent="A" data-g="G" hidden><td><span class="cat-chevron">›</span> Google</td>${cells(met(gg(CUR)),met(gg(PRV)),{noPlat:true})}</tr>`+chRow(G,'Google 品牌','lvl2','',  'G')+chRow(G,'Google 非品牌','lvl2','','G')+'$1')}
+  const names=G.ch.map(x=>x[0]);
+  if(k==='A'){
+    if(names.includes('Meta'))s+=chRow(G,'Meta','lvl1','',k);
+    const gs=names.filter(n=>n.startsWith('Google'));
+    if(gs.length){const gg=i=>sum(gs.map(n=>R.A[i].channels[n]));
+      s+=`<tr class="lvl1 cat-row" data-parent="A" data-g="G" hidden><td><span class="cat-chevron">›</span> Google</td>${cells(met(gg(CUR)),met(gg(PRV)),{noPlat:true})}</tr>`+gs.map(n=>chRow(G,n,'lvl2','','G')).join('')}
+    if(names.includes('ChatGPT'))s+=chRow(G,'ChatGPT','lvl1','',k);
+  }else names.forEach(n=>{s+=chRow(G,n,'lvl1','',k)});
   if(k==='C'){const rx='<tr class="lvl1" data-parent="C" hidden><td>Amazon AD</td>';if(s.includes(rx)){
     s=s.replace(rx,'<tr class="lvl1 cat-row" data-parent="C" data-g="AMZ" hidden><td><span class="cat-chevron">›</span> Amazon AD</td>');
     s+=['品牌','非品牌'].map(n=>`<tr class="lvl2" data-parent="AMZ" hidden><td>Amazon AD ${n}</td>${cells(met(R.amzSide[n][CUR]),met(R.amzSide[n][PRV]),{noPlat:true})}</tr>`).join('')}}
@@ -138,10 +143,17 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
 
 /* ---------- group sections ---------- */
 ['C','B','A'].forEach(k=>{
-  const G=GROUPS[k],FG=R.G[k],el=document.getElementById('charts'+k);
-  const MF=FG.map(w=>{const m=met(sum(G.ch.map(c=>w.channels[c[0]])),w.platform);if(!m.cost)m.rev=null;if(!w.platform.sales&&!w.platform.sessions){m.prev=null;m.pcvr=null}return m});
+  const G0=GROUPS[k],FG=R.G[k],el=document.getElementById('charts'+k);
+  const CSEL=new Set(G0.ch.map(c=>c[0]));let G=G0,MF=null;
+  const calcMF=()=>{G={...G0,ch:G0.ch.filter(c=>CSEL.has(c[0]))};MF=FG.map(w=>{const m=met(sum(G.ch.map(c=>w.channels[c[0]])),w.platform);if(!m.cost)m.rev=null;if(!w.platform.sales&&!w.platform.sessions){m.prev=null;m.pcvr=null}return m})};calcMF();
   const boxes=[...Array(k==='A'?7:6)].map(()=>{const d=document.createElement('div');d.className='mini';el.appendChild(d);return d});
-  rangeBox(document.getElementById('rg'+k),(lo,hi)=>{
+  const extra=k==='A'?`<span class="rg-sep"></span><span class="rg-gl">廣告渠道</span>`+G0.ch.map(([n,c])=>`<label class="rg-grp on"><input type="checkbox" data-c="${n}" checked><i style="background:${c}"></i>${n}</label>`).join(''):'';
+  const t=document.getElementById('tbl'+k);
+  const drawTable=()=>{const open=[...t.querySelectorAll('tr.cat-row.expanded')].map(r=>r.dataset.g);const first=!t.tBodies.length;
+    t.innerHTML=HEAD+'<tbody>'+groupRows(k,G)+'</tbody>';bindExpand(t);
+    (first?[k,'G','AMZ']:open).forEach(g=>{const r=t.querySelector(`tr.cat-row[data-g="${g}"]`);if(r&&!r.hidden)r.click()});
+    if(!first)sortable(t)};
+  const RB=rangeBox(document.getElementById('rg'+k),(lo,hi)=>{
     const M=MF.slice(lo,hi+1),W=FG.slice(lo,hi+1),L=WK.slice(lo,hi+1).map(wkLabel),D=denseOpts(M.length),dense=M.length>16;
     chart(boxes[0],{title:'Cost 廣告花費',labels:L,...D,bars:G.ch.map(([n,c])=>({name:n,color:c,values:W.map(w=>w.channels[n].cost)})),fmtL:manAxis,tipL:fYen,barTotal:dense?null:(v=>(v/1e4).toFixed(1))});
     chart(boxes[1],{title:'廣告營收 ＋ 平台營收（萬円）',labels:L,...D,fmtL:manAxis,lines:[{name:'廣告營收',color:G.color,values:M.map(m=>m.rev),fmt:v=>(v/1e4).toFixed(0),tip:fYen},{name:'平台營收',color:'#3d3220',dash:true,values:M.map(m=>m.prev),fmt:v=>(v/1e4).toFixed(0),tip:fYen}]});
@@ -154,9 +166,11 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
         {name:'加入購物車率（加購工作階段 ÷ 工作階段）',color:'#3d6fb6',right:true,values:P.map(p=>p.sessions&&p.cart!=null?p.cart/p.sessions*100:null),fmt:v=>v.toFixed(2),tip:fPct},
         {name:'加購→結帳完成率（完成結帳 ÷ 加購工作階段）',color:'#c9473f',values:P.map(p=>p.cart?p.comp/p.cart*100:null),fmt:v=>v.toFixed(1),tip:fPct}]});
       boxes[6].classList.add('mini-wide')}
-  });
-  const t=document.getElementById('tbl'+k);t.innerHTML=HEAD+'<tbody>'+groupRows(k)+'</tbody>';bindExpand(t);t.querySelector('tr.cat-row').click();
-  t.querySelectorAll('tr.cat-row').forEach(r=>{if(r.dataset.g==='G'||r.dataset.g==='AMZ')r.click()});
+  },extra);
+  drawTable();
+  if(k==='A')document.getElementById('rgA').querySelectorAll('input[data-c]').forEach(cb=>cb.onchange=()=>{
+    if(!cb.checked&&CSEL.size===1){cb.checked=true;return}
+    cb.checked?CSEL.add(cb.dataset.c):CSEL.delete(cb.dataset.c);cb.parentNode.classList.toggle('on',cb.checked);calcMF();RB.redraw();drawTable()});
   const hints={A:`平台 = Shopify 總銷售額、CVR = 訂單數 ÷ 工作階段。花費不含 KOL 授權金（本週 ¥${fInt(LIC)}），含授權金 ROAS 以小字顯示。ChatGPT 廣告 11/8 開始投放（30 天點擊＋1 天瀏覽歸因，花費約延遲 7–8 小時）。Google 轉換以轉換日計，之後幾天仍會回補。`,
     B:'平台 = R-Karte 売上／アクセス人数，平台 CVR = R-Karte 転換率（訂單數 = アクセス人数 × 転換率）。RPP 採 720 小時歸因；TDA 照報表（曝光為可視曝光）。RPP 曝光由點擊 ÷ CTR 推算。本週 RPP 未投放，TDA 11/6 起投放。',
     C:'平台 = Seller Central 已訂購商品銷售額，CVR = 訂單商品數 ÷ 工作階段。Amazon AD 可展開為品牌（品牌字 hulken／ハルケン…＋自家 ASIN）／非品牌。廣告 = SP 搜尋字詞報表（主控台匯出上限 300 列）。'+(R.amzNote?R.amzNote+'；11/11 營收取自銷售儀表板「昨天」全天。':'')};
