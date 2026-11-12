@@ -203,7 +203,7 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
 
 /* ---------- 表格點擊排序（預設：廣告 ROAS 大到小；子列在各自上層內排序；合計列固定在最下） ---------- */
 const SORT_STATE={};
-function cellVal(td,isText){if(!td)return null;const n=td.childNodes[0];const t=(isText||!n?td.textContent:n.textContent).trim();
+function cellVal(td,isText){if(!td)return null;if(td.dataset.v!=null&&td.dataset.v!==''){const v=parseFloat(td.dataset.v);return isNaN(v)?null:v}const n=td.childNodes[0];const t=(isText||!n?td.textContent:n.textContent).trim();
   if(isText)return t;const v=parseFloat(t.replace(/[¥,%]/g,''));return isNaN(v)?null:v}
 function sortable(t){if(!t||!t.tHead)return;const ths=[...t.tHead.rows[0].cells];
   let st=SORT_STATE[t.id];if(!st){let c=ths.findIndex(th=>th.dataset.lab==='廣告 ROAS'||th.textContent.trim()==='廣告 ROAS');if(c<0)c=ths.findIndex(th=>th.textContent.trim()==='ROAS');if(c<0)c=ths.findIndex(th=>/花費/.test(th.textContent));st=SORT_STATE[t.id]={col:c<0?1:c,dir:-1}}
@@ -212,7 +212,7 @@ function sortable(t){if(!t||!t.tHead)return;const ths=[...t.tHead.rows[0].cells]
   const tb=t.tBodies[0];if(!tb)return;const rows=[...tb.rows];if(rows.length<2)return;
   const grand=rows.filter(r=>r.classList.contains('grand')),rest=rows.filter(r=>!r.classList.contains('grand'));
   const kids={},top=[];rest.forEach(r=>{const p=r.getAttribute('data-parent');if(p)(kids[p]=kids[p]||[]).push(r);else top.push(r)});
-  const cmp=(a,b)=>{const isT=st.col===0,va=cellVal(a.cells[st.col],isT),vb=cellVal(b.cells[st.col],isT);
+  const cmp=(a,b)=>{const isT=st.col===0&&!(a.cells[0]&&a.cells[0].dataset.v),va=cellVal(a.cells[st.col],isT),vb=cellVal(b.cells[st.col],isT);
     if(va==null&&vb==null)return 0;if(va==null)return 1;if(vb==null)return -1;return isT?st.dir*String(va).localeCompare(String(vb)):st.dir*(va-vb)};
   const out=[];const walk=list=>{list.sort(cmp).forEach(r=>{out.push(r);const g=r.dataset.g;if(g&&kids[g])walk(kids[g])})};walk(top);
   [...out,...grand].forEach(r=>tb.appendChild(r))}
@@ -229,7 +229,7 @@ function crCells(m,p,opt={}){const D=(k,inv)=>p?dl(m[k],p[k],'pct',inv):(k==='co
   return `<td>${fYen(m.cost)}${D('cost')}</td><td>${fYen(m.rev)}${D('rev')}</td><td>${opt.bold?'<b>':''}${f2(m.roas)}${opt.bold?'</b>':''}${opt.lic||''}${D('roas')}</td>
   <td>${fInt(m.pur)}${D('pur')}</td><td>${fYen(m.cpa)}${D('cpa',true)}</td><td>${fPct(m.ctr)}${D('ctr')}</td><td>${fPct(m.cvr)}${D('cvr')}</td><td>${fYen(m.cpm)}${D('cpm',true)}</td>`}
 function crRow(c){const m=crMet(c);
-  return `<tr><td><div style="display:flex;align-items:center;gap:8px">${thumb(c.row)}<span>${c.nameRow}</span></div></td><td>${c.tag?`<span class="tag-pill">${c.tag}</span>`:'<span class="na">NULL</span>'}</td>`+
+  return `<tr><td data-v="${c.row}"><div style="display:flex;align-items:center;gap:8px">${thumb(c.row)}<span>${c.nameRow}</span></div></td><td>${c.tag?`<span class="tag-pill">${c.tag}</span>`:'<span class="na">NULL</span>'}</td>`+
     crCells(m,crPrev(c),{bold:true,lic:c.lic?`<span class="lic-s">含授權金 ${f2(div(c.rev,c.cost+c.lic))}（¥${fInt(c.lic)}）</span>`:''})+'</tr>'}
 function crTotal(rs){const z=()=>({cost:0,rev:0,pur:0,imp:0,clicks:0});const x=z(),y=z();let lic=0;
   rs.forEach(c=>{x.cost+=c.cost;x.rev+=c.rev;x.pur+=c.pur;x.imp+=c.imp;x.clicks+=c.clicks;lic+=c.lic||0;if(c.prev_cost){y.cost+=c.prev_cost;y.rev+=c.prev_rev;y.pur+=c.prev_pur;y.imp+=c.prev_imp;y.clicks+=c.prev_clicks}});
