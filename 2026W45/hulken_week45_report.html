@@ -834,11 +834,9 @@ function renderCr(){const rs=R.creatives.filter(c=>TSEL.has(tagOf(c)));
   [['tblCrHi',hi,'cntHi'],['tblCrLo',lo,'cntLo'],['tblCrSm',sm,'cntSm']].forEach(([id,arr,cid])=>{arr.sort((a,b)=>b.cost-a.cost);
     document.getElementById(id).innerHTML=CRH+'<tbody>'+(arr.length?arr.map(crRow).join('')+crTotal(arr):'<tr><td colspan="10" class="na">無</td></tr>')+'</tbody>';
     document.getElementById(cid).textContent=`${arr.length} 支`;sortable(document.getElementById(id))})}
-function drawTF(){const box=document.getElementById('crTagFilter'),all=TSEL.size===TAGS.length;
-  box.innerHTML='<span class="tf-label">原廠標記</span>'+TAGS.map(t=>`<label class="${TSEL.has(t)?'on':''}"><input type="checkbox" data-t="${t}" ${TSEL.has(t)?'checked':''}>${t}</label>`).join('')+`<button type="button">${all?'全部取消':'全選'}</button>`;
-  box.querySelectorAll('input').forEach(cb=>cb.onchange=()=>{cb.checked?TSEL.add(cb.dataset.t):TSEL.delete(cb.dataset.t);drawTF();renderCr()});
-  box.querySelector('button').onclick=()=>{if(all)TSEL.clear();else TAGS.forEach(t=>TSEL.add(t));drawTF();renderCr()}}
-document.getElementById('crAvgNote').textContent=`平均 ROAS ${f2(R.avgRoas)}（本週 Meta 帳戶，不含授權金）`;
+function drawTF(){const box=document.getElementById('crTagFilter');
+  box.innerHTML='<span class="rg-gl">原廠標記</span><button type="button" class="rg-all">全選</button>'+TAGS.map(t=>`<button type="button" class="rg-grp" data-k="${t}">${t}</button>`).join('');
+  chipFilter(box,TAGS,TSEL,renderCr)}
 drawTF();renderCr();
 ['ovTable','tblC','tblB','tblA','tblAmzEx'].forEach(id=>sortable(document.getElementById(id)));
 
