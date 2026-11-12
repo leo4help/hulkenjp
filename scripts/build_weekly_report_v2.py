@@ -159,6 +159,10 @@ CSS2 = r"""
   .seg-b{font:inherit;font-size:12px;border:0;background:none;padding:4px 12px;cursor:pointer;color:var(--ink-soft);}
   .seg-b+.seg-b{border-left:1px solid var(--line);}
   .seg-b.on{background:var(--tan-soft);color:var(--brand-deep);font-weight:800;}
+  .vm-btn{border:1px solid var(--brand-gold);background:#fff;color:var(--brand-deep);border-radius:8px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;}
+  .vm-btn:hover{background:var(--tan-soft);}
+  .vm-banner{font-size:12.5px;font-weight:800;color:#1d4ed8;background:#e8efff;border:1px solid #9db8f5;border-radius:999px;padding:5px 12px;}
+  html.viewer-mode .week-menu a.arch:not(.current){display:none;}
   .pub-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-left:auto;margin-right:12px;}
   .pub-badge{font-size:12.5px;font-weight:800;color:#a3561c;background:#fff4e2;border:1px solid #e8c48a;border-radius:999px;padding:5px 12px;}
   .pub-badge.on{color:var(--good);background:#eaf6ef;border-color:#a9d8bd;}
@@ -270,6 +274,8 @@ html = f'''<!DOCTYPE html>
 <div id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" alt=""></div>
 <script>
 const THIS_REPORT_FILE = '{folder}/hulken_week{wnum}_report.html';
+window.VIEWER_MODE=(()=>{{try{{return sessionStorage.getItem('hulkenViewerMode')==='1'}}catch(e){{return false}}}})();
+if(window.VIEWER_MODE)document.documentElement.classList.add('viewer-mode');
 const R = {json.dumps(data, ensure_ascii=False)};
 '''
 html += open(os.path.join(ROOT, 'scripts', 'report_v2.js'), encoding='utf-8').read()
@@ -281,6 +287,11 @@ assert 'hideEmpty()' in js
 js = js.replace("document.body.classList.toggle('ins-editing',editing);", "document.querySelectorAll('.ins-reset').forEach(b=>b.style.display=(apiOK&&canEdit&&editing)?'':'none');document.body.classList.toggle('ins-editing',editing);", 1)
 js = js.replace("  render();\n  if(location.protocol", "  document.querySelectorAll('.ins-reset').forEach(b=>b.onclick=()=>{const k=b.dataset.k,def=norm(INSIGHTS_BUILTIN).blocks[k];if(!confirm('把這個區塊換回建置時的預設內容？目前這個區塊的線上內容會被覆蓋（其他區塊不受影響）。'))return;ed().blocks[k]=JSON.parse(JSON.stringify(def));queue();render()});\n  render();\n  if(location.protocol", 1)
 assert "ins-reset').forEach(b=>b.onclick" in js and "ins-reset').forEach(b=>b.style" in js
+js = js.replace("(apiOK&&canEdit)", "(apiOK&&canEdit&&!window.VIEWER_MODE)")
+js = js.replace("(apiOK&&canEdit&&editing)", "(apiOK&&canEdit&&editing&&!window.VIEWER_MODE)")
+js = js.replace("show=canEdit||editing", "show=(canEdit&&!window.VIEWER_MODE)||editing")
+js = js.replace("  render();\n  if(location.protocol", "  addEventListener('viewermode',()=>{if(editing){editing=false;work=null;state=''}render()});\n  render();\n  if(location.protocol", 1)
+assert "addEventListener('viewermode'" in js and "show=(canEdit&&!window.VIEWER_MODE)" in js
 js = js.replace("const INSIGHT_WEEK = '';", f"const INSIGHT_WEEK = '{wstart.isoformat()}';")
 builtin = json.load(open(os.path.join(ROOT, 'insights.json'), encoding='utf-8')).get(wstart.isoformat(), {})
 js = js.replace("const INSIGHTS_BUILTIN = {};", "const INSIGHTS_BUILTIN = " + json.dumps(builtin, ensure_ascii=False) + ";")

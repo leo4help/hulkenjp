@@ -3,7 +3,7 @@
   addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;g.style.opacity='1';if(!raf)raf=requestAnimationFrame(()=>{g.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;raf=null})},{passive:true});
   document.addEventListener('mouseleave',()=>g.style.opacity='0')})();
 (function(){const p=document.getElementById('weekPicker'),t=document.getElementById('weekPickerToggle'),m=document.getElementById('weekMenu');if(!p)return;
-  fetch('../weeks.json').then(r=>r.json()).then(W=>{m.innerHTML=W.map(w=>w.file===THIS_REPORT_FILE?`<a class="current">${w.label}${w.status==='archived'?'<span class="beta-badge arch">封存</span>':''}<span class="wm-date">目前檢視中</span></a>`:`<a href="../${w.file}">${w.label}${w.isBeta?'<span class="beta-badge">BETA</span>':''}${w.status==='archived'?'<span class="beta-badge arch">封存</span>':''}</a>`).join('')}).catch(()=>m.innerHTML='<a class="current">週次清單載入失敗</a>');
+  fetch('../weeks.json').then(r=>r.json()).then(W=>{m.innerHTML=W.map(w=>w.file===THIS_REPORT_FILE?`<a class="current">${w.label}${w.status==='archived'?'<span class="beta-badge arch">封存</span>':''}<span class="wm-date">目前檢視中</span></a>`:`<a href="../${w.file}" class="${w.status==='archived'?'arch':''}">${w.label}${w.isBeta?'<span class="beta-badge">BETA</span>':''}${w.status==='archived'?'<span class="beta-badge arch">封存</span>':''}</a>`).join('')}).catch(()=>m.innerHTML='<a class="current">週次清單載入失敗</a>');
   t.onclick=e=>{e.stopPropagation();p.classList.toggle('open')};document.addEventListener('click',e=>{if(!p.contains(e.target))p.classList.remove('open')})})();
 
 const fInt=n=>n==null||!isFinite(n)?'–':Math.round(n).toLocaleString('en-US');
@@ -250,11 +250,18 @@ drawTF();renderCr();
 (function(){const bar=document.getElementById('pubBar');if(!bar||!location.protocol.startsWith('http'))return;
   const folder=THIS_REPORT_FILE.split('/')[0];
   const fmt=t=>{if(!t)return '';const d=new Date(t),z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}/${z(d.getMonth()+1)}/${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`};
-  function draw(st,info){const pub=st==='published';
+  let ST='archived',INFO=null;
+  function setVM(on){window.VIEWER_MODE=on;document.documentElement.classList.toggle('viewer-mode',on);try{on?sessionStorage.setItem('hulkenViewerMode','1'):sessionStorage.removeItem('hulkenViewerMode')}catch(e){}
+    dispatchEvent(new Event('viewermode'));draw(ST,INFO)}
+  function draw(st,info){ST=st;INFO=info;const pub=st==='published';
+    if(window.VIEWER_MODE){bar.innerHTML=`<span class="vm-banner">👁 檢視者模式：目前看到的是檢視者畫面${pub?'':'（本週尚未發佈，實際檢視者看不到）'}</span><button class="vm-btn" id="vmBtn">退出檢視者模式</button>`;bar.hidden=false;
+      document.getElementById('vmBtn').onclick=()=>setVM(false);return}
     bar.innerHTML=`<span class="pub-badge ${pub?'on':''}">${pub?'● 已發佈：檢視者可見':'● 封存中：只有編輯者看得到'}</span>`+
       (info&&info.by?`<span class="pub-meta">${pub?'發佈':'封存'}：${info.by} · ${fmt(info.at)}</span>`:'')+
+      `<button class="vm-btn" id="vmBtn" title="用檢視者的角度看這份報告（隱藏編輯按鈕與空白區塊；封存中也能預覽）">👁 檢視者模式</button>`+
       `<button class="ins-btn ${pub?'danger':'primary'}" id="pubBtn">${pub?'封存（對檢視者隱藏）':'發佈（讓檢視者可見）'}</button>`;
     bar.hidden=false;
+    document.getElementById('vmBtn').onclick=()=>setVM(true);
     document.getElementById('pubBtn').onclick=async()=>{const next=pub?'archived':'published';
       if(!confirm(pub?`封存 ${folder}？檢視者將看不到這一週的週報。`:`發佈 ${folder}？所有檢視者都能看到這一週的週報。`))return;
       try{const r=await fetch('/api/publish',{method:'PUT',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({folder,status:next})});
