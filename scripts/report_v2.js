@@ -114,11 +114,12 @@ const denseOpts=n=>({labelAll:n<=16,labelLast:n<=16,xEvery:n>26?4:(n>16?2:0)});
 })();
 
 /* ---------- standard table ---------- */
-const COLS=[['cost','廣告花費',fYen,'pct'],['rev','廣告營收',fYen,'pct'],['prev','平台營收',fYen,'pct'],['roas','廣告 ROAS',f2,'pct'],['proas','平台 ROAS',f2,'pct'],['cpm','CPM',fYen,'pct'],['ctr','CTR',fPct,'pct'],['cvr','廣告 CVR',fPct,'pct'],['pcvr','平台 CVR',fPct,'pct']];
+let SHARE={cur:0,prv:0};  // 花費佔比的分母：Overview＝三通路合計；各組表＝該組（依渠道篩選）合計
+const COLS=[['cost','廣告花費',fYen,'pct'],['share','花費佔比',fPct,'pct'],['rev','廣告營收',fYen,'pct'],['prev','平台營收',fYen,'pct'],['roas','廣告 ROAS',f2,'pct'],['proas','平台 ROAS',f2,'pct'],['cpm','CPM',fYen,'pct'],['ctr','CTR',fPct,'pct'],['cvr','廣告 CVR',fPct,'pct'],['pcvr','平台 CVR',fPct,'pct']];
 function dl(a,b,mode,inverse){if(a==null||b==null||(mode==='pct'&&!b))return '<span class="dl flat">–</span>';
   const d=mode==='pct'?(a/b-1)*100:a-b,cls=Math.abs(d)<0.05?'flat':((d>0)!==!!inverse?'up':'down');
   return `<span class="dl ${cls}">${d>0?'▲':d<0?'▼':''}${Math.abs(d).toFixed(mode==='pct'?1:2)}${mode==='pct'?'%':'pt'}</span>`}
-function cells(c,p,opt={}){return COLS.map(([k,_,f,mode])=>{const plat=['prev','proas','pcvr'].includes(k);
+function cells(c,p,opt={}){c={...c,share:SHARE.cur?c.cost/SHARE.cur*100:null};if(p)p={...p,share:SHARE.prv?p.cost/SHARE.prv*100:null};return COLS.map(([k,_,f,mode])=>{const plat=['prev','proas','pcvr'].includes(k);
   if(plat&&opt.noPlat)return '<td class="na">—</td>';
   let extra='';if(k==='proas'&&opt.licPlat)extra=`<span class="sub">含授權金 ${f2(opt.licPlat)}</span>`;if(k==='roas'&&opt.licAd)extra=`<span class="sub">含授權金 ${f2(opt.licAd)}</span>`;if(k==='pcvr'&&opt.cvrNote)extra=`<span class="sub">${opt.cvrNote}</span>`;
   return `<td>${f(c[k])}${extra}${p?dl(c[k],p[k],mode,k==='cpm'):''}</td>`}).join('')}
@@ -146,7 +147,7 @@ function groupRows(k,Gx){const G=Gx||GROUPS[k],c=gMet(G,CUR),p=gMet(G,PRV);
 function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=>{const g=r.dataset.g,open=!r.classList.contains('expanded');r.classList.toggle('expanded',open);
   const hide=id=>t.querySelectorAll(`tr[data-parent="${id}"]`).forEach(x=>{x.hidden=!open;if(!open&&x.dataset.g){x.classList.remove('expanded');hide(x.dataset.g)}});
   if(open)t.querySelectorAll(`tr[data-parent="${g}"]`).forEach(x=>x.hidden=false);else hide(g)})}
-(function(){const t=document.getElementById('ovTable');let s=HEAD+'<tbody>';['A','B','C'].forEach(k=>s+=groupRows(k));
+(function(){const t=document.getElementById('ovTable');SHARE={cur:sum(['A','B','C'].map(k=>gWeek(GROUPS[k],CUR))).cost,prv:sum(['A','B','C'].map(k=>gWeek(GROUPS[k],PRV))).cost};let s=HEAD+'<tbody>';['A','B','C'].forEach(k=>s+=groupRows(k));
   const tot=i=>{const x=sum(['A','B','C'].map(k=>gWeek(GROUPS[k],i)));const m=met(x);m.prev=['A','B','C'].reduce((a,k)=>a+GROUPS[k].src[i].platform.sales,0);m.proas=div(m.prev,x.cost);m.pcvr=null;return m};
   const tc=tot(CUR),tp=tot(PRV),tl=sum(['A','B','C'].map(k=>gWeek(GROUPS[k],CUR)));
   s+=`<tr class="grand"><td>三通路合計</td>${cells(tc,tp,{licPlat:div(tc.prev,tl.cost+LIC),licAd:div(tl.rev,tl.cost+LIC)})}</tr>`;
@@ -162,7 +163,7 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
   const extra=k==='A'?chipHtml('廣告渠道',G0.ch.map(([n,c])=>[n,n,c])):'';
   const t=document.getElementById('tbl'+k);
   const drawTable=()=>{const open=[...t.querySelectorAll('tr.cat-row.expanded')].map(r=>r.dataset.g);const first=!t.tBodies.length;
-    t.innerHTML=HEAD+'<tbody>'+groupRows(k,G)+'</tbody>';bindExpand(t);
+    SHARE={cur:gWeek(G,CUR).cost,prv:gWeek(G,PRV).cost};t.innerHTML=HEAD+'<tbody>'+groupRows(k,G)+'</tbody>';bindExpand(t);
     (first?[k,'G','AMZ']:open).forEach(g=>{const r=t.querySelector(`tr.cat-row[data-g="${g}"]`);if(r&&!r.hidden)r.click()});
     if(!first)sortable(t)};
   const RB=rangeBox(document.getElementById('rg'+k),(lo,hi)=>{
@@ -234,6 +235,7 @@ function renderCr(){const rs=R.creatives.filter(c=>TSEL.has(tagOf(c)));
 function drawTF(){const box=document.getElementById('crTagFilter');
   box.innerHTML='<span class="rg-gl">原廠標記</span><button type="button" class="rg-all">全選</button>'+TAGS.map(t=>`<button type="button" class="rg-grp" data-k="${t}">${t}</button>`).join('');
   chipFilter(box,TAGS,TSEL,renderCr)}
+document.getElementById('crAvgNote').textContent=`平均 ROAS ${f2(R.avgRoas)}（本週 Meta 帳戶，不含授權金）`;
 drawTF();renderCr();
 ['ovTable','tblC','tblB','tblA','tblAmzEx'].forEach(id=>sortable(document.getElementById(id)));
 
