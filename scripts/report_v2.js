@@ -122,6 +122,9 @@ function groupRows(k,expand){const G=GROUPS[k],c=gMet(G,CUR),p=gMet(G,PRV);
   G.ch.forEach(([n])=>{if(k==='A'&&n.startsWith('Google'))return;s+=chRow(G,n,'lvl1','',k)});
   if(k==='A'){const gg=i=>sum([R.A[i].channels['Google 品牌'],R.A[i].channels['Google 非品牌']]);
     s=s.replace(/(<tr class="lvl1" data-parent="A" hidden><td>ChatGPT)/,`<tr class="lvl1 cat-row" data-parent="A" data-g="G" hidden><td><span class="cat-chevron">›</span> Google</td>${cells(met(gg(CUR)),met(gg(PRV)),{noPlat:true})}</tr>`+chRow(G,'Google 品牌','lvl2','',  'G')+chRow(G,'Google 非品牌','lvl2','','G')+'$1')}
+  if(k==='C'){const rx='<tr class="lvl1" data-parent="C" hidden><td>Amazon AD</td>';if(s.includes(rx)){
+    s=s.replace(rx,'<tr class="lvl1 cat-row" data-parent="C" data-g="AMZ" hidden><td><span class="cat-chevron">›</span> Amazon AD</td>');
+    s+=['品牌','非品牌'].map(n=>`<tr class="lvl2" data-parent="AMZ" hidden><td>Amazon AD ${n}</td>${cells(met(R.amzSide[n][CUR]),met(R.amzSide[n][PRV]),{noPlat:true})}</tr>`).join('')}}
   return s}
 function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=>{const g=r.dataset.g,open=!r.classList.contains('expanded');r.classList.toggle('expanded',open);
   const hide=id=>t.querySelectorAll(`tr[data-parent="${id}"]`).forEach(x=>{x.hidden=!open;if(!open&&x.dataset.g){x.classList.remove('expanded');hide(x.dataset.g)}});
@@ -153,18 +156,15 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
       boxes[6].classList.add('mini-wide')}
   });
   const t=document.getElementById('tbl'+k);t.innerHTML=HEAD+'<tbody>'+groupRows(k)+'</tbody>';bindExpand(t);t.querySelector('tr.cat-row').click();
-  t.querySelectorAll('tr.cat-row').forEach(r=>{if(r.dataset.g==='G')r.click()});
+  t.querySelectorAll('tr.cat-row').forEach(r=>{if(r.dataset.g==='G'||r.dataset.g==='AMZ')r.click()});
   const hints={A:`平台 = Shopify 總銷售額、CVR = 訂單數 ÷ 工作階段。花費不含 KOL 授權金（本週 ¥${fInt(LIC)}），含授權金 ROAS 以小字顯示。ChatGPT 廣告 11/8 開始投放（30 天點擊＋1 天瀏覽歸因，花費約延遲 7–8 小時）。Google 轉換以轉換日計，之後幾天仍會回補。`,
     B:'平台 = R-Karte 売上／アクセス人数，平台 CVR = R-Karte 転換率（訂單數 = アクセス人数 × 転換率）。RPP 採 720 小時歸因；TDA 照報表（曝光為可視曝光）。RPP 曝光由點擊 ÷ CTR 推算。本週 RPP 未投放，TDA 11/6 起投放。',
-    C:'平台 = Seller Central 已訂購商品銷售額，CVR = 訂單商品數 ÷ 工作階段。廣告 = SP 搜尋字詞報表（主控台匯出上限 300 列）。'+(R.amzNote?R.amzNote+'；11/11 營收取自銷售儀表板「昨天」全天。':'')};
+    C:'平台 = Seller Central 已訂購商品銷售額，CVR = 訂單商品數 ÷ 工作階段。Amazon AD 可展開為品牌（品牌字 hulken／ハルケン…＋自家 ASIN）／非品牌。廣告 = SP 搜尋字詞報表（主控台匯出上限 300 列）。'+(R.amzNote?R.amzNote+'；11/11 營收取自銷售儀表板「昨天」全天。':'')};
   document.getElementById('hint'+k).textContent=hints[k];
 });
 
 /* ---------- Amazon brand / non-brand + exclusion ---------- */
-(function(){const t=document.getElementById('tblAmzSide');let s='<thead><tr><th>類別</th>'+COLS.filter(c=>!['prev','proas','pcvr'].includes(c[0])).map(c=>`<th>${c[1]}</th>`).join('')+'</tr></thead><tbody>';
-  ['品牌','非品牌'].forEach(side=>{const c=met(R.amzSide[side][CUR]),p=met(R.amzSide[side][PRV]);
-    s+=`<tr><td>${side}</td>`+COLS.filter(x=>!['prev','proas','pcvr'].includes(x[0])).map(([k,_,f,mode])=>`<td>${f(c[k])}${dl(c[k],p[k],mode,k==='cpm')}</td>`).join('')+'</tr>'});
-  t.innerHTML=s+'</tbody>';
+(function(){
   const e=document.getElementById('tblAmzEx');
   e.innerHTML='<thead><tr><th>搜尋字詞 / ASIN</th><th>分類</th><th>累計花費</th><th>累計訂單</th><th>出現週數</th><th>本週花費</th><th>建議</th><th>狀態</th></tr></thead><tbody>'+
     (R.amzEx.length?R.amzEx.map(x=>`<tr><td>${x.term}</td><td>${x.seg}</td><td>${fYen(x.cost)}</td><td>${x.orders}</td><td>${x.weeks}</td><td>${fYen(x.cur)}</td><td>${x.action}${x.cur>0?'（本週仍在花）':''}</td><td>${x.done?`<span class="done-pill">✓ 已執行${x.done!=='先前'?'（'+x.done.slice(5).replace('-','/')+'）':''}</span>`:'<span class="na">待執行</span>'}</td></tr>`).join(''):'<tr><td colspan="8" class="na">無</td></tr>')+'</tbody>'})();
@@ -213,7 +213,7 @@ function drawTF(){const box=document.getElementById('crTagFilter'),all=TSEL.size
   box.querySelector('button').onclick=()=>{if(all)TSEL.clear();else TAGS.forEach(t=>TSEL.add(t));drawTF();renderCr()}}
 document.getElementById('crAvgNote').textContent=`平均 ROAS ${f2(R.avgRoas)}（本週 Meta 帳戶，不含授權金）`;
 drawTF();renderCr();
-['ovTable','tblC','tblB','tblA','tblAmzSide','tblAmzEx'].forEach(id=>sortable(document.getElementById(id)));
+['ovTable','tblC','tblB','tblA','tblAmzEx'].forEach(id=>sortable(document.getElementById(id)));
 
 /* ---------- 發佈 / 封存（W45+，只有編輯者看得到按鈕；權限由 _worker.js 在伺服器端控管） ---------- */
 (function(){const bar=document.getElementById('pubBar');if(!bar||!location.protocol.startsWith('http'))return;

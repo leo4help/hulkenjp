@@ -170,9 +170,6 @@ def group_section(g, badge, title, platform, extra=''):
   </section>'''
 
 extraC = '''
-    <div class="sub-h">Amazon 品牌 / 非品牌（本週 vs 上週）</div>
-    <div class="table-scroll"><table class="std" id="tblAmzSide"></table></div>
-    <div class="hint">品牌 = 品牌字（hulken／ハルケン…）＋自家 ASIN；其餘為非品牌。資料為 SP 搜尋字詞報表（主控台匯出上限 300 列，極小字詞不在內）。</div>
     <div class="sub-h">建議排除清單（非品牌，累計花費 > ¥5,000 且 0 單，或 > ¥10,000 且 ≤ 1 單）</div>
     <div class="table-scroll"><table class="std" id="tblAmzEx"></table></div>
     <div class="hint">「已執行」= 已加到 Amazon - AUTO Campaign 廣告活動層級的負面關鍵字（排除確切文字）／負面產品（紀錄在 scripts/amazon_excluded.json）。排除後，花費仍可能因報表延遲在下週出現少量。</div>'''
@@ -252,6 +249,8 @@ html += open(os.path.join(ROOT, 'scripts', 'report_v2.js'), encoding='utf-8').re
 js = ins.JS.replace("KEYS=['overall','metaTest','metaCreative','kol','shopify']", "KEYS=['groupC','groupB','groupA','recap']")
 js = js.replace("k==='overall'", "k==='recap'").replace("blocks.overall", "blocks.recap").replace("{overall:{rows:o.rows||[],actions:o.actions||[]}}", "{recap:{rows:o.rows||[],actions:o.actions||[]}}")
 js = js.replace("k!=='overall'", "k!=='recap'").replace("全部五個", "全部")
+js = js.replace("function render(){KEYS.forEach(renderBlock);renderActions();bar()}", "function render(){KEYS.forEach(renderBlock);renderActions();bar();hideEmpty()}\n  function hideEmpty(){const d=cur().blocks,show=canEdit||editing;KEYS.forEach(k=>{const el=document.querySelector(`[data-ins-block=\"${k}\"]`);const empty=!d[k].rows.length&&!(d[k].actions||[]).length;if(el&&k!=='recap')el.style.display=(empty&&!show)?'none':''});const rc=!d.recap.rows.length&&!(d.recap.actions||[]).length&&!show;['recap','part3'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=rc?'none':''});const nl=document.querySelector('nav.secnav a[href=\"#recap\"]');if(nl)nl.style.display=rc?'none':''}")
+assert 'hideEmpty()' in js
 js = js.replace("const INSIGHT_WEEK = '';", f"const INSIGHT_WEEK = '{wstart.isoformat()}';")
 builtin = json.load(open(os.path.join(ROOT, 'insights.json'), encoding='utf-8')).get(wstart.isoformat(), {})
 js = js.replace("const INSIGHTS_BUILTIN = {};", "const INSIGHTS_BUILTIN = " + json.dumps(builtin, ensure_ascii=False) + ";")

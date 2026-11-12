@@ -545,9 +545,6 @@
     <div class="table-scroll"><table class="std" id="tblC"></table></div>
     <div class="hint" id="hintC"></div>
     
-    <div class="sub-h">Amazon 品牌 / 非品牌（本週 vs 上週）</div>
-    <div class="table-scroll"><table class="std" id="tblAmzSide"></table></div>
-    <div class="hint">品牌 = 品牌字（hulken／ハルケン…）＋自家 ASIN；其餘為非品牌。資料為 SP 搜尋字詞報表（主控台匯出上限 300 列，極小字詞不在內）。</div>
     <div class="sub-h">建議排除清單（非品牌，累計花費 > ¥5,000 且 0 單，或 > ¥10,000 且 ≤ 1 單）</div>
     <div class="table-scroll"><table class="std" id="tblAmzEx"></table></div>
     <div class="hint">「已執行」= 已加到 Amazon - AUTO Campaign 廣告活動層級的負面關鍵字（排除確切文字）／負面產品（紀錄在 scripts/amazon_excluded.json）。排除後，花費仍可能因報表延遲在下週出現少量。</div>
@@ -719,6 +716,9 @@ function groupRows(k,expand){const G=GROUPS[k],c=gMet(G,CUR),p=gMet(G,PRV);
   G.ch.forEach(([n])=>{if(k==='A'&&n.startsWith('Google'))return;s+=chRow(G,n,'lvl1','',k)});
   if(k==='A'){const gg=i=>sum([R.A[i].channels['Google 品牌'],R.A[i].channels['Google 非品牌']]);
     s=s.replace(/(<tr class="lvl1" data-parent="A" hidden><td>ChatGPT)/,`<tr class="lvl1 cat-row" data-parent="A" data-g="G" hidden><td><span class="cat-chevron">›</span> Google</td>${cells(met(gg(CUR)),met(gg(PRV)),{noPlat:true})}</tr>`+chRow(G,'Google 品牌','lvl2','',  'G')+chRow(G,'Google 非品牌','lvl2','','G')+'$1')}
+  if(k==='C'){const rx='<tr class="lvl1" data-parent="C" hidden><td>Amazon AD</td>';if(s.includes(rx)){
+    s=s.replace(rx,'<tr class="lvl1 cat-row" data-parent="C" data-g="AMZ" hidden><td><span class="cat-chevron">›</span> Amazon AD</td>');
+    s+=['品牌','非品牌'].map(n=>`<tr class="lvl2" data-parent="AMZ" hidden><td>Amazon AD ${n}</td>${cells(met(R.amzSide[n][CUR]),met(R.amzSide[n][PRV]),{noPlat:true})}</tr>`).join('')}}
   return s}
 function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=>{const g=r.dataset.g,open=!r.classList.contains('expanded');r.classList.toggle('expanded',open);
   const hide=id=>t.querySelectorAll(`tr[data-parent="${id}"]`).forEach(x=>{x.hidden=!open;if(!open&&x.dataset.g){x.classList.remove('expanded');hide(x.dataset.g)}});
@@ -750,18 +750,15 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
       boxes[6].classList.add('mini-wide')}
   });
   const t=document.getElementById('tbl'+k);t.innerHTML=HEAD+'<tbody>'+groupRows(k)+'</tbody>';bindExpand(t);t.querySelector('tr.cat-row').click();
-  t.querySelectorAll('tr.cat-row').forEach(r=>{if(r.dataset.g==='G')r.click()});
+  t.querySelectorAll('tr.cat-row').forEach(r=>{if(r.dataset.g==='G'||r.dataset.g==='AMZ')r.click()});
   const hints={A:`平台 = Shopify 總銷售額、CVR = 訂單數 ÷ 工作階段。花費不含 KOL 授權金（本週 ¥${fInt(LIC)}），含授權金 ROAS 以小字顯示。ChatGPT 廣告 11/8 開始投放（30 天點擊＋1 天瀏覽歸因，花費約延遲 7–8 小時）。Google 轉換以轉換日計，之後幾天仍會回補。`,
     B:'平台 = R-Karte 売上／アクセス人数，平台 CVR = R-Karte 転換率（訂單數 = アクセス人数 × 転換率）。RPP 採 720 小時歸因；TDA 照報表（曝光為可視曝光）。RPP 曝光由點擊 ÷ CTR 推算。本週 RPP 未投放，TDA 11/6 起投放。',
-    C:'平台 = Seller Central 已訂購商品銷售額，CVR = 訂單商品數 ÷ 工作階段。廣告 = SP 搜尋字詞報表（主控台匯出上限 300 列）。'+(R.amzNote?R.amzNote+'；11/11 營收取自銷售儀表板「昨天」全天。':'')};
+    C:'平台 = Seller Central 已訂購商品銷售額，CVR = 訂單商品數 ÷ 工作階段。Amazon AD 可展開為品牌（品牌字 hulken／ハルケン…＋自家 ASIN）／非品牌。廣告 = SP 搜尋字詞報表（主控台匯出上限 300 列）。'+(R.amzNote?R.amzNote+'；11/11 營收取自銷售儀表板「昨天」全天。':'')};
   document.getElementById('hint'+k).textContent=hints[k];
 });
 
 /* ---------- Amazon brand / non-brand + exclusion ---------- */
-(function(){const t=document.getElementById('tblAmzSide');let s='<thead><tr><th>類別</th>'+COLS.filter(c=>!['prev','proas','pcvr'].includes(c[0])).map(c=>`<th>${c[1]}</th>`).join('')+'</tr></thead><tbody>';
-  ['品牌','非品牌'].forEach(side=>{const c=met(R.amzSide[side][CUR]),p=met(R.amzSide[side][PRV]);
-    s+=`<tr><td>${side}</td>`+COLS.filter(x=>!['prev','proas','pcvr'].includes(x[0])).map(([k,_,f,mode])=>`<td>${f(c[k])}${dl(c[k],p[k],mode,k==='cpm')}</td>`).join('')+'</tr>'});
-  t.innerHTML=s+'</tbody>';
+(function(){
   const e=document.getElementById('tblAmzEx');
   e.innerHTML='<thead><tr><th>搜尋字詞 / ASIN</th><th>分類</th><th>累計花費</th><th>累計訂單</th><th>出現週數</th><th>本週花費</th><th>建議</th><th>狀態</th></tr></thead><tbody>'+
     (R.amzEx.length?R.amzEx.map(x=>`<tr><td>${x.term}</td><td>${x.seg}</td><td>${fYen(x.cost)}</td><td>${x.orders}</td><td>${x.weeks}</td><td>${fYen(x.cur)}</td><td>${x.action}${x.cur>0?'（本週仍在花）':''}</td><td>${x.done?`<span class="done-pill">✓ 已執行${x.done!=='先前'?'（'+x.done.slice(5).replace('-','/')+'）':''}</span>`:'<span class="na">待執行</span>'}</td></tr>`).join(''):'<tr><td colspan="8" class="na">無</td></tr>')+'</tbody>'})();
@@ -810,7 +807,7 @@ function drawTF(){const box=document.getElementById('crTagFilter'),all=TSEL.size
   box.querySelector('button').onclick=()=>{if(all)TSEL.clear();else TAGS.forEach(t=>TSEL.add(t));drawTF();renderCr()}}
 document.getElementById('crAvgNote').textContent=`平均 ROAS ${f2(R.avgRoas)}（本週 Meta 帳戶，不含授權金）`;
 drawTF();renderCr();
-['ovTable','tblC','tblB','tblA','tblAmzSide','tblAmzEx'].forEach(id=>sortable(document.getElementById(id)));
+['ovTable','tblC','tblB','tblA','tblAmzEx'].forEach(id=>sortable(document.getElementById(id)));
 
 /* ---------- 發佈 / 封存（W45+，只有編輯者看得到按鈕；權限由 _worker.js 在伺服器端控管） ---------- */
 (function(){const bar=document.getElementById('pubBar');if(!bar||!location.protocol.startsWith('http'))return;
@@ -831,7 +828,7 @@ drawTF();renderCr();
 
 /* ---------------- Insight & Suggestion v2 (5 blocks, editable via Cloudflare D1) ---------------- */
 const INSIGHT_WEEK = '2026-11-05';
-const INSIGHTS_BUILTIN = {};
+const INSIGHTS_BUILTIN = {"blocks": {"groupC": {"rows": [{"channel": "Amazon", "title": "成效好，但預算只花掉約 4 成", "insight": "Amazon AD 廣告 ROAS **12.49**（WoW +5.9%），平台營收 ¥284.8 萬。但本週廣告花費 ¥9.3 萬，只用到預算（每日 ¥35,000，週 ¥24.5 萬）的 **約 38%**：成效好卻花不出去，量能被卡住。", "suggestion": "本週將競價調整由 **400% 提高到 600%**，嘗試把預算花出去。下週檢查：花費達成率是否提升、加大競價後廣告 ROAS 是否仍維持高水位。"}]}, "groupB": {"rows": [{"channel": "樂天", "title": "平台業績好，但主要是馬拉松帶動，廣告未達標", "insight": "樂天平台營收 ¥211.6 萬（WoW +42.2%），主要受 11/4–11/11 お買い物マラソン影響。廣告（TDA）帶來的營收 ¥23.8 萬，**只佔平台營收約 11%**；廣告 ROAS 4.78，**未達標準**。業績成長主要來自活動流量，不是廣告。", "suggestion": "評估樂天廣告成效時以**廣告 ROAS**為準，不以平台業績判斷；檢視 TDA 的受眾、出價與素材設定，活動期外再評估是否調整或縮減。"}]}, "groupA": {"rows": [{"channel": "官網", "title": "CPM 上升＋CVR 下降，雙重壓低 ROAS", "insight": "(A) 組廣告 ROAS 2.66（WoW −14.8%），受 **CPM 上升**（¥2,701，WoW +8.4%）與 **CVR 走低**（W40 2.06% → W45 1.34%）雙重影響。拉長來看，CVR 下降的節點在「**瀏覽 → 加入購物車**」：加入購物車率由 9 月的 4.0–4.6% 降到 W41 起的 2.5–3.4%，而加購→結帳完成率反而由 32–40% 升到 37–44%。(A) 組整體 CTR 未下降（Google 點擊增加帶動；Meta 單看 CTR 由 W38 3.22% 降到 W45 2.47%，需一併留意），廣告吸引力大致仍在，**問題在進站後的促購力下降**。", "suggestion": "討論如何提升用戶「**加入購物車意願**」（例如商品頁內容、價格與優惠呈現、素材與落地頁的一致性）。若加購率回升、且「購物車後購買率」維持，整體 CVR 就會跟著上升。"}]}}};
 (function(){
   const API='/api/insights', KEYS=['groupC','groupB','groupA','recap'];
   const $i=id=>document.getElementById(id);
@@ -893,7 +890,8 @@ const INSIGHTS_BUILTIN = {};
       $i('insAddAct').onclick=()=>{ed().blocks.recap.actions.push('');queue();renderActions();const l=[...box.querySelectorAll('li input')].pop();l&&l.focus()};
     }else box.innerHTML=acts.length?`<ol class="ins-actions">${acts.map(a=>`<li>${md(a)}</li>`).join('')}</ol>`:'<div class="ins-empty">本週尚未填寫 Action Plan</div>';
   }
-  function render(){KEYS.forEach(renderBlock);renderActions();bar()}
+  function render(){KEYS.forEach(renderBlock);renderActions();bar();hideEmpty()}
+  function hideEmpty(){const d=cur().blocks,show=canEdit||editing;KEYS.forEach(k=>{const el=document.querySelector(`[data-ins-block="${k}"]`);const empty=!d[k].rows.length&&!(d[k].actions||[]).length;if(el&&k!=='recap')el.style.display=(empty&&!show)?'none':''});const rc=!d.recap.rows.length&&!(d.recap.actions||[]).length&&!show;['recap','part3'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=rc?'none':''});const nl=document.querySelector('nav.secnav a[href="#recap"]');if(nl)nl.style.display=rc?'none':''}
   document.querySelectorAll('.ins-edit').forEach(b=>b.onclick=async()=>{if(editing){if(state==='pending')await save();editing=false;if(!state.startsWith('error:')){work=null;state=''}}else editing=true;render()});
   const rv=$i('insRevertBtn');if(rv)rv.onclick=async()=>{
     if(!confirm('把本週全部 Insight & Suggestion 區塊還原成建置時的原始版本？（所有人都會看到還原後的內容）'))return;
