@@ -164,10 +164,13 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
 /* ---------- group sections ---------- */
 ['C','B','A'].forEach(k=>{
   const G0=GROUPS[k],FG=R.G[k],el=document.getElementById('charts'+k);
-  const CSEL=new Set(G0.ch.map(c=>c[0]));let G=G0,MF=null;
-  const calcMF=()=>{G={...G0,ch:G0.ch.filter(c=>CSEL.has(c[0]))};MF=FG.map(w=>{const m=met(sum(G.ch.map(c=>w.channels[c[0]])),w.platform);m.proas=met(sum(G0.ch.map(c=>w.channels[c[0]])),w.platform).proas;if(!m.cost)m.rev=null;if(!w.platform.sales&&!w.platform.sessions){m.prev=null;m.pcvr=null}return m})};calcMF();
+  const ckey=n=>n.startsWith('Google')?'Google':n;   // 篩選器只分 Meta／Google／ChatGPT（Google 品牌＋非品牌合併）
+  const CKEYS=[...new Set(G0.ch.map(c=>ckey(c[0])))];
+  const CSEL=new Set(CKEYS);let G=G0,MF=null;
+  const calcMF=()=>{G={...G0,ch:G0.ch.filter(c=>CSEL.has(ckey(c[0])))};MF=FG.map(w=>{const m=met(sum(G.ch.map(c=>w.channels[c[0]])),w.platform);m.proas=met(sum(G0.ch.map(c=>w.channels[c[0]])),w.platform).proas;if(!m.cost)m.rev=null;if(!w.platform.sales&&!w.platform.sessions){m.prev=null;m.pcvr=null}return m})};calcMF();
   const boxes=[...Array(k==='A'?7:6)].map(()=>{const d=document.createElement('div');d.className='mini';el.appendChild(d);return d});
-  const extra=k==='A'?chipHtml('廣告渠道',G0.ch.map(([n,c])=>[n,n,c])):'';
+  const CCOL={Meta:'#3d6fb6',Google:'#5aa469',ChatGPT:'#7a5fb0'};
+  const extra=k==='A'?chipHtml('廣告渠道',CKEYS.map(n=>[n,n,CCOL[n]||'#999'])):'';
   const t=document.getElementById('tbl'+k);
   const drawTable=()=>{const open=[...t.querySelectorAll('tr.cat-row.expanded')].map(r=>r.dataset.g);const first=!t.tBodies.length;
     SHARE={cur:gWeek(G,CUR).cost,prv:gWeek(G,PRV).cost};t.innerHTML=HEAD+'<tbody>'+groupRows(k,G)+'</tbody>';bindExpand(t);
@@ -181,15 +184,18 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
     chart(boxes[3],{title:'CPM（円）',labels:L,...D,fmtL:v=>fInt(v),lines:[{name:'CPM',color:G.color,values:M.map(m=>m.cpm||null),fmt:fInt,tip:fYen}]});
     chart(boxes[4],{title:'CTR（%）',labels:L,...D,fmtL:v=>v.toFixed(1),lines:[{name:'CTR',color:G.color,values:M.map(m=>m.ctr),fmt:v=>v.toFixed(2),tip:fPct}]});
     chart(boxes[5],{title:'廣告 CVR ＋ 平台 CVR（%）',labels:L,...D,fmtL:v=>v.toFixed(1),lines:[{name:'廣告 CVR',color:G.color,values:M.map(m=>m.cvr),fmt:v=>v.toFixed(2),tip:fPct},{name:'平台 CVR',color:'#3d3220',dash:true,values:M.map(m=>m.pcvr),fmt:v=>v.toFixed(2),tip:fPct}]});
-    if(k==='A'){const P=W.map(w=>w.platform);
-      chart(boxes[6],{title:'官網漏斗：加入購物車率（右軸）＋ 加購→結帳完成率（左軸）（%）',w:1100,h:300,right:true,labels:L,...D,fmtL:v=>v.toFixed(0),fmtR:v=>v.toFixed(1),lines:[
+    if(k==='A'){const allSel=CSEL.size===CKEYS.length;
+      // 全選＝全站；有篩選時＝所選渠道的導流（依 Shopify 參照來源：Meta＝instagram／facebook／threads，Google＝google／googlesyndication，ChatGPT＝chatgpt）
+      const P=allSel?W.map(w=>w.platform):W.map((w,j)=>{const i=lo+j,o={sessions:0,cart:0,comp:0};[...CSEL].forEach(kk=>{const v=(R.funnel[kk]||[])[i];if(v){o.sessions+=v[0];o.cart+=v[1];o.comp+=v[2]}});return o});
+      const ftag=allSel?'全站':[...CSEL].join('＋')+' 導流';
+      chart(boxes[6],{title:`官網漏斗（${ftag}）：加入購物車率（右軸）＋ 加購→結帳完成率（左軸）（%）`,w:1100,h:300,right:true,labels:L,...D,fmtL:v=>v.toFixed(0),fmtR:v=>v.toFixed(1),lines:[
         {name:'加入購物車率（加購工作階段 ÷ 工作階段）',color:'#3d6fb6',right:true,values:P.map(p=>p.sessions&&p.cart!=null?p.cart/p.sessions*100:null),fmt:v=>v.toFixed(2),tip:fPct},
         {name:'加購→結帳完成率（完成結帳 ÷ 加購工作階段）',color:'#c9473f',values:P.map(p=>p.cart?p.comp/p.cart*100:null),fmt:v=>v.toFixed(1),tip:fPct}]});
       boxes[6].classList.add('mini-wide')}
   },extra);
   drawTable();
-  if(k==='A')chipFilter(document.getElementById('rgA'),G0.ch.map(c=>c[0]),CSEL,()=>{calcMF();RB.redraw();drawTable()});
-  const hints={A:`平台 = Shopify 總銷售額、CVR = 訂單數 ÷ 工作階段。花費不含 KOL 授權金（本週 ¥${fInt(LIC)}），含授權金 ROAS 以小字顯示。ChatGPT 廣告 11/8 開始投放（30 天點擊＋1 天瀏覽歸因，花費約延遲 7–8 小時）。Google 轉換以轉換日計，之後幾天仍會回補。`,
+  if(k==='A')chipFilter(document.getElementById('rgA'),CKEYS,CSEL,()=>{calcMF();RB.redraw();drawTable()});
+  const hints={A:`平台 = Shopify 總銷售額、CVR = 訂單數 ÷ 工作階段。官網漏斗：廣告渠道全選時為全站；篩選後改看該渠道導流的工作階段（依 Shopify 參照來源，Meta＝instagram／facebook／threads，含自然社群流量；Google＝google／googlesyndication，含自然搜尋；ChatGPT＝chatgpt，參照常被移除，數字偏低）。花費不含 KOL 授權金（本週 ¥${fInt(LIC)}），含授權金 ROAS 以小字顯示。ChatGPT 廣告 11/8 開始投放（30 天點擊＋1 天瀏覽歸因，花費約延遲 7–8 小時）。Google 轉換以轉換日計，之後幾天仍會回補。`,
     B:'平台 = R-Karte 売上／アクセス人数，平台 CVR = R-Karte 転換率（訂單數 = アクセス人数 × 転換率）。RPP 採 720 小時歸因；TDA 照報表（曝光為可視曝光）。RPP 曝光由點擊 ÷ CTR 推算。本週 RPP 未投放，TDA 11/6 起投放。',
     C:'平台 = Seller Central 已訂購商品銷售額，CVR = 訂單商品數 ÷ 工作階段。Amazon AD 可展開為品牌（品牌字 hulken／ハルケン…＋自家 ASIN）／非品牌。廣告 = SP 搜尋字詞報表（主控台匯出上限 300 列）。'+(R.amzNote?R.amzNote+'；11/11 營收取自銷售儀表板「昨天」全天。':'')};
   document.getElementById('hint'+k).textContent=hints[k];
