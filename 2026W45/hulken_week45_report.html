@@ -732,7 +732,9 @@ function chRow(G,name,cls,id,parent){const c=met(G.src[CUR].channels[name]),p=me
   return `<tr class="${cls}" data-parent="${parent||''}" ${parent?'hidden':''}><td>${id?`<span class="cat-chevron">›</span> `:''}${name}</td>${cells(c,p,{noPlat:true})}</tr>`}
 function aOpts(i,G){G=G||GROUPS.A;if(!G.ch.some(c=>c[0]==='Meta'))return {};const g=gWeek(G,i);return {licPlat:div(R.A[i].platform.sales,g.cost+LIC),licAd:div(g.rev,g.cost+LIC)}}
 function groupRows(k,Gx){const G=Gx||GROUPS[k],c=gMet(G,CUR),p=gMet(G,PRV);
-  const opt=k==='A'?aOpts(CUR,G):k==='C'&&R.amzNote?{cvrNote:'11/5–11/10'}:{};
+  // 平台指標不受渠道篩選影響：平台 ROAS 一律用全部渠道花費
+  const F=GROUPS[k];c.proas=gMet(F,CUR).proas;p.proas=gMet(F,PRV).proas;
+  const opt=k==='A'?{...aOpts(CUR,G),licPlat:aOpts(CUR,F).licPlat}:k==='C'&&R.amzNote?{cvrNote:'11/5–11/10'}:{};
   let s=`<tr class="grp cat-row" data-g="${k}"><td><span class="cat-chevron">›</span> ${G.name} <span class="sub" style="display:inline">｜${G.plat}</span></td>${cells(c,p,opt)}</tr>`;
   const names=G.ch.map(x=>x[0]);
   if(k==='A'){
@@ -760,7 +762,7 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
 ['C','B','A'].forEach(k=>{
   const G0=GROUPS[k],FG=R.G[k],el=document.getElementById('charts'+k);
   const CSEL=new Set(G0.ch.map(c=>c[0]));let G=G0,MF=null;
-  const calcMF=()=>{G={...G0,ch:G0.ch.filter(c=>CSEL.has(c[0]))};MF=FG.map(w=>{const m=met(sum(G.ch.map(c=>w.channels[c[0]])),w.platform);if(!m.cost)m.rev=null;if(!w.platform.sales&&!w.platform.sessions){m.prev=null;m.pcvr=null}return m})};calcMF();
+  const calcMF=()=>{G={...G0,ch:G0.ch.filter(c=>CSEL.has(c[0]))};MF=FG.map(w=>{const m=met(sum(G.ch.map(c=>w.channels[c[0]])),w.platform);m.proas=met(sum(G0.ch.map(c=>w.channels[c[0]])),w.platform).proas;if(!m.cost)m.rev=null;if(!w.platform.sales&&!w.platform.sessions){m.prev=null;m.pcvr=null}return m})};calcMF();
   const boxes=[...Array(k==='A'?7:6)].map(()=>{const d=document.createElement('div');d.className='mini';el.appendChild(d);return d});
   const extra=k==='A'?chipHtml('廣告渠道',G0.ch.map(([n,c])=>[n,n,c])):'';
   const t=document.getElementById('tbl'+k);
