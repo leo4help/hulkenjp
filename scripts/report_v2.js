@@ -137,7 +137,7 @@ function aOpts(i,G){G=G||GROUPS.A;if(!G.ch.some(c=>c[0]==='Meta'))return {};cons
 function groupRows(k,Gx){const G=Gx||GROUPS[k],c=gMet(G,CUR),p=gMet(G,PRV);
   // 平台指標不受渠道篩選影響：平台 ROAS 一律用全部渠道花費
   const F=GROUPS[k];c.proas=gMet(F,CUR).proas;p.proas=gMet(F,PRV).proas;
-  const opt=k==='A'?{...aOpts(CUR,G),licPlat:aOpts(CUR,F).licPlat}:k==='C'&&R.amzNote?{cvrNote:'11/5–11/10'}:{};
+  const opt=k==='A'?{...aOpts(CUR,G),licPlat:aOpts(CUR,F).licPlat}:k==='C'&&R.amzNote?{cvrNote:(R.C[R.C.length-1].platform.cvrLabel||'')}:{};
   let s=`<tr class="grp cat-row" data-g="${k}"><td><span class="cat-chevron">›</span> ${G.name} <span class="sub" style="display:inline">｜${G.plat}</span></td>${cells(c,p,opt)}</tr>`;
   const names=G.ch.map(x=>x[0]);
   if(k==='A'){

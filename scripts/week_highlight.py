@@ -194,7 +194,9 @@ def apply(html, hl, week=''):
         html = html[:c0] + html[c1:]
     k = html.find('</style>')
     html = html[:k] + CSS + html[k:]
-    s = html.find('<section id="overview"')
+    s = html.find('<div class="part-head" id="part1"')  # v2 版面（W45 起）：放在 Part 1 標題之前
+    if s < 0:
+        s = html.find('<section id="overview"')
     if s < 0:
         raise SystemExit('week_highlight: #overview section not found')
     ls = html.rfind('\n', 0, s) + 1
@@ -203,9 +205,10 @@ def apply(html, hl, week=''):
     if JS_MARK not in html:
         j2 = html.rfind('</script>')
         html = html[:j2] + JS + html[j2:]
-    nav = '<a href="#overview">Overview 總覽</a>'
-    if nav in html:
-        html = html.replace(nav, '<a href="#highlight" data-hl-nav>本週 Highlight</a>\n    ' + nav, 1)
+    for nav in ('<a href="#overview">Overview 總覽</a>', '<a href="#overview">Part 1 · Overview</a>'):
+        if nav in html:
+            html = html.replace(nav, '<a href="#highlight" data-hl-nav>本週 Highlight</a>\n  ' + nav, 1)
+            break
     return html
 
 

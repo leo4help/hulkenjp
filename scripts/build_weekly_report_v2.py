@@ -297,6 +297,8 @@ js = js.replace("const INSIGHT_WEEK = '';", f"const INSIGHT_WEEK = '{wstart.isof
 builtin = json.load(open(os.path.join(ROOT, 'insights.json'), encoding='utf-8')).get(wstart.isoformat(), {})
 js = js.replace("const INSIGHTS_BUILTIN = {};", "const INSIGHTS_BUILTIN = " + json.dumps(builtin, ensure_ascii=False) + ";")
 html += js + '\n</script>\n</body>\n</html>\n'
+import week_highlight as wh  # 本週 Highlight（highlights.json 有登錄才出現；2026-11-19 W46 起接到 v2）
+html = wh.apply(html, wh.load(os.path.join(ROOT, 'highlights.json'), wstart.isoformat()), wstart.isoformat())
 out = os.path.join(ROOT, folder, f'hulken_week{wnum}_report.html')
 open(out, 'w', encoding='utf-8').write(html)
 print('wrote', out, len(html))
