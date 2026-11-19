@@ -37,7 +37,32 @@ def sales(d1,d2):
     for x in c.get('data',[]):
         out[x['date']]=out.get(x['date'],0.0)+float(x.get('order_created_attributed_sales') or 0)
     return out
+
+def ad_groups(d1,d2):
+    """廣告群組層級（W46 起週報 ChatGPT 展開用）：[{id,name,campaign,cost,imp,clicks,conv,rev}]，rev＝order_created_attributed_sales（30 天點擊＋1 天瀏覽）"""
+    tr=json.dumps({"type":"date_range","since":d1,"until":d2,"timezone":TZ})
+    p=[('time_granularity','none'),('aggregation_level','ad_group'),('limit','2000'),('time_ranges[]',tr)]
+    for f in ['ad_group.id','ad_group.name','campaign.name','ad_group.impressions','ad_group.clicks','ad_group.spend','ad_group.conversions']: p.append(('fields[]',f))
+    a=req('GET','/ad_account/insights',p)
+    if '_http' in a: return a
+    g={}
+    for x in a.get('data',[]):
+        k=x['ad_group_id']; o=g.setdefault(k,{'id':k,'name':x.get('ad_group_name'),'campaign':x.get('campaign_name'),'cost':0.0,'imp':0,'clicks':0,'conv':0,'rev':0.0})
+        o['cost']+=float(x.get('spend') or 0); o['imp']+=int(x.get('impressions') or 0); o['clicks']+=int(x.get('clicks') or 0); o['conv']+=int(x.get('conversions') or 0)
+    if g:
+        c=req('POST','/conversions/insights',body={"aggregation_level":"ad_group","time_granularity":"none","time_ranges":[tr],
+            "entity_ids":list(g),"attribution_window_days":30,"view_through_attribution_window_days":1})
+        if '_http' in c: return c
+        for x in c.get('data',[]):
+            k=x.get('ad_group_id') or x.get('entity_id')
+            if k in g: g[k]['rev']+=float(x.get('order_created_attributed_sales') or 0)
+    out=sorted(g.values(),key=lambda o:-o['cost'])
+    for o in out: o['cost']=round(o['cost']); o['rev']=round(o['rev'])
+    return out
+
 if __name__=='__main__':
+    if '--adgroups' in sys.argv:
+        print(json.dumps(ad_groups(sys.argv[1],sys.argv[2]),ensure_ascii=False)); sys.exit()
     d1,d2=sys.argv[1],sys.argv[2]; dbg='--debug' in sys.argv
     a=daily(d1,d2); c=sales(d1,d2)
     if dbg: print(json.dumps({'insights':a,'conversions':c},ensure_ascii=False)[:3000]); sys.exit()

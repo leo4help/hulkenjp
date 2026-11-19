@@ -65,9 +65,10 @@ avgRoas = metaW['rev'] / metaW['cost']
 YTD = json.load(open(os.path.join(D, 'overview_ytd.json'), encoding='utf-8'))
 GYTD = json.load(open(os.path.join(D, 'groups_ytd.json'), encoding='utf-8'))
 FUNNEL = json.load(open(os.path.join(D, 'funnel_by_source.json'), encoding='utf-8'))
+GPTAG = json.load(open(os.path.join(D, 'chatgpt_adgroups.json'), encoding='utf-8')) if os.path.exists(os.path.join(D, 'chatgpt_adgroups.json')) else None
 data = dict(weeks=weeks, labels=labels, A=A, B=BC['B'], C=BC['C'], amzSide=amzSide, amzEx=amzEx,
             creatives=CR, avgRoas=avgRoas, minSpend=5000, lic=LIC,
-            amzNote=BC['C'][-1]['platform'].get('note', ''), ytd=YTD, G=GYTD, funnel=FUNNEL)
+            amzNote=BC['C'][-1]['platform'].get('note', ''), ytd=YTD, G=GYTD, funnel=FUNNEL, gptAg=GPTAG)
 
 # ---------- template pieces from the previous report ----------
 prev = sorted(f for f in os.listdir(ROOT) if re.fullmatch(r'2026W\d\d', f) and f < folder)[-1]

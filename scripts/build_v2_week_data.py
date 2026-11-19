@@ -89,6 +89,19 @@ weekB = dict(week=W, channels=M['rakuten_ads'], platform=M['rakuten_platform'])
 weekC = dict(week=W, channels={'Amazon AD': amzAd}, platform=M['amazon_platform'])
 
 A8 = J(os.path.join(P, 'groupA_weekly.json'))[1:] + [weekA]
+# ---- ChatGPT 廣告群組（W46 起）：本週＋上週重抓，上週 ChatGPT 渠道也改用重抓值（轉換會回補），表格才能展開且加總一致 ----
+G_PREV_FIX = None
+try:
+    import openai_ads as oa
+    ps = (dt.date.fromisoformat(ws) - dt.timedelta(7)).isoformat(); pe = (dt.date.fromisoformat(ws) - dt.timedelta(1)).isoformat()
+    agc, agp = oa.ad_groups(ws, we), oa.ad_groups(ps, pe)
+    if isinstance(agc, list) and isinstance(agp, list):
+        dump('chatgpt_adgroups.json', dict(cur=agc, prv=agp))
+        tot = lambda L: dict(cost=sum(x['cost'] for x in L), imp=sum(x['imp'] for x in L), clicks=sum(x['clicks'] for x in L), conv=sum(x['conv'] for x in L), rev=sum(x['rev'] for x in L))
+        if agp:
+            G_PREV_FIX = tot(agp); A8[-2]['channels']['ChatGPT'] = G_PREV_FIX
+except Exception as e:
+    print('ChatGPT ad groups skipped:', e)
 BC = J(os.path.join(P, 'groupBC_weekly.json')); BC = dict(B=BC['B'][1:] + [weekB], C=BC['C'][1:] + [weekC])
 dump('groupA_weekly.json', A8); dump('groupBC_weekly.json', BC)
 spend = lambda ch: sum(v['cost'] for v in ch.values())
@@ -98,6 +111,12 @@ Y = [y for y in J(os.path.join(P, 'overview_ytd.json')) if y['week'] != W] + [di
 dump('overview_ytd.json', Y)
 G = J(os.path.join(P, 'groups_ytd.json'))
 gA = dict(weekA, platform=dict(weekA['platform'], cart=sh['cart'], reach=sh['reach'], comp=sh['comp']))
+if G_PREV_FIX:
+    for x in G['A']:
+        if x.get('start') == ps: x['channels']['ChatGPT'] = G_PREV_FIX
+    for y in Y:
+        if y['start'] == ps: y['spendA'] = sum(v['cost'] for v in A8[-2]['channels'].values())
+    dump('overview_ytd.json', Y)
 for k, v in (('A', gA), ('B', weekB), ('C', weekC)):
     G[k] = [x for x in G[k] if x.get('week') != W] + [v]
 dump('groups_ytd.json', G)
