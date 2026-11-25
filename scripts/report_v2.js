@@ -134,7 +134,8 @@ const HEAD='<thead><tr><th>通路</th>'+COLS.map(c=>`<th>${c[1]}</th>`).join('')
 function chRow(G,name,cls,id,parent){const c=met(G.src[CUR].channels[name]),p=met(G.src[PRV].channels[name]);
   return `<tr class="${cls}" data-parent="${parent||''}" ${parent?'hidden':''}><td>${id?`<span class="cat-chevron">›</span> `:''}${name}</td>${cells(c,p,{noPlat:true})}</tr>`}
 function aOpts(i,G){G=G||GROUPS.A;if(!G.ch.some(c=>c[0]==='Meta'))return {};const g=gWeek(G,i);return {licPlat:div(R.A[i].platform.sales,g.cost+LIC),licAd:div(g.rev,g.cost+LIC)}}
-function groupRows(k,Gx){const G=Gx||GROUPS[k],c=gMet(G,CUR),p=gMet(G,PRV);
+function groupRows(k,Gx){if(k==='B'&&R.B[CUR]&&R.B[CUR].missing){const G=GROUPS.B;return `<tr class="grp" data-g="B"><td>${G.name} <span class="sub" style="display:inline">｜${G.plat}</span></td><td colspan="${COLS.length}" class="na">本週未取得（${R.B[CUR].missing}）</td></tr>`}
+  const G=Gx||GROUPS[k],c=gMet(G,CUR),p=gMet(G,PRV);
   // 平台指標不受渠道篩選影響：平台 ROAS 一律用全部渠道花費
   const F=GROUPS[k];c.proas=gMet(F,CUR).proas;p.proas=gMet(F,PRV).proas;
   const opt=k==='A'?{...aOpts(CUR,G),licPlat:aOpts(CUR,F).licPlat}:k==='C'&&R.amzNote?{cvrNote:(R.C[R.C.length-1].platform.cvrLabel||'')}:{};
@@ -166,7 +167,7 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
   const tc=tot(CUR),tp=tot(PRV),tl=sum(['A','B','C'].map(k=>gWeek(GROUPS[k],CUR)));
   s+=`<tr class="grand"><td>三通路合計</td>${cells(tc,tp,{licPlat:div(tc.prev,tl.cost+LIC),licAd:div(tl.rev,tl.cost+LIC)})}</tr>`;
   t.innerHTML=s+'</tbody>';bindExpand(t);
-  document.getElementById('ovNote').textContent=` 本週 KOL 授權金攤提 ¥${fInt(LIC)}。合計列的平台 CVR 不計算（三平台工作階段定義不同）。`+(R.amzNote?` Amazon：${R.amzNote}。`:'')})();
+  document.getElementById('ovNote').textContent=` 本週 KOL 授權金攤提 ¥${fInt(LIC)}。合計列的平台 CVR 不計算（三平台工作階段定義不同）。`+(R.amzNote?` Amazon：${R.amzNote}。`:'')+(R.B[CUR]&&R.B[CUR].missing?` 樂天：本週未取得（${R.B[CUR].missing}），三通路合計不含樂天。`:'')})();
 
 /* ---------- group sections ---------- */
 ['C','B','A'].forEach(k=>{
@@ -204,7 +205,7 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
   if(k==='A')chipFilter(document.getElementById('rgA'),CKEYS,CSEL,()=>{calcMF();RB.redraw();drawTable()});
   const hints={A:`平台 = Shopify 總銷售額、CVR = 訂單數 ÷ 工作階段。官網漏斗：廣告渠道全選時為全站；篩選後改看該渠道導流的工作階段（依 Shopify 參照來源，Meta＝instagram／facebook／threads，含自然社群流量；Google＝google／googlesyndication，含自然搜尋；ChatGPT＝chatgpt，參照常被移除，數字偏低）。花費不含 KOL 授權金（本週 ¥${fInt(LIC)}），含授權金 ROAS 以小字顯示。ChatGPT 廣告 11/8 開始投放（30 天點擊＋1 天瀏覽歸因，花費約延遲 7–8 小時）；點 ChatGPT 可展開到廣告群組，上週數字為本週重抓（轉換會回補，可能與上週報告不同）。Google 轉換以轉換日計，之後幾天仍會回補。`,
     B:'平台 = R-Karte 売上／アクセス人数，平台 CVR = R-Karte 転換率（訂單數 = アクセス人数 × 転換率）。RPP 採 720 小時歸因；TDA 照報表（曝光為可視曝光）。RPP 曝光由點擊 ÷ CTR 推算。本週 RPP 未投放，TDA 11/6 起投放。',
-    C:'平台 = Seller Central 已訂購商品銷售額，CVR = 訂單商品數 ÷ 工作階段。Amazon AD 可展開為品牌（品牌字 hulken／ハルケン…＋自家 ASIN）／非品牌。廣告 = SP 搜尋字詞報表（主控台匯出上限 300 列）。'+(R.amzNote?R.amzNote+'；11/11 營收取自銷售儀表板「昨天」全天。':'')};
+    C:'平台 = Seller Central 已訂購商品銷售額，CVR = 訂單商品數 ÷ 工作階段。Amazon AD 可展開為品牌（品牌字 hulken／ハルケン…＋自家 ASIN）／非品牌。廣告 = SP 搜尋字詞報表（主控台匯出上限 300 列）。'+(R.amzNote?R.amzNote+'。':'')};
   document.getElementById('hint'+k).textContent=hints[k];
 });
 
@@ -234,6 +235,7 @@ function sortable(t){if(!t||!t.tHead)return;const ths=[...t.tHead.rows[0].cells]
 const AD_IMG_DIR='../AD Images/';
 function thumb(r){return `<span class="thumb-slot"><img src="${AD_IMG_DIR}${r}.jpg" class="thumb js-zoom" data-row="${r}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="thumb thumb-missing" style="display:none">缺圖<br>#${r}</div></span>`}
 document.addEventListener('click',e=>{const im=e.target.closest('.js-zoom');if(!im)return;const lb=document.getElementById('lightbox');document.getElementById('lightboxImg').src=im.src;lb.style.display='flex'});
+const campOf=c=>(c.camp&&c.camp.length)?c.camp:['一般'];const CAMPS=[...new Set(R.creatives.flatMap(campOf))].sort((a,b)=>(a==='一般')-(b==='一般')||a.localeCompare(b));const CSEL2=new Set(CAMPS);
 const tagOf=c=>c.tag||'NULL';const TAGS=[...new Set(R.creatives.map(tagOf))].sort((a,b)=>(a==='NULL')-(b==='NULL')||a.localeCompare(b));const TSEL=new Set(TAGS);
 const CRH='<thead><tr><th>Name-Row</th><th>原廠標記</th><th>花費</th><th>營收</th><th>ROAS</th><th>購買</th><th>CPA</th><th>CTR</th><th>CVR</th><th>CPM</th></tr></thead>';
 function crMet(x){return {cost:x.cost,rev:x.rev,roas:div(x.rev,x.cost),pur:x.pur,cpa:x.pur?x.cost/x.pur:null,ctr:x.imp?x.clicks/x.imp*100:null,cvr:x.clicks?x.pur/x.clicks*100:null,cpm:x.imp?x.cost/x.imp*1000:null}}
@@ -242,19 +244,22 @@ function crCells(m,p,opt={}){const D=(k,inv)=>p?dl(m[k],p[k],'pct',inv):(k==='co
   return `<td>${fYen(m.cost)}${D('cost')}</td><td>${fYen(m.rev)}${D('rev')}</td><td>${opt.bold?'<b>':''}${f2(m.roas)}${opt.bold?'</b>':''}${opt.lic||''}${D('roas')}</td>
   <td>${fInt(m.pur)}${D('pur')}</td><td>${fYen(m.cpa)}${D('cpa',true)}</td><td>${fPct(m.ctr)}${D('ctr')}</td><td>${fPct(m.cvr)}${D('cvr')}</td><td>${fYen(m.cpm)}${D('cpm',true)}</td>`}
 function crRow(c){const m=crMet(c);
-  return `<tr><td data-v="${c.row}"><div style="display:flex;align-items:center;gap:8px">${thumb(c.row)}<span>${c.nameRow}</span></div></td><td>${c.tag?`<span class="tag-pill">${c.tag}</span>`:'<span class="na">NULL</span>'}</td>`+
+  return `<tr><td data-v="${c.row}"><div style="display:flex;align-items:center;gap:8px">${thumb(c.row)}<span>${c.nameRow}</span>${(c.camp||[]).map(x=>`<span class="tag-pill" style="background:#1f2a44;color:#fff">${x}</span>`).join('')}</div></td><td>${c.tag?`<span class="tag-pill">${c.tag}</span>`:'<span class="na">NULL</span>'}</td>`+
     crCells(m,crPrev(c),{bold:true,lic:c.lic?`<span class="lic-s">含授權金 ${f2(div(c.rev,c.cost+c.lic))}（¥${fInt(c.lic)}）</span>`:''})+'</tr>'}
 function crTotal(rs){const z=()=>({cost:0,rev:0,pur:0,imp:0,clicks:0});const x=z(),y=z();let lic=0;
   rs.forEach(c=>{x.cost+=c.cost;x.rev+=c.rev;x.pur+=c.pur;x.imp+=c.imp;x.clicks+=c.clicks;lic+=c.lic||0;if(c.prev_cost){y.cost+=c.prev_cost;y.rev+=c.prev_rev;y.pur+=c.prev_pur;y.imp+=c.prev_imp;y.clicks+=c.prev_clicks}});
   return `<tr class="grand"><td>小計（${rs.length}）</td><td></td>`+crCells(crMet(x),y.cost?crMet(y):null,{lic:lic?`<span class="lic-s">含授權金 ${f2(div(x.rev,x.cost+lic))}</span>`:''})+'</tr>'}
-function renderCr(){const rs=R.creatives.filter(c=>TSEL.has(tagOf(c)));
+function renderCr(){const rs=R.creatives.filter(c=>TSEL.has(tagOf(c))&&campOf(c).some(x=>CSEL2.has(x)));
   const sm=rs.filter(c=>c.cost<R.minSpend),big=rs.filter(c=>c.cost>=R.minSpend),hi=big.filter(c=>c.rev/c.cost>=R.avgRoas),lo=big.filter(c=>c.rev/c.cost<R.avgRoas);
   [['tblCrHi',hi,'cntHi'],['tblCrLo',lo,'cntLo'],['tblCrSm',sm,'cntSm']].forEach(([id,arr,cid])=>{arr.sort((a,b)=>b.cost-a.cost);
     document.getElementById(id).innerHTML=CRH+'<tbody>'+(arr.length?arr.map(crRow).join('')+crTotal(arr):'<tr><td colspan="10" class="na">無</td></tr>')+'</tbody>';
     document.getElementById(cid).textContent=`${arr.length} 支`;sortable(document.getElementById(id))})}
 function drawTF(){const box=document.getElementById('crTagFilter');
   box.innerHTML='<span class="rg-gl">原廠標記</span><button type="button" class="rg-all">全選</button>'+TAGS.map(t=>`<button type="button" class="rg-grp" data-k="${t}">${t}</button>`).join('');
-  chipFilter(box,TAGS,TSEL,renderCr)}
+  chipFilter(box,TAGS,TSEL,renderCr);
+  if(CAMPS.length>1){let b2=document.getElementById('crCampFilter');if(!b2){b2=document.createElement('div');b2.id='crCampFilter';b2.className=box.className;b2.style.marginTop='6px';box.after(b2)}
+    b2.innerHTML='<span class="rg-gl">活動檔期</span><button type="button" class="rg-all">全選</button>'+CAMPS.map(t=>`<button type="button" class="rg-grp" data-k="${t}">${t}</button>`).join('');
+    chipFilter(b2,CAMPS,CSEL2,renderCr)}}
 document.getElementById('crAvgNote').textContent=`平均 ROAS ${f2(R.avgRoas)}（本週 Meta 帳戶，不含授權金）`;
 drawTF();renderCr();
 ['ovTable','tblC','tblB','tblA','tblAmzEx'].forEach(id=>sortable(document.getElementById(id)));

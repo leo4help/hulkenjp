@@ -59,6 +59,7 @@ LIC = dict(total=round(lic['花費金額 (JPY)'].sum()), byRow=dict(sorted(byRow
 
 # ---- 素材 ----
 alias = M.get('name_alias', {})
+CAMPAIGN_NOTES = {'Z:黑五': '黑五', '再入荷': '再入荷'}  # 行銷活動名稱關鍵字 → 素材表活動標籤；新增檔期在這裡加
 prevC = {c['row']: c for c in J(os.path.join(P, f'meta_creatives_w{int(prev[-2:])}.json'))}
 mm = meta[meta.Row.notna()].copy()
 mm['flag'] = mm.apply(lambda r: 'RT' if ('再入荷' in str(r['行銷活動名稱']) or '_D:RT' in str(r['行銷活動名稱'])) else ('T' if r.testFlag == 'TEST' else 'G'), axis=1)
@@ -75,6 +76,8 @@ for row, g in mm.groupby('Row'):
              pur=int(round(a['conv'])), rev=a['rev'], kol=bool(g['isKOL'].any()), tag=tag, lic=byRow.get(str(row), 0),
              prev_cost=pc['cost'] if pc else None, prev_rev=pc['rev'] if pc else None, prev_imp=pc['imp'] if pc else None,
              prev_clicks=pc['clicks'] if pc else None, prev_pur=pc['pur'] if pc else None)
+    camps = ' '.join(g['行銷活動名稱'].astype(str).unique())
+    c['camp'] = [lab for key, lab in CAMPAIGN_NOTES.items() if key in camps]  # 活動標籤（W47 起：Z:黑五 等），素材表顯示並可篩選
     CR.append(c)
     for _, r in g.groupby('廣告名稱'):
         x = agg(r); lines.append(f"{row}|{nm}|{c['flags'][0]}|{x['cost']}|{x['imp']}|{x['clicks']}|{int(round(x['conv']))}|{x['rev']}")
@@ -86,6 +89,7 @@ open(os.path.join(D, f'meta_ads_w{wnum}.txt'), 'w', encoding='utf-8').write('\n'
 t = amz.load(os.path.join(ROOT, 'amazon_data', f'Sponsored_Products_SearchTerm_{ws}_{we}.csv'))
 amzAd = dict(cost=round(t.cost.sum()), imp=int(t.impr.sum()), clicks=int(t.clicks.sum()), conv=int(t.orders.sum()), rev=round(t.sales.sum()))
 weekB = dict(week=W, channels=M['rakuten_ads'], platform=M['rakuten_platform'])
+if M.get('rakuten_missing'): weekB['missing'] = M['rakuten_missing']
 weekC = dict(week=W, channels={'Amazon AD': amzAd}, platform=M['amazon_platform'])
 
 A8 = J(os.path.join(P, 'groupA_weekly.json'))[1:] + [weekA]
@@ -103,6 +107,10 @@ try:
 except Exception as e:
     print('ChatGPT ad groups skipped:', e)
 BC = J(os.path.join(P, 'groupBC_weekly.json')); BC = dict(B=BC['B'][1:] + [weekB], C=BC['C'][1:] + [weekC])
+# 上週 Amazon 平台當時資料不完整（業務報告晚一天）→ 用重抓的完整值覆蓋（W47 起）
+PA = M.get('prev_amazon_platform')
+if PA:
+    BC['C'][-2]['platform'] = PA
 dump('groupA_weekly.json', A8); dump('groupBC_weekly.json', BC)
 spend = lambda ch: sum(v['cost'] for v in ch.values())
 Y = [y for y in J(os.path.join(P, 'overview_ytd.json')) if y['week'] != W] + [dict(
@@ -117,6 +125,11 @@ if G_PREV_FIX:
     for y in Y:
         if y['start'] == ps: y['spendA'] = sum(v['cost'] for v in A8[-2]['channels'].values())
     dump('overview_ytd.json', Y)
+if PA:
+    for x in G['C']:
+        if x.get('week') == BC['C'][-2]['week']: x['platform'] = PA
+    for y in Y:
+        if y['week'] == BC['C'][-2]['week']: y['amazon'] = PA['sales']
 for k, v in (('A', gA), ('B', weekB), ('C', weekC)):
     G[k] = [x for x in G[k] if x.get('week') != W] + [v]
 dump('groups_ytd.json', G)
