@@ -53,12 +53,15 @@ def load_meta(cache_path, bridge_path, cutoff, start, end):
     media = ad[(ad['AD_Channel'] == 'Meta AD') & (~ad['goal'].isin(['-', 'CPC']))].copy()
     media['row'] = media['NameRow'].apply(row_no)
     media = media[media['row'].notna()]
+    lic = ad[(ad['AD_Channel'] == 'Meta AD') & (ad['goal'] == '-') & (ad['isKOL'])].copy()
+    lic['row'] = lic['NameRow'].apply(row_no)
+    lic_g = lic[lic['row'].notna()].groupby('row')[COST].sum()
     out = {}
     for r, g in media.groupby('row'):
         sp = g[g[COST] > 0]
         out[int(r)] = dict(
             name=g['NameRow'].mode().iloc[0], isKOL=bool(g['isKOL'].mode().iloc[0]),
-            spend=float(g[COST].sum()), mrev=float(g[REV].sum()),
+            spend=float(g[COST].sum()), mrev=float(g[REV].sum()), lic=float(lic_g.get(r, 0.0)),
             first=sp[DATE].min().strftime('%Y-%m-%d') if len(sp) else None,
             last=sp[DATE].max().strftime('%Y-%m-%d') if len(sp) else None)
     return out
@@ -118,8 +121,8 @@ def build(meta, shop, end):
         s = shop.get(r, dict(f=0.0, l=0.0, fo=0, lo=0))
         w = 0.5 * s['f'] + 0.5 * s['l']
         coef = (w / m['mrev']) / ratio
-        metaRoas = m['mrev'] / m['spend']
-        d = dict(row=r, name=re.sub(r'^A:', '', m['name']).rsplit('-', 1)[0], spend=round(m['spend']),
+        metaRoas = m['mrev'] / (m['spend'] + m['lic'])   # 含授權金
+        d = dict(row=r, name=re.sub(r'^A:', '', m['name']).rsplit('-', 1)[0], spend=round(m['spend']), lic=round(m['lic']),
                  metaRoas=round(metaRoas, 2), coef=round(coef, 2),
                  adjRoas=round(metaRoas * min(max(coef, COEF_MIN), COEF_MAX), 2),
                  fo=s['fo'], lo=s['lo'], first=m['first'], last=m['last'],
@@ -142,7 +145,8 @@ BLOCK = r'''<!-- assist-coef start -->
           <li>首尾營收 ＝ Shopify 首次點擊營收 × 50% ＋ 最後點擊營收 × 50%（依 utm_content 的 Meta 廣告 ID 對回 Row）</li>
           <li>助攻係數 ＝（該素材的首尾營收 ÷ 該素材的 Meta 營收）÷ 全帳戶平均比例 <b>__RATIO__</b></li>
           <li>係數 &gt; 1：Shopify 給它的功勞比 Meta 平均多（偏「帶新人進站」）；&lt; 1：偏「收割」。全帳戶平均剛好是 1，不會讓所有素材一起灌水。</li>
-          <li>調整後 ROAS ＝ Meta ROAS × 助攻係數（係數限制在 __CMIN__～__CMAX__ 之間，避免單一素材過度拉高或壓低）</li>
+          <li>本表的 ROAS 都含 KOL 授權金：Meta ROAS（含授權金）＝ Meta 營收 ÷（媒體花費 ＋ 期間內攤提的授權金）</li>
+          <li>調整後 ROAS ＝ Meta ROAS（含授權金）× 助攻係數（係數限制在 __CMIN__～__CMAX__ 之間，避免單一素材過度拉高或壓低）</li>
           <li>判讀：係數 ≥ __ENTRY__ 為入口型、≤ __HARV__ 為偏收割、其餘為平衡。首次＋最後點擊訂單合計未滿 __MINO__ 筆，或上線未滿 3 週（首次點擊的訂單常隔幾天到幾週才進來），不計算調整後 ROAS，以 Meta 為準。</li>
           <li>期間：__START__ ～ __END__ 累計（不是計算機的近 14 個投放日）。只列累計媒體花費 ≥ ¥__MINS__ 的 KOL 素材。</li>
         </ul>
@@ -158,6 +162,12 @@ BLOCK = r'''<!-- assist-coef start -->
           <button type="button" class="cat-filter-btn" data-c="na">以 Meta 為準</button>
         </span>
       </div>
+      <div class="assist-tools">
+        <label>Meta ROAS（含授權金）<select id="asOpX"><option value="gt">大於</option><option value="lt">小於</option></select><input type="number" id="asValX" step="0.1" placeholder="X" class="as-num"></label>
+        <label>調整後 ROAS <select id="asOpY"><option value="gt">大於</option><option value="lt">小於</option></select><input type="number" id="asValY" step="0.1" placeholder="Y" class="as-num"></label>
+        <button type="button" class="cat-filter-btn" id="asClear">清除條件</button>
+        <span class="calc-hint" id="asCount"></span>
+      </div>
       <div class="table-scroll table-scroll-v" style="max-height:560px;">
         <table id="assistTable"></table>
       </div>
@@ -167,6 +177,9 @@ BLOCK = r'''<!-- assist-coef start -->
 .assist-def ul{margin:6px 0 6px;padding-left:20px}
 .assist-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
 .assist-tools input{font:inherit;font-size:13.5px;padding:6px 10px;border:1px solid rgba(127,127,127,.35);border-radius:8px;background:transparent;color:inherit;width:220px;max-width:100%}
+.assist-tools label{display:inline-flex;gap:6px;align-items:center;font-size:13.5px}
+.assist-tools select{font:inherit;font-size:13px;padding:5px 6px;border:1px solid rgba(127,127,127,.35);border-radius:8px;background:transparent;color:inherit}
+.assist-tools input.as-num{width:80px}
 .assist-chips{display:inline-flex;flex-wrap:wrap;gap:6px}
 #assistTable td.l,#assistTable th.l{text-align:left}
 #assistTable th{cursor:pointer;white-space:nowrap}
@@ -181,17 +194,23 @@ const ASSIST_DATA = __DATA__;
 (function(){
   const T=document.getElementById('assistTable'); if(!T) return;
   const lab={entry:'入口型',mid:'平衡',harvest:'偏收割',na:'以 Meta 為準'};
-  const cols=[['row','Row',0],['name','KOL',1],['spend','累計媒體花費',0],['metaRoas','Meta ROAS',0],['coef','助攻係數',0],['adjRoas','調整後 ROAS',0],['fo','首次點擊訂單',0],['lo','最後點擊訂單',0],['last','最後投放日',1],['note','判讀',1]];
+  const cols=[['row','Row',0],['name','KOL',1],['spend','累計媒體花費',0],['lic','授權金',0],['metaRoas','Meta ROAS（含授權金）',0],['coef','助攻係數',0],['adjRoas','調整後 ROAS',0],['fo','首次點擊訂單',0],['lo','最後點擊訂單',0],['last','最後投放日',1],['note','判讀',1]];
   let key='last',asc=false,cat='all',q='',hit=null;
   const f2=v=>v==null?'—':Number(v).toFixed(2), yen=v=>'¥'+Math.round(v).toLocaleString();
   function render(){
-    let R=ASSIST_DATA.rows.filter(r=>(cat==='all'||r.cls===cat)&&(!q||String(r.row).includes(q)||r.name.toLowerCase().includes(q)));
+    const cmp=(v,op,x)=>x===''?true:(v==null?false:(op==='gt'?v>Number(x):v<Number(x)));
+    const X=document.getElementById('asValX').value.trim(), Y=document.getElementById('asValY').value.trim();
+    const oX=document.getElementById('asOpX').value, oY=document.getElementById('asOpY').value;
+    let R=ASSIST_DATA.rows.filter(r=>(cat==='all'||r.cls===cat)&&(!q||String(r.row).includes(q)||r.name.toLowerCase().includes(q))&&cmp(r.metaRoas,oX,X)&&cmp(r.adjRoas,oY,Y));
+    document.getElementById('asCount').textContent=`符合 ${R.length} 支`+(Y!==''?'（設定調整後 ROAS 條件時，「以 Meta 為準」的素材沒有調整後 ROAS，不會列出）':'');
     R.sort((a,b)=>{const x=a[key],y=b[key];if(x==null)return 1;if(y==null)return -1;return (x>y?1:x<y?-1:0)*(asc?1:-1)});
     T.innerHTML='<thead><tr>'+cols.map(c=>`<th class="${c[2]?'l':''}" data-k="${c[0]}">${c[1]}${key===c[0]?(asc?' ▲':' ▼'):''}</th>`).join('')+'</tr></thead><tbody>'+
-      R.map(r=>`<tr class="${hit===r.row?'assist-hit':''}" data-row="${r.row}"><td>R${r.row}</td><td class="l">${r.name}</td><td>${yen(r.spend)}</td><td>${f2(r.metaRoas)}</td><td>${r.cls==='na'?'<span style="opacity:.45">'+f2(r.coef)+'</span>':'<b>'+f2(r.coef)+'</b>'}</td><td>${f2(r.adjRoas)}</td><td>${r.fo}</td><td>${r.lo}</td><td class="l">${r.last||'—'}</td><td class="note"><span class="as-pill as-${r.cls}">${lab[r.cls]}</span> ${r.note}</td></tr>`).join('')+'</tbody>';
+      R.map(r=>`<tr class="${hit===r.row?'assist-hit':''}" data-row="${r.row}"><td>R${r.row}</td><td class="l">${r.name}</td><td>${yen(r.spend)}</td><td>${r.lic?yen(r.lic):'—'}</td><td>${f2(r.metaRoas)}</td><td>${r.cls==='na'?'<span style="opacity:.45">'+f2(r.coef)+'</span>':'<b>'+f2(r.coef)+'</b>'}</td><td>${f2(r.adjRoas)}</td><td>${r.fo}</td><td>${r.lo}</td><td class="l">${r.last||'—'}</td><td class="note"><span class="as-pill as-${r.cls}">${lab[r.cls]}</span> ${r.note}</td></tr>`).join('')+'</tbody>';
     T.querySelectorAll('th').forEach(th=>th.onclick=()=>{const k=th.dataset.k; if(key===k) asc=!asc; else {key=k; asc=(k==='name'||k==='note');} render();});
   }
   document.getElementById('assistSearch').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase().replace(/^r/,'');render();});
+  ['asOpX','asOpY','asValX','asValY'].forEach(id=>{const el=document.getElementById(id); el.addEventListener('input',render); el.addEventListener('change',render);});
+  document.getElementById('asClear').onclick=()=>{document.getElementById('asValX').value='';document.getElementById('asValY').value='';render();};
   document.querySelectorAll('#assistChips button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#assistChips button').forEach(x=>x.classList.remove('active'));b.classList.add('active');cat=b.dataset.c;render();});
   const fb=document.getElementById('licFetchBtn'), inp=document.getElementById('licRowInput');
   if(fb&&inp) fb.addEventListener('click',()=>{const m=String(inp.value).match(/\d+/); hit=m?Number(m[0]):null; render(); const tr=T.querySelector('tr.assist-hit'); if(tr) tr.scrollIntoView({block:'nearest'});});
