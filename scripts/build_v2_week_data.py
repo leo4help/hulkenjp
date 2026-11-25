@@ -90,6 +90,7 @@ t = amz.load(os.path.join(ROOT, 'amazon_data', f'Sponsored_Products_SearchTerm_{
 amzAd = dict(cost=round(t.cost.sum()), imp=int(t.impr.sum()), clicks=int(t.clicks.sum()), conv=int(t.orders.sum()), rev=round(t.sales.sum()))
 weekB = dict(week=W, channels=M['rakuten_ads'], platform=M['rakuten_platform'])
 if M.get('rakuten_missing'): weekB['missing'] = M['rakuten_missing']
+if M.get('rakuten_note'): weekB['note'] = M['rakuten_note']
 weekC = dict(week=W, channels={'Amazon AD': amzAd}, platform=M['amazon_platform'])
 
 A8 = J(os.path.join(P, 'groupA_weekly.json'))[1:] + [weekA]
@@ -111,6 +112,9 @@ BC = J(os.path.join(P, 'groupBC_weekly.json')); BC = dict(B=BC['B'][1:] + [weekB
 PA = M.get('prev_amazon_platform')
 if PA:
     BC['C'][-2]['platform'] = PA
+PRS = M.get('prev_rakuten_sessions')   # 上週樂天 R-Karte アクセス人数補值
+if PRS:
+    BC['B'][-2]['platform']['sessions'] = PRS
 dump('groupA_weekly.json', A8); dump('groupBC_weekly.json', BC)
 spend = lambda ch: sum(v['cost'] for v in ch.values())
 Y = [y for y in J(os.path.join(P, 'overview_ytd.json')) if y['week'] != W] + [dict(
@@ -130,6 +134,9 @@ if PA:
         if x.get('week') == BC['C'][-2]['week']: x['platform'] = PA
     for y in Y:
         if y['week'] == BC['C'][-2]['week']: y['amazon'] = PA['sales']
+if PRS:
+    for x in G['B']:
+        if x.get('week') == BC['B'][-2]['week']: x['platform']['sessions'] = PRS
 for k, v in (('A', gA), ('B', weekB), ('C', weekC)):
     G[k] = [x for x in G[k] if x.get('week') != W] + [v]
 dump('groups_ytd.json', G)

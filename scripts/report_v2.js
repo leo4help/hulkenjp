@@ -167,7 +167,7 @@ function bindExpand(t){t.querySelectorAll('tr.cat-row').forEach(r=>r.onclick=()=
   const tc=tot(CUR),tp=tot(PRV),tl=sum(['A','B','C'].map(k=>gWeek(GROUPS[k],CUR)));
   s+=`<tr class="grand"><td>三通路合計</td>${cells(tc,tp,{licPlat:div(tc.prev,tl.cost+LIC),licAd:div(tl.rev,tl.cost+LIC)})}</tr>`;
   t.innerHTML=s+'</tbody>';bindExpand(t);
-  document.getElementById('ovNote').textContent=` 本週 KOL 授權金攤提 ¥${fInt(LIC)}。合計列的平台 CVR 不計算（三平台工作階段定義不同）。`+(R.amzNote?` Amazon：${R.amzNote}。`:'')+(R.B[CUR]&&R.B[CUR].missing?` 樂天：本週未取得（${R.B[CUR].missing}），三通路合計不含樂天。`:'')})();
+  document.getElementById('ovNote').textContent=` 本週 KOL 授權金攤提 ¥${fInt(LIC)}。合計列的平台 CVR 不計算（三平台工作階段定義不同）。`+(R.amzNote?` Amazon：${R.amzNote}。`:'')+(R.B[CUR]&&R.B[CUR].note?` 樂天：${R.B[CUR].note}。`:'')+(R.B[CUR]&&R.B[CUR].missing?` 樂天：本週未取得（${R.B[CUR].missing}），三通路合計不含樂天。`:'')})();
 
 /* ---------- group sections ---------- */
 ['C','B','A'].forEach(k=>{
