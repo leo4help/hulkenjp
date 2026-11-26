@@ -711,6 +711,22 @@
   .beta-badge.arch{background:#fde3d7;color:#a3401c;border-color:#e9a98c;}
   .type-pill{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:6px;background:var(--tan-soft);color:var(--brand-deep);}
   .tag-pill{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:6px;border:1px solid var(--tan);color:var(--ink-soft);background:#fff;}
+/* week-extra */
+  .ex-card{background:#fff;border:1px solid var(--line);border-left:5px solid #3d6fb6;border-radius:14px;padding:20px 22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;margin-bottom:18px;}
+  .ex-card h3{margin:0;font-size:19px;font-weight:800;color:var(--brand-deep);}
+  .ex-tag{font-size:12px;font-weight:700;color:#3d6fb6;}
+  .ex-lead{margin:0;font-size:14px;line-height:1.8;}
+  .ex-tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;}
+  .ex-tbl table{border-collapse:collapse;width:100%;font-size:13px;}
+  .ex-tbl th,.ex-tbl td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;}
+  .ex-tbl th{background:#faf6ef;font-weight:700;color:var(--ink-soft);}
+  .ex-tbl th:first-child,.ex-tbl td:first-child{text-align:left;}
+  .ex-tbl tr:last-child td{border-bottom:0;}
+  .ex-note{font-size:12px;color:var(--ink-soft);line-height:1.7;margin:0;}
+  .ex-list{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.75;}
+  .ex-reco{background:#f3f7fd;border-radius:10px;padding:12px 16px;}
+  .ex-reco b.t{display:block;margin-bottom:4px;color:#2b5592;}
+/* week-extra end */
 </style>
 </head>
 <body>
@@ -739,6 +755,7 @@
   <a href="#grpB" class="nav-sub">B · 樂天</a>
   <a href="#grpA" class="nav-sub">A · 官網</a>
   <a href="#recap">Part 3 · Recap &amp; Action Plan</a>
+  <a href="#edm" data-extra-nav>專題 · 黑五 EDM</a>
 </div></nav>
 <div class="wrap">
   <div class="part-head" id="part1"><h2>Part 1 · Overview</h2><span>三通路整體表現</span></div>
@@ -809,6 +826,11 @@
     <div class="ins-sub">下週 Action Plan</div>
     <div class="card" id="insActions"></div>
   </section>
+
+<!-- WEEK-EXTRA:BEGIN -->
+  <div class="part-head" id="partX"><h2>本週專題</h2><span>額外分析與建議</span></div>
+  <section id="edm"><div class="ex-card"><span class="ex-tag">本週專題 · 黑五 EDM</span><h3>黑五 EDM 帶來明顯的購買，但隔天就快速衰退</h3><p class="ex-lead">黑五期間官網共寄出兩封活動信（11/23 預告、11/24 開跑），同步發 LINE。11/24 開跑當天，從這兩封信點進來的購買約佔官網當日業績的 <b>17%</b>；但寄出隔天，點進來的人數就少了約 8 成，業績貢獻也掉到 7%。</p><div class="ex-tbl"><table><thead><tr><th>日期</th><th>EDM 點進人數</th><th>購買筆數</th><th>EDM 帶來業績</th><th>佔官網當日業績</th></tr></thead><tbody><tr><td>11/23（預告信，活動尚未開始）</td><td>717</td><td>3</td><td>¥54,997</td><td>7.2%</td></tr><tr><td>11/24（開跑信＋預告信）</td><td>593</td><td>36</td><td>¥602,763</td><td><b>17.3%</b></td></tr><tr><td>11/25（未再寄信）</td><td>119</td><td>10</td><td>¥184,789</td><td>6.7%</td></tr><tr><td>合計</td><td>1,429</td><td>49</td><td>¥842,549</td><td>—</td></tr></tbody></table></div><p class="ex-note">來源：Shopify，依連結標記（utm）歸到 bf2026_1123／bf2026_1124 兩封信（Email＋LINE），以「最後點擊」計算。很多人看完信後是直接打網址或從其他管道回來下單，這部分算不到 EDM 頭上，所以實際貢獻應該更高。11/25 為製作當天，數字還會增加。</p><ul class="ex-list"><li><b>點進來的人很會買：</b> 11/24 從 EDM 點進來的人約 6.4% 完成購買，11/25 更達 8.4%，大約是官網整體（11/24 3.6%、11/25 2.5%）的 2–3 倍。</li><li><b>效果只維持一天：</b> 11/24 有 593 人從信件點進來，11/25 只剩 119 人（少了約 8 成），同一封信很難撐完整個活動期間。</li><li><b>自動信也有貢獻：</b> 11/24 的「購物車提醒」「結帳未完成提醒」兩種自動信合計帶來 ¥126,712（7 筆），新會員歡迎信（黑五版）帶來 ¥82,715（4 筆）。</li></ul><div class="ex-reco"><b class="t">建議：活動期間再追加兩則 EDM（＋LINE）</b><ol class="ex-list"><li><b>活動中段追加一則（建議 11/27–11/28）：</b> 以「還有幾天」「熱門顏色庫存」為主軸，喚回 11/24 之後沒有再回來的人。</li><li><b>最後一天追加一則（活動最後一天上午寄出）：</b> 以「今天最後一天」為主軸，最後一天的急迫感通常最有效。</li><li><b>優先寄給「點過信但還沒買」的人：</b> 這群人已經有興趣，轉換率最高；已經買過的人可以排除或改寄搭配商品。</li><li><b>Email 和 LINE 同步發：</b> 11/23 預告信的 LINE 點進人數有 118 人，是不小的補充管道。</li></ol></div><p class="ex-note">註：系統中已出現 bf2026_1130 的連結標記（11/22 有少量測試點擊），看起來最後一天（推測為 11/30）的信件已在準備，請團隊確認活動結束日與寄送排程。</p></div></section>
+<!-- WEEK-EXTRA:END -->
 </div>
 <div id="lightbox" onclick="this.style.display='none'"><img id="lightboxImg" alt=""></div>
 <script>
